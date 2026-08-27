@@ -1,0 +1,46 @@
+.DS_Store
+
+# IDEs and editors
+.idea/
+.vscode/
+*.swp
+
+# Local configuration and secrets
+.env
+.env.*
+!.env.example
+*.cer
+*.key
+*.mobileprovision
+*.p12
+*.pem
+GoogleService-Info.plist
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+.mypy_cache/
+.ruff_cache/
+dist/
+*.egg-info/
+
+# Local source data and generated artifacts
+/data/raw/
+/data/work/
+/data/output/
+/app/assets/generated/*.sqlite3
+/app/assets/generated/park-info-media/*
+!/app/assets/generated/park-info-media/.gitkeep
+/editorial/park_info/media/*
+!/editorial/park_info/media/.gitkeep
+/park-images/
+
+# Flutter / Dart
+.dart_tool/
+.flutter-plugins
+.flutter-plugins-dependencies
+.packages
+build/
+coverage/

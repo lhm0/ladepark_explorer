@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "operators": [
+    {
+      "registry_key": "example-energy",
+      "canonical_name": "Beispiel Energie GmbH",
+      "display_name": "Beispiel Energie",
+      "status": "reviewed",
+      "aliases": [
+        "Beispiel Energie GmbH"
+      ],
+      "reviewed_at": "2026-08-24",
+      "rationale": "Synthetischer Eintrag für den gemeinsamen Datenvertrag."
+    }
+  ]
+}

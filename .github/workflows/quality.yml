@@ -1,0 +1,64 @@
+name: Quality
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  importer:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: importer
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version-file: importer/.python-version
+      - uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          enable-cache: true
+          cache-dependency-glob: importer/uv.lock
+      - run: uv sync --locked
+      - run: uv run pytest
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run mypy src
+      - run: uv run python ../tooling/check_markdown_links.py ..
+
+  flutter:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.8
+          cache: true
+      - run: flutter pub get
+      - run: flutter gen-l10n
+      - run: dart format --set-exit-if-changed lib test
+      - run: flutter analyze
+      - run: flutter test
+      - run: dart run ../tooling/check_flutter_architecture.dart
+
+  ios-simulator:
+    runs-on: macos-15
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v6
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.44.8
+          cache: true
+      - run: flutter pub get
+      - run: flutter build ios --simulator

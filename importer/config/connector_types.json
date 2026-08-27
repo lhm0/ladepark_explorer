@@ -1,0 +1,12 @@
+{
+  "AC CEE 3-polig": ["cee_3_pin"],
+  "AC CEE 5-polig": ["cee_5_pin"],
+  "AC Schuko": ["schuko"],
+  "AC Typ 1 Steckdose": ["type_1"],
+  "AC Typ 2 Fahrzeugkupplung": ["type_2"],
+  "AC Typ 2 Steckdose": ["type_2"],
+  "DC CHAdeMO": ["chademo"],
+  "DC Fahrzeugkupplung Typ Combo 2 (CCS)": ["ccs"],
+  "DC Megawatt Charging System (MCS)": ["mcs"],
+  "DC Tesla Fahrzeugkupplung (Typ 2)": ["tesla_type_2_dc"]
+}

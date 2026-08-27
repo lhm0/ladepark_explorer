@@ -1,0 +1,31 @@
+name: ladepark_explorer
+description: Offline-first charging park explorer for Germany
+publish_to: none
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.12.2
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.2
+  intl: ^0.20.2
+  path_provider: ^2.1.5
+  sqlite3: ^3.5.2
+
+dev_dependencies:
+  flutter_lints: ^6.0.0
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  uses-material-design: true
+  generate: true
+  assets:
+    - assets/datasets/charging-2026.07.0-contract.sqlite3
+    - assets/datasets/park-info-contract.sqlite3
+    - assets/generated/
+    - assets/generated/park-info-media/

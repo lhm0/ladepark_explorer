@@ -1,0 +1,680 @@
+import 'dart:async';
+
+import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations_de.dart';
+import 'app_localizations_en.dart';
+
+// ignore_for_file: type=lint
+
+/// Callers can lookup localized strings with an instance of AppLocalizations
+/// returned by `AppLocalizations.of(context)`.
+///
+/// Applications need to include `AppLocalizations.delegate()` in their app's
+/// `localizationDelegates` list, and the locales they support in the app's
+/// `supportedLocales` list. For example:
+///
+/// ```dart
+/// import 'l10n/app_localizations.dart';
+///
+/// return MaterialApp(
+///   localizationsDelegates: AppLocalizations.localizationsDelegates,
+///   supportedLocales: AppLocalizations.supportedLocales,
+///   home: MyApplicationHome(),
+/// );
+/// ```
+///
+/// ## Update pubspec.yaml
+///
+/// Please make sure to update your pubspec.yaml to include the following
+/// packages:
+///
+/// ```yaml
+/// dependencies:
+///   # Internationalization support.
+///   flutter_localizations:
+///     sdk: flutter
+///   intl: any # Use the pinned version from flutter_localizations
+///
+///   # Rest of dependencies
+/// ```
+///
+/// ## iOS Applications
+///
+/// iOS applications define key application metadata, including supported
+/// locales, in an Info.plist file that is built into the application bundle.
+/// To configure the locales supported by your app, you’ll need to edit this
+/// file.
+///
+/// First, open your project’s ios/Runner.xcworkspace Xcode workspace file.
+/// Then, in the Project Navigator, open the Info.plist file under the Runner
+/// project’s Runner folder.
+///
+/// Next, select the Information Property List item, select Add Item from the
+/// Editor menu, then select Localizations from the pop-up menu.
+///
+/// Select and expand the newly-created Localizations item then, for each
+/// locale your application supports, add a new item and select the locale
+/// you wish to add from the pop-up menu in the Value field. This list should
+/// be consistent with the languages listed in the AppLocalizations.supportedLocales
+/// property.
+abstract class AppLocalizations {
+  AppLocalizations(String locale)
+    : localeName = intl.Intl.canonicalizedLocale(locale.toString());
+
+  final String localeName;
+
+  static AppLocalizations of(BuildContext context) {
+    return Localizations.of<AppLocalizations>(context, AppLocalizations)!;
+  }
+
+  static const LocalizationsDelegate<AppLocalizations> delegate =
+      _AppLocalizationsDelegate();
+
+  /// A list of this localizations delegate along with the default localizations
+  /// delegates.
+  ///
+  /// Returns a list of localizations delegates containing this delegate along with
+  /// GlobalMaterialLocalizations.delegate, GlobalCupertinoLocalizations.delegate,
+  /// and GlobalWidgetsLocalizations.delegate.
+  ///
+  /// Additional delegates can be added by appending to this list in
+  /// MaterialApp. This list does not have to be used at all if a custom list
+  /// of delegates is preferred or required.
+  static const List<LocalizationsDelegate<dynamic>> localizationsDelegates =
+      <LocalizationsDelegate<dynamic>>[
+        delegate,
+        GlobalMaterialLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+      ];
+
+  /// A list of this localizations delegate's supported locales.
+  static const List<Locale> supportedLocales = <Locale>[
+    Locale('de'),
+    Locale('en'),
+  ];
+
+  /// No description provided for @appTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladepark Explorer'**
+  String get appTitle;
+
+  /// No description provided for @filters.
+  ///
+  /// In de, this message translates to:
+  /// **'Filter'**
+  String get filters;
+
+  /// No description provided for @search.
+  ///
+  /// In de, this message translates to:
+  /// **'Suchen'**
+  String get search;
+
+  /// No description provided for @locationSearch.
+  ///
+  /// In de, this message translates to:
+  /// **'Ort oder Koordinate suchen'**
+  String get locationSearch;
+
+  /// No description provided for @locationSearchHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ort, Adresse oder Ladepark'**
+  String get locationSearchHint;
+
+  /// No description provided for @coordinateSearchHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ortsnamen werden mit Apple Maps online aufgelöst. Koordinaten und direkte Maps-URLs funktionieren ebenfalls.'**
+  String get coordinateSearchHint;
+
+  /// No description provided for @noSearchResults.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Ort oder ein passender Ladepark in seiner Umgebung wurde nicht gefunden.'**
+  String get noSearchResults;
+
+  /// No description provided for @searchFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die lokale Suche konnte nicht ausgeführt werden.'**
+  String get searchFailed;
+
+  /// No description provided for @searchResultChargingPoints.
+  ///
+  /// In de, this message translates to:
+  /// **'{count} Ladepunkte'**
+  String searchResultChargingPoints(int count);
+
+  /// No description provided for @nearbySearch.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeparks in meiner Nähe'**
+  String get nearbySearch;
+
+  /// No description provided for @nearbyRadiusExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'In welchem Umkreis sollen Ladeparks angezeigt werden?'**
+  String get nearbyRadiusExplanation;
+
+  /// No description provided for @distanceFromCurrentLocation.
+  ///
+  /// In de, this message translates to:
+  /// **'Entfernung zum aktuellen Standort'**
+  String get distanceFromCurrentLocation;
+
+  /// No description provided for @noDistanceLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht begrenzen'**
+  String get noDistanceLimit;
+
+  /// No description provided for @activeNearbyRadius.
+  ///
+  /// In de, this message translates to:
+  /// **'Umkreis {radius} km'**
+  String activeNearbyRadius(int radius);
+
+  /// No description provided for @alwaysOpenOnly.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur durchgehend zugängliche Ladeangebote'**
+  String get alwaysOpenOnly;
+
+  /// No description provided for @alwaysOpenOnlyExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Die erforderlichen Ladepunkte müssen laut Datenquelle rund um die Uhr zugänglich sein.'**
+  String get alwaysOpenOnlyExplanation;
+
+  /// No description provided for @radiusKm.
+  ///
+  /// In de, this message translates to:
+  /// **'{radius} km'**
+  String radiusKm(int radius);
+
+  /// No description provided for @locationPermissionDenied.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Standortzugriff ist nicht erlaubt. Du kannst ihn in den iOS-Einstellungen aktivieren.'**
+  String get locationPermissionDenied;
+
+  /// No description provided for @locationUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Der aktuelle Standort konnte nicht bestimmt werden.'**
+  String get locationUnavailable;
+
+  /// No description provided for @groupDiameter.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximaler Gruppendurchmesser'**
+  String get groupDiameter;
+
+  /// No description provided for @minimumChargingPoints.
+  ///
+  /// In de, this message translates to:
+  /// **'Erforderliche Ladepunkte'**
+  String get minimumChargingPoints;
+
+  /// No description provided for @minimumPower.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestleistung je Ladepunkt'**
+  String get minimumPower;
+
+  /// No description provided for @minimumChargingOffer.
+  ///
+  /// In de, this message translates to:
+  /// **'Mindestens {count} Ladepunkte mit jeweils mindestens {power} kW'**
+  String minimumChargingOffer(int count, int power);
+
+  /// No description provided for @resetFilters.
+  ///
+  /// In de, this message translates to:
+  /// **'Standard herstellen'**
+  String get resetFilters;
+
+  /// No description provided for @cancelFilterChanges.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbruch'**
+  String get cancelFilterChanges;
+
+  /// No description provided for @favoritesOnly.
+  ///
+  /// In de, this message translates to:
+  /// **'Nur Favoriten anzeigen'**
+  String get favoritesOnly;
+
+  /// No description provided for @infrastructureFilter.
+  ///
+  /// In de, this message translates to:
+  /// **'Ausstattung'**
+  String get infrastructureFilter;
+
+  /// No description provided for @infrastructureFilterExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle ausgewählten Merkmale müssen als vorhanden geprüft sein. Fehlende Angaben gelten als unbekannt.'**
+  String get infrastructureFilterExplanation;
+
+  /// No description provided for @anyValue.
+  ///
+  /// In de, this message translates to:
+  /// **'Alle'**
+  String get anyValue;
+
+  /// No description provided for @filterSearch.
+  ///
+  /// In de, this message translates to:
+  /// **'Auswahl durchsuchen'**
+  String get filterSearch;
+
+  /// No description provided for @operatorCountExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Zahl in Klammern: Ladepunkte im Datensatz'**
+  String get operatorCountExplanation;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In de, this message translates to:
+  /// **'Auswahl löschen'**
+  String get clearSelection;
+
+  /// No description provided for @done.
+  ///
+  /// In de, this message translates to:
+  /// **'Fertig'**
+  String get done;
+
+  /// No description provided for @mapSemantics.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte mit Ladeparks'**
+  String get mapSemantics;
+
+  /// No description provided for @mapUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Apple-Karte ist nur auf iOS verfügbar.'**
+  String get mapUnavailable;
+
+  /// No description provided for @myLocation.
+  ///
+  /// In de, this message translates to:
+  /// **'Mein Standort'**
+  String get myLocation;
+
+  /// No description provided for @germanyOverview.
+  ///
+  /// In de, this message translates to:
+  /// **'Deutschland anzeigen'**
+  String get germanyOverview;
+
+  /// No description provided for @loadingParks.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeparks werden geladen …'**
+  String get loadingParks;
+
+  /// No description provided for @visibleParks.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{Keine Ladeparks} =1{Ein Ladepark} other{{count} Ladeparks}}'**
+  String visibleParks(int count);
+
+  /// No description provided for @visibleParksLimitReached.
+  ///
+  /// In de, this message translates to:
+  /// **'{count}+ Ladeparks'**
+  String visibleParksLimitReached(int count);
+
+  /// No description provided for @datasetMissing.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Ladepark-Datensatz fehlt.'**
+  String get datasetMissing;
+
+  /// No description provided for @datasetUnsupported.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Ladepark-Datensatz hat eine nicht unterstützte Version.'**
+  String get datasetUnsupported;
+
+  /// No description provided for @invalidFilterQuery.
+  ///
+  /// In de, this message translates to:
+  /// **'Die gewählten Filter konnten nicht verarbeitet werden.'**
+  String get invalidFilterQuery;
+
+  /// No description provided for @chargingParksLoadFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Ladeparks konnten nicht geladen werden.'**
+  String get chargingParksLoadFailed;
+
+  /// No description provided for @detailsUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Details konnten nicht geladen werden.'**
+  String get detailsUnavailable;
+
+  /// No description provided for @chargingParkDetails.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeparkdetails'**
+  String get chargingParkDetails;
+
+  /// No description provided for @stationCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{Eine Station} other{{count} Stationen}}'**
+  String stationCount(int count);
+
+  /// No description provided for @evseCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{Ein Ladepunkt} other{{count} Ladepunkte}}'**
+  String evseCount(int count);
+
+  /// No description provided for @operators.
+  ///
+  /// In de, this message translates to:
+  /// **'Betreiber'**
+  String get operators;
+
+  /// No description provided for @chargingPointsByOperator.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladepunkte nach Betreiber und Leistung'**
+  String get chargingPointsByOperator;
+
+  /// No description provided for @power.
+  ///
+  /// In de, this message translates to:
+  /// **'Leistung'**
+  String get power;
+
+  /// No description provided for @connectors.
+  ///
+  /// In de, this message translates to:
+  /// **'Anschlüsse'**
+  String get connectors;
+
+  /// No description provided for @unknown.
+  ///
+  /// In de, this message translates to:
+  /// **'Unbekannt'**
+  String get unknown;
+
+  /// No description provided for @openingHours.
+  ///
+  /// In de, this message translates to:
+  /// **'Öffnungszeiten'**
+  String get openingHours;
+
+  /// No description provided for @powerClasses.
+  ///
+  /// In de, this message translates to:
+  /// **'Leistungsklassen'**
+  String get powerClasses;
+
+  /// No description provided for @maximumPower.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximal {power} kW'**
+  String maximumPower(double power);
+
+  /// No description provided for @maximumPowerUnknown.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximale Leistung unbekannt'**
+  String get maximumPowerUnknown;
+
+  /// No description provided for @proximityApproximation.
+  ///
+  /// In de, this message translates to:
+  /// **'Räumliche Näherung; tatsächlicher Gruppendurchmesser: {diameter} m. Zufahrten, Straßen und Grundstücksgrenzen sind nicht geprüft.'**
+  String proximityApproximation(int diameter);
+
+  /// No description provided for @datasetVersion.
+  ///
+  /// In de, this message translates to:
+  /// **'Datensatz {version}'**
+  String datasetVersion(String version);
+
+  /// No description provided for @dataSource.
+  ///
+  /// In de, this message translates to:
+  /// **'Quelle: {source}, Stand {version}'**
+  String dataSource(String source, String version);
+
+  /// No description provided for @datasetCreatedAt.
+  ///
+  /// In de, this message translates to:
+  /// **'Datensatz erstellt: {createdAt}'**
+  String datasetCreatedAt(String createdAt);
+
+  /// No description provided for @navigationUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Navigations-App konnte nicht geöffnet werden.'**
+  String get navigationUnavailable;
+
+  /// No description provided for @openNavigation.
+  ///
+  /// In de, this message translates to:
+  /// **'Route starten'**
+  String get openNavigation;
+
+  /// No description provided for @settings.
+  ///
+  /// In de, this message translates to:
+  /// **'Einstellungen'**
+  String get settings;
+
+  /// No description provided for @settingsUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Einstellungen konnten nicht geladen werden.'**
+  String get settingsUnavailable;
+
+  /// No description provided for @language.
+  ///
+  /// In de, this message translates to:
+  /// **'Sprache'**
+  String get language;
+
+  /// No description provided for @systemLanguage.
+  ///
+  /// In de, this message translates to:
+  /// **'Systemsprache'**
+  String get systemLanguage;
+
+  /// No description provided for @german.
+  ///
+  /// In de, this message translates to:
+  /// **'Deutsch'**
+  String get german;
+
+  /// No description provided for @english.
+  ///
+  /// In de, this message translates to:
+  /// **'Englisch'**
+  String get english;
+
+  /// No description provided for @navigationApp.
+  ///
+  /// In de, this message translates to:
+  /// **'Navigations-App'**
+  String get navigationApp;
+
+  /// No description provided for @askEveryTime.
+  ///
+  /// In de, this message translates to:
+  /// **'Jedes Mal fragen'**
+  String get askEveryTime;
+
+  /// No description provided for @notInstalled.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht installiert'**
+  String get notInstalled;
+
+  /// No description provided for @googleMapsUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Google Maps ist nicht verfügbar'**
+  String get googleMapsUnavailable;
+
+  /// No description provided for @googleMapsFallbackExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Google Maps ist nicht installiert. Soll die Route stattdessen in Apple Maps geöffnet werden?'**
+  String get googleMapsFallbackExplanation;
+
+  /// No description provided for @useAppleMaps.
+  ///
+  /// In de, this message translates to:
+  /// **'Apple Maps verwenden'**
+  String get useAppleMaps;
+
+  /// No description provided for @cancel.
+  ///
+  /// In de, this message translates to:
+  /// **'Abbrechen'**
+  String get cancel;
+
+  /// No description provided for @favorites.
+  ///
+  /// In de, this message translates to:
+  /// **'Favoriten'**
+  String get favorites;
+
+  /// No description provided for @noFavorites.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch keine Ladeparks als Favoriten gespeichert.'**
+  String get noFavorites;
+
+  /// No description provided for @addFavorite.
+  ///
+  /// In de, this message translates to:
+  /// **'Als Favorit speichern'**
+  String get addFavorite;
+
+  /// No description provided for @removeFavorite.
+  ///
+  /// In de, this message translates to:
+  /// **'Favorit entfernen'**
+  String get removeFavorite;
+
+  /// No description provided for @favoriteUnavailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Im aktuellen Datensatz nicht verfügbar'**
+  String get favoriteUnavailable;
+
+  /// No description provided for @onSiteInformation.
+  ///
+  /// In de, this message translates to:
+  /// **'Vor Ort geprüft'**
+  String get onSiteInformation;
+
+  /// No description provided for @observedOn.
+  ///
+  /// In de, this message translates to:
+  /// **'Erhoben am {date}'**
+  String observedOn(String date);
+
+  /// No description provided for @photoCredit.
+  ///
+  /// In de, this message translates to:
+  /// **'Foto: {author}, aufgenommen am {date}'**
+  String photoCredit(String author, String date);
+
+  /// No description provided for @restaurant.
+  ///
+  /// In de, this message translates to:
+  /// **'Restaurant'**
+  String get restaurant;
+
+  /// No description provided for @shop.
+  ///
+  /// In de, this message translates to:
+  /// **'Shop'**
+  String get shop;
+
+  /// No description provided for @coffeeMachine.
+  ///
+  /// In de, this message translates to:
+  /// **'Kaffeeautomat'**
+  String get coffeeMachine;
+
+  /// No description provided for @snackMachine.
+  ///
+  /// In de, this message translates to:
+  /// **'Snackautomat'**
+  String get snackMachine;
+
+  /// No description provided for @toilet.
+  ///
+  /// In de, this message translates to:
+  /// **'Toilette'**
+  String get toilet;
+
+  /// No description provided for @amenityPresent.
+  ///
+  /// In de, this message translates to:
+  /// **'Vorhanden'**
+  String get amenityPresent;
+
+  /// No description provided for @amenityAbsent.
+  ///
+  /// In de, this message translates to:
+  /// **'Nicht vorhanden'**
+  String get amenityAbsent;
+}
+
+class _AppLocalizationsDelegate
+    extends LocalizationsDelegate<AppLocalizations> {
+  const _AppLocalizationsDelegate();
+
+  @override
+  Future<AppLocalizations> load(Locale locale) {
+    return SynchronousFuture<AppLocalizations>(lookupAppLocalizations(locale));
+  }
+
+  @override
+  bool isSupported(Locale locale) =>
+      <String>['de', 'en'].contains(locale.languageCode);
+
+  @override
+  bool shouldReload(_AppLocalizationsDelegate old) => false;
+}
+
+AppLocalizations lookupAppLocalizations(Locale locale) {
+  // Lookup logic when only language code is specified.
+  switch (locale.languageCode) {
+    case 'de':
+      return AppLocalizationsDe();
+    case 'en':
+      return AppLocalizationsEn();
+  }
+
+  throw FlutterError(
+    'AppLocalizations.delegate failed to load unsupported locale "$locale". This is likely '
+    'an issue with the localizations generation tool. Please file an issue '
+    'on GitHub with a reproducible sample app and the gen-l10n configuration '
+    'that was used.',
+  );
+}

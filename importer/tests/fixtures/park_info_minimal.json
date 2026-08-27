@@ -1,0 +1,23 @@
+{
+  "dataset_version": "2026.08.0-test",
+  "created_at": "2026-08-27T12:00:00Z",
+  "parks": [
+    {
+      "park_info_id": "park-info-berlin-test",
+      "title": "Redaktioneller Testpark",
+      "station_ids": ["fff955ec-a4d7-52ee-9250-46c4d6d53840"],
+      "observed_on": "2026-08-20",
+      "review_status": "approved",
+      "reviewed_at": "2026-08-21T10:00:00Z",
+      "amenities": {
+        "restaurant": "present",
+        "shop": "absent",
+        "coffee_machine": "present",
+        "snack_machine": "unknown",
+        "toilet": "present"
+      },
+      "notes_de": "Eigene Vor-Ort-Erhebung für den Contract-Test.",
+      "photos": []
+    }
+  ]
+}

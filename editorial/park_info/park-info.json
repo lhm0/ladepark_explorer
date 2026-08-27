@@ -1,0 +1,131 @@
+{
+  "dataset_version": "2026.08.1",
+  "created_at": "2026-08-27T12:50:00Z",
+  "parks": [
+    {
+      "park_info_id": "park-info-emstek-om-allee",
+      "title": "EnBW Schnellladepark Emstek",
+      "station_ids": [
+        "0ffdafab-8d16-569f-91fc-527c3cc09a7a"
+      ],
+      "observed_on": "2026-07-28",
+      "review_status": "approved",
+      "reviewed_at": "2026-08-27T12:50:00Z",
+      "amenities": {
+        "restaurant": "absent",
+        "shop": "absent",
+        "coffee_machine": "present",
+        "snack_machine": "present",
+        "toilet": "present"
+      },
+      "photos": [
+        {
+          "photo_id": "photo-emstek-ladepark-2026-07-28",
+          "file": "emstek-ladepark.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-07-28",
+          "sha256": "e4d7f45cce47f21b351567bb58276224e53a255214f41f6b2efb8a49b35d6199",
+          "alt_de": "Überdachte EnBW-Schnellladesäulen am Ladepark Emstek.",
+          "alt_en": "Covered EnBW fast chargers at the Emstek charging park.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        },
+        {
+          "photo_id": "photo-emstek-toilette-2026-07-28",
+          "file": "emstek-toilette.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-07-28",
+          "sha256": "d072031a3ac1e8f5a6edcc65f683a962c422e9064d989bb7aa7c17b1b49992aa",
+          "alt_de": "Toilettencontainer neben den Schnellladesäulen in Emstek.",
+          "alt_en": "Toilet cabin beside the fast chargers in Emstek.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        }
+      ]
+    },
+    {
+      "park_info_id": "park-info-hilden-kreuz",
+      "title": "Ladepark Kreuz Hilden",
+      "station_ids": [
+        "ac5aa22b-607c-5e4a-ac6f-bcfde3bc72f9",
+        "04604a20-51de-5778-a8d3-2b9111fbf215",
+        "0ad1bc3b-0dd0-50b9-bf31-a966169888dd"
+      ],
+      "observed_on": "2026-02-25",
+      "review_status": "approved",
+      "reviewed_at": "2026-08-27T12:50:00Z",
+      "amenities": {
+        "restaurant": "present",
+        "shop": "absent",
+        "coffee_machine": "present",
+        "snack_machine": "absent",
+        "toilet": "present"
+      },
+      "photos": [
+        {
+          "photo_id": "photo-hilden-ladepark-2026-02-25",
+          "file": "hilden-ladepark.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-02-25",
+          "sha256": "41c8a7587487669d018be607b7a6be8ee991e339a7650bba4de3add712b1bd2c",
+          "alt_de": "Überdachte Fastned-Schnellladesäulen mit Tesla-Ladepunkten im Hintergrund in Hilden.",
+          "alt_en": "Covered Fastned chargers with Tesla charging points in the background in Hilden.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        }
+      ]
+    },
+    {
+      "park_info_id": "park-info-kamen-karree",
+      "title": "EnBW Schnellladepark Kamen",
+      "station_ids": [
+        "01264af7-68bb-57e1-ac49-2f46f419946a"
+      ],
+      "observed_on": "2026-07-28",
+      "review_status": "approved",
+      "reviewed_at": "2026-08-27T12:50:00Z",
+      "amenities": {
+        "restaurant": "absent",
+        "shop": "present",
+        "coffee_machine": "present",
+        "snack_machine": "present",
+        "toilet": "present"
+      },
+      "photos": [
+        {
+          "photo_id": "photo-kamen-ladepark-2026-07-28",
+          "file": "kamen-ladepark.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-07-28",
+          "sha256": "024c185b56e0e884d82f9f9bcd9ff22caa31ed0d6b9d5ad335d8b2b7a2cffcae",
+          "alt_de": "Überdachte EnBW-Schnellladesäulen mit Sitzbank in Kamen.",
+          "alt_en": "Covered EnBW fast chargers with a bench in Kamen.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        },
+        {
+          "photo_id": "photo-kamen-shop-2026-07-28",
+          "file": "kamen-shop.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-07-28",
+          "sha256": "1f7ce95d07dd7e208ac3092ea0d49fa93757f69be8b49e818ba0fcd7abefe41e",
+          "alt_de": "REWE-ready-Shop neben dem Ladepark Kamen.",
+          "alt_en": "REWE Ready shop beside the Kamen charging park.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        },
+        {
+          "photo_id": "photo-kamen-toilette-2026-07-28",
+          "file": "kamen-toilette.jpg",
+          "author": "Ludwin Monz",
+          "captured_on": "2026-07-28",
+          "sha256": "69204519f33cacb2db45d29b9b61474cb60e2655d61bcb48b4fbcbbf3d000e6b",
+          "alt_de": "Toilettengebäude mit WLAN-Hinweis am Ladepark Kamen.",
+          "alt_en": "Toilet building with a Wi-Fi notice at the Kamen charging park.",
+          "rights_reviewed_at": "2026-08-27T12:50:00Z",
+          "privacy_reviewed_at": "2026-08-27T12:50:00Z"
+        }
+      ]
+    }
+  ]
+}

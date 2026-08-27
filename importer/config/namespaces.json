@@ -1,0 +1,9 @@
+{
+  "bnetza_station": "2cdffb3a-b252-45e9-b61d-ec1e7711e202",
+  "bnetza_evse": "f6a53b96-cc02-4ab0-9519-e4ff3f04065d",
+  "external_evse": "87b3ff6b-7930-4ec0-aaf1-4cf954304fb6",
+  "connector": "4c36a7d0-8814-482e-896f-813b16ee88db",
+  "operator": "fc0ee23e-bbe3-4192-b54d-ae40244d72af",
+  "proximity_group": "9fee479d-1b03-44a9-b280-a914a3745f53",
+  "verified_park": "d1925e84-a74f-4366-99ec-42f9e509b1cb"
+}

@@ -1,0 +1,212 @@
+{
+  "version": 1,
+  "operators": [
+    {
+      "registry_key": "enbw-mobility",
+      "canonical_name": "EnBW mobility+ AG und Co.KG",
+      "display_name": "EnBW",
+      "status": "reviewed",
+      "aliases": ["EnBW mobility+ AG und Co.KG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "tesla-germany",
+      "canonical_name": "Tesla Germany GmbH",
+      "display_name": "Tesla",
+      "status": "reviewed",
+      "aliases": ["Tesla Germany GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "eon-drive",
+      "canonical_name": "E.ON Drive GmbH",
+      "display_name": "E.ON Drive",
+      "status": "reviewed",
+      "aliases": ["E.ON Drive GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "ewe-go",
+      "canonical_name": "EWE Go GmbH",
+      "display_name": "EWE Go",
+      "status": "reviewed",
+      "aliases": ["EWE Go GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "bp-europa",
+      "canonical_name": "BP Europa SE",
+      "display_name": "Aral pulse",
+      "status": "reviewed",
+      "aliases": ["BP Europa SE"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename Aral pulse manuell festgelegt."
+    },
+    {
+      "registry_key": "wirelane-public-1",
+      "canonical_name": "Wirelane Public 1 GmbH",
+      "display_name": "Wirelane",
+      "status": "reviewed",
+      "aliases": ["Wirelane Public 1 GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "mercedes-benz",
+      "canonical_name": "Mercedes-Benz AG",
+      "display_name": "Mercedes-Benz",
+      "status": "reviewed",
+      "aliases": ["Mercedes-Benz AG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; ähnliche Gesellschaften bleiben unzugeordnet."
+    },
+    {
+      "registry_key": "allego",
+      "canonical_name": "Allego GmbH",
+      "display_name": "Allego",
+      "status": "reviewed",
+      "aliases": ["Allego GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "pfalzwerke",
+      "canonical_name": "Pfalzwerke AG",
+      "display_name": "Pfalzwerke",
+      "status": "reviewed",
+      "aliases": ["Pfalzwerke AG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "shell-deutschland",
+      "canonical_name": "Shell Deutschland GmbH",
+      "display_name": "Shell Recharge",
+      "status": "reviewed",
+      "aliases": ["Shell Deutschland GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename Shell Recharge manuell festgelegt."
+    },
+    {
+      "registry_key": "lidl-dienstleistung",
+      "canonical_name": "Lidl Dienstleistung GmbH & Co. KG",
+      "display_name": "Lidl",
+      "status": "reviewed",
+      "aliases": ["Lidl Dienstleistung GmbH & Co. KG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "hamburger-energiewerke-mobil",
+      "canonical_name": "Hamburger Energiewerke Mobil GmbH",
+      "display_name": "Hamburger Energiewerke Mobil",
+      "status": "reviewed",
+      "aliases": ["Hamburger Energiewerke Mobil GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; ähnliche Gesellschaft bleibt unzugeordnet."
+    },
+    {
+      "registry_key": "mercedes-benz-heritage",
+      "canonical_name": "Mercedes-Benz Heritage GmbH",
+      "display_name": "Mercedes-Benz Heritage",
+      "status": "reviewed",
+      "aliases": ["Mercedes-Benz Heritage GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "Als eigenständige juristische Betreibergesellschaft bestätigt."
+    },
+    {
+      "registry_key": "mercedes-amg",
+      "canonical_name": "Mercedes-AMG GmbH",
+      "display_name": "Mercedes-AMG",
+      "status": "reviewed",
+      "aliases": ["Mercedes-AMG GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "Als eigenständige juristische Betreibergesellschaft bestätigt."
+    },
+    {
+      "registry_key": "hamburger-energiewerke",
+      "canonical_name": "Hamburger Energiewerke GmbH",
+      "display_name": "Hamburger Energiewerke",
+      "status": "reviewed",
+      "aliases": ["Hamburger Energiewerke GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "Von der Mobilgesellschaft getrennte juristische Betreibergesellschaft."
+    },
+    {
+      "registry_key": "team-emobility",
+      "canonical_name": "Team-Emobility GmbH",
+      "display_name": "Team Emobility",
+      "status": "reviewed",
+      "aliases": ["Team-Emobility GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "eze-network",
+      "canonical_name": "eze.network GmbH",
+      "display_name": "eze.network",
+      "status": "reviewed",
+      "aliases": ["eze.network GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "mer-germany",
+      "canonical_name": "Mer Germany GmbH",
+      "display_name": "Mer",
+      "status": "reviewed",
+      "aliases": ["Mer Germany GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "tanke",
+      "canonical_name": "TankE GmbH",
+      "display_name": "TankE",
+      "status": "reviewed",
+      "aliases": ["TankE GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "qwello-deutschland",
+      "canonical_name": "Qwello Deutschland GmbH",
+      "display_name": "Qwello",
+      "status": "reviewed",
+      "aliases": ["Qwello Deutschland GmbH"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "n-ergie",
+      "canonical_name": "N-ERGIE Aktiengesellschaft",
+      "display_name": "N-ERGIE",
+      "status": "reviewed",
+      "aliases": ["N-ERGIE Aktiengesellschaft"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "enercity",
+      "canonical_name": "enercity AG",
+      "display_name": "enercity",
+      "status": "reviewed",
+      "aliases": ["enercity AG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    },
+    {
+      "registry_key": "aldi-sued-immobilienverwaltung",
+      "canonical_name": "ALDI SÜD Immobilienverwaltungs-GmbH & Co. oHG",
+      "display_name": "ALDI SÜD",
+      "status": "reviewed",
+      "aliases": ["ALDI SÜD Immobilienverwaltungs-GmbH & Co. oHG"],
+      "reviewed_at": "2026-08-24",
+      "rationale": "BNetzA-Quellname als eigenständiger Betreiber bestätigt; Anzeigename manuell festgelegt."
+    }
+  ]
+}

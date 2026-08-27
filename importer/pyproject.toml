@@ -1,0 +1,43 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "ladepark-importer"
+version = "0.1.0"
+description = "Reproducible importer for Ladepark Explorer datasets"
+readme = "README.md"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "openpyxl>=3.1,<4",
+]
+
+[project.scripts]
+ladepark-importer = "ladepark_importer.cli:main"
+
+[dependency-groups]
+dev = [
+    "mypy>=1.15,<2",
+    "pytest>=8.3,<9",
+    "ruff>=0.11,<1",
+    "types-openpyxl>=3.1.5,<4",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ladepark_importer"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM", "RUF"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+files = ["src"]

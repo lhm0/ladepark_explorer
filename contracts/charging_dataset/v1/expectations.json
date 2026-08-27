@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "queries": [
+    {
+      "name": "default_hpc_filter",
+      "parameters": {
+        "diameter_m": 50,
+        "minimum_evse_count": 1,
+        "minimum_power_kw": 100,
+        "limit": 10
+      },
+      "expected_group_ids": [
+        "c151d733-0cd6-5303-b6ef-945d3d5902b5"
+      ]
+    },
+    {
+      "name": "all_groups_at_50_m",
+      "parameters": {
+        "diameter_m": 50,
+        "minimum_evse_count": 1,
+        "minimum_power_kw": 0,
+        "limit": 10
+      },
+      "expected_group_ids": [
+        "c151d733-0cd6-5303-b6ef-945d3d5902b5",
+        "92c3e75c-2623-5f8c-ae28-1c8f18ee9ee4"
+      ]
+    }
+  ]
+}

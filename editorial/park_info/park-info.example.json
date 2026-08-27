@@ -1,0 +1,36 @@
+{
+  "dataset_version": "2026.08.0",
+  "created_at": "2026-08-27T12:00:00Z",
+  "parks": [
+    {
+      "park_info_id": "park-info-stabile-id",
+      "title": "Optionaler redaktioneller Titel",
+      "station_ids": ["UUID-AUS-DEM-LADEBESTAND"],
+      "observed_on": "2026-08-20",
+      "review_status": "approved",
+      "reviewed_at": "2026-08-21T10:00:00Z",
+      "amenities": {
+        "restaurant": "present",
+        "shop": "absent",
+        "coffee_machine": "unknown",
+        "snack_machine": "present",
+        "toilet": "present"
+      },
+      "notes_de": "Optionaler eigener Hinweis.",
+      "notes_en": "Optional own note.",
+      "photos": [
+        {
+          "photo_id": "photo-stabile-id",
+          "file": "park-ansicht-01.jpg",
+          "author": "Vorname Nachname",
+          "captured_on": "2026-08-20",
+          "sha256": "64-klein-geschriebene-hexadezimale-zeichen",
+          "alt_de": "Sachliche Beschreibung des Bildinhalts",
+          "alt_en": "Factual description of the image",
+          "rights_reviewed_at": "2026-08-21T10:00:00Z",
+          "privacy_reviewed_at": "2026-08-21T10:00:00Z"
+        }
+      ]
+    }
+  ]
+}
