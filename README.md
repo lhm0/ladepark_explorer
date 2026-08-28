@@ -4,14 +4,22 @@ Der Ladepark Explorer ist eine offline-first iPhone-App zur Recherche räumlich
 zusammenhängender Ladestandorte in Deutschland. Der aktuelle Entwicklungsstand
 und die verbindliche Projektdokumentation werden getrennt gepflegt.
 
+Version 1.1 („Routen-Update“, App-Version `1.1.0`) ist funktional eingefroren:
+zusätzlich zur Recherche plant die App eine Autoroute, sucht Ladeparks im
+Korridor, nimmt manuell gesetzte Ladestopps auf, färbt die Route nach
+geschätztem Ladezustand und übergibt sie an Apple Maps oder Google Maps. Die
+Release-Härtung (M13) und die Fortsetzung der Routenplanung (M17/M18, Version
+1.2) stehen noch aus.
+
 ## Einstieg
 
 1. [Projektstatus](PROJECT_STATUS.md)
-2. [Technische Übergabe für die Weiterentwicklung](docs/AI_HANDOVER.md)
-3. [Dokumentationsübersicht](docs/README.md)
-4. [Produktvision](docs/specification/01_ProjectVision.md)
-5. [Anforderungen](docs/specification/02_Requirements.md)
-6. [Arbeitsanweisungen für Codex](AGENTS.md)
+2. [Änderungshistorie](CHANGELOG.md)
+3. [Technische Übergabe für die Weiterentwicklung](docs/AI_HANDOVER.md)
+4. [Dokumentationsübersicht](docs/README.md)
+5. [Produktvision](docs/specification/01_ProjectVision.md)
+6. [Anforderungen](docs/specification/02_Requirements.md)
+7. [Arbeitsanweisungen für Codex](AGENTS.md)
 
 ## Repository-Struktur
 
@@ -25,9 +33,9 @@ und die verbindliche Projektdokumentation werden getrennt gepflegt.
 - `data/` – lokale Roh- und Buildartefakte; große Datensätze bleiben außerhalb
   der Versionskontrolle.
 
-Version 1.0 besitzt kein dauerhaftes fachliches Backend. Maßgeblich für Scope,
-Verhalten und technische Entscheidungen sind die verlinkte Spezifikation und
-die angenommenen ADRs.
+Version 1.0 und 1.1 besitzen kein dauerhaftes fachliches Backend. Maßgeblich
+für Scope, Verhalten und technische Entscheidungen sind die verlinkte
+Spezifikation und die angenommenen ADRs.
 
 ## License
 

@@ -123,6 +123,10 @@ Kennzeichnung:
     gewählte Mindestanzahl ein.
   - Änderungen wirken ohne erneuten Datendownload.
   - Aktive Filter sind sichtbar und können gemeinsam zurückgesetzt werden.
+  - Die Filterauswahl bleibt über einen App-Neustart erhalten; sie wird lokal
+    gespeichert (`ADR-0016`). Ausgenommen ist „Entfernung zum aktuellen
+    Standort“, da dieser Filter einen aktuellen Standort voraussetzt und beim
+    Start zurückgesetzt wird.
   - Das Verlassen der Filteransicht über Zurück übernimmt den sichtbaren
     Filterstand.
   - „Abbruch“ stellt den Stand beim Öffnen der Filteransicht wieder her, ohne
@@ -427,6 +431,12 @@ Version 1.0 enthält keine Anforderungen für Live-Verfügbarkeit, Preise,
 Ladevorgänge, Zahlungen, Community-Inhalte, Benutzerkonten, Cloud-Synchronisation
 oder eine eigene Navigation. Entsprechende Vorbereitungen dürfen den
 Funktionsumfang nicht faktisch vorziehen.
+
+Die Routenplanung mit einfacher Reichweiten- und Ladeplanung ist nicht
+Bestandteil von Version 1.0. Sie ist als Planungshilfe – nicht als
+Turn-by-Turn-Navigation – für **Version 1.1** in
+[`17_Route_Planning.md`](17_Route_Planning.md) mit den Anforderungen
+`FR-ROUTE-*` und `NFR-ROUTE-*` gesondert spezifiziert.
 
 ## 11. Noch zu konkretisierende Werte
 

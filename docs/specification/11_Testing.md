@@ -196,11 +196,12 @@ Die vollständigen funktionalen Probeläufe des Importers stehen in
 | Bereich | Hauptanforderungen | Aktueller Nachweis |
 | --- | --- | --- |
 | Abstandsgruppen | `FR-GROUP-001` | Algorithmus-, Grenz-, Determinismus- und SQLite-Tests |
-| Ladefilter | `FR-FILTER-001`, `FR-FILTER-003` | Python-, Dart-Adapter- und Widgettests für die implementierten Ladeangebotsfilter |
+| Ladefilter | `FR-FILTER-001`, `FR-FILTER-003` | Python-, Dart-Adapter- und Widgettests für die implementierten Ladeangebotsfilter; SQLite-Round-Trip und Controller-Test für die über einen Neustart erhaltene Filter-Auswahl |
 | Text- und Umgebungssuche | `FR-SEARCH-001`, `FR-SEARCH-002` | lokale FTS-Suchseite, Core-Location-Vertrag und Haversine-Umkreisfilter; manueller iPhone-Test folgt |
 | Detaildaten | `FR-DETAIL-001` | typisiertes Dart-Detailmapping und scrollbare App-Darstellung; Infrastruktur fehlt |
 | Favoriten | `FR-FAV-001`, `FR-FILTER-001` | getrennter SQLite-Speicher, Anker-/Aliasauflösung, SQL-Kartenfilter und Widgettests für Herz und Liste |
 | Navigation und Sprache | `FR-NAV-001`, `FR-I18N-001` | Apple-/Google-Maps-Kanalverträge, Installationsprüfung und persistenter SQLite-Einstellungstest; manueller iPhone-Test folgt |
+| Routenplanung (Version 1.1) | `FR-ROUTE-001` bis `FR-ROUTE-006`, `FR-ROUTE-011` | Controller-, Provider- und Domänentests für Route, Alternativen, Korridorsuche/-breite, manuelle Ladestopps, Segmentmodell, `EnergyModel`, `TripEnergySimulator` (Stopp-Trace, Ladeziel, `socAtKm`), Farbabbildung, Kartenkanal, Vorschaupanel und die Navigations-Adapter (`openRoute`); manuelle Abnahme auf Simulator und echtem iPhone |
 | Datensatzupdate | `FR-DATA-002`, `NFR-RELIABILITY-001` | deterministischer Pakettest, Manifest-/Versionsvertrag, doppelte Hashprüfung, SQLite-Validierung und Rollbacktest |
 | Datenschutz und Diagnostik | `FR-PRIV-001` | Widgettest für transparente Netzwerkgrenzen und ausschließlich bewusst kopierten, datensparsamen Diagnosestatus |
 | Basisdatensatz | `FR-DATA-001`, `NFR-DATA-001` | reproduzierbarer SQLite-Doppelbuild und Validierung |

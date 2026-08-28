@@ -36,3 +36,49 @@ einer Deinstallation entfernt. Eine spätere Erweiterung um Update- und
 Datenschutzeinstellungen kann dasselbe Schlüssel-Wert-Schema migrationssicher
 verwenden. Apple Maps bleibt der verfügbare iOS-Fallback; die eigentliche
 Navigation ist weiterhin keine Funktion des Ladepark Explorers.
+
+## Nachtrag – persistente Kartenfilter
+
+`FR-FILTER-001` verlangt, dass die Filterauswahl der Kartenansicht einen
+App-Neustart überlebt. Sie wird in derselben lokalen Einstellungsdatenbank
+gespeichert wie App-Einstellungen und Fahrzeugprofil (`ADR-0021`):
+
+- Ein eigener Vertrag `ExplorerFiltersRepository` (`loadFilters` /
+  `saveFilters`) trennt die Persistenz vom Zustand, analog zum
+  Fahrzeugprofil. `SqliteSettingsRepository` implementiert ihn zusätzlich.
+- Der Filterstand wird als ein JSON-Wert unter dem Schlüssel
+  `explorer_filters` in der bestehenden Tabelle `app_setting` abgelegt. Es
+  entsteht keine neue Tabelle und keine neue Schemaversion.
+- Der transiente Filter „Entfernung zum aktuellen Standort“
+  (`nearbyRadiusKm`) wird bewusst nicht gespeichert: er setzt einen aktuellen
+  Standort voraus, der beim Start nicht vorliegt.
+- Das Speichern ist „best effort“ – schlägt es fehl, bleibt der Filter im
+  Speicher wirksam; die Kartenabfrage wird davon nicht beeinträchtigt.
+- Unbekannte Enum-Werte (etwa eine später entfernte Infrastrukturkategorie)
+  werden beim Laden verworfen, fehlende Felder fallen auf den Standard zurück.
+
+## Nachtrag – Übergabe der geplanten Route an eine Navigations-App
+
+`FR-ROUTE-011` verlangt, die geplante Route einschließlich Ladestopps an die
+gewählte Navigations-App zu übergeben. Dieselbe Navigationswahl wie für ein
+einzelnes Ziel gilt weiter; die App-Auswahl (`resolveNavigationAdapter`) ist
+aus der Detailansicht in eine gemeinsame Hilfsfunktion gezogen.
+
+- Der `NavigationAdapter`-Vertrag erhält `openRoute(NavigationRoute)` neben dem
+  bestehenden `openDirections`. `NavigationRoute` trägt Start, geordnete
+  Ladestopps und Ziel als reine Koordinaten mit optionalem Namen.
+- **Apple Maps** bekommt die vollständige Kette als geordnete Liste von
+  `MKMapItem` über `MKMapItem.openMaps(with:launchOptions:)` im Fahrmodus.
+- **Google Maps** wird über sein App-Schema `comgooglemaps://` mit `saddr`
+  und `daddr` geöffnet. Der Weg über den universellen Web-Link
+  `https://www.google.com/maps/dir/` wurde verworfen: aus einer fremden App
+  per `openURL` aufgerufen landet er auf dem Gerät zuverlässig im Browser
+  (mit „App öffnen?"-Rückfrage und App-Store-Umweg), statt in der App. Das
+  Schema kennt keinen `waypoints`-Parameter, daher wird `daddr` auf den
+  nächsten Ladestopp gesetzt (bei stopploser Route auf das Ziel).
+- Der Adapter meldet über `NavigationHandoff`, wie viele Stopps als geführte
+  Kette übergeben wurden – bei Google Maps also null, sobald die Route
+  Stopps hat. In diesem Fall erklärt die Oberfläche mit einem kurzen Hinweis,
+  dass Google Maps nur zum nächsten Ladestopp führt.
+- Es werden weiterhin nur Zielkoordinaten übergeben, kein Konto und kein
+  Backend; die eigentliche Navigation bleibt Sache der Ziel-App.

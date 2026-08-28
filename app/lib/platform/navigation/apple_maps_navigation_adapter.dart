@@ -24,4 +24,27 @@ final class AppleMapsNavigationAdapter implements NavigationAdapter {
       },
     );
   }
+
+  @override
+  Future<NavigationHandoff> openRoute(NavigationRoute route) async {
+    // Apple Maps routes through an ordered list of map items, so the whole
+    // chain is handed over.
+    await _channel.invokeMethod<void>('openAppleMapsRoute', <String, Object?>{
+      'waypoints': <Map<String, Object?>>[
+        _point(route.origin),
+        for (final stop in route.stops) _point(stop),
+        _point(route.destination),
+      ],
+    });
+    return NavigationHandoff(
+      includedStops: route.stops.length,
+      totalStops: route.stops.length,
+    );
+  }
+
+  Map<String, Object?> _point(NavigationWaypoint waypoint) => <String, Object?>{
+    'latitude': waypoint.latitude,
+    'longitude': waypoint.longitude,
+    'name': waypoint.name,
+  };
 }

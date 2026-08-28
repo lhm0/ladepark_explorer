@@ -459,4 +459,248 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diagnosticsPrivacyExplanation =>
       'The text contains no coordinates, search terms, favorites, or device identifier. It is copied to the clipboard only through this button and is never sent automatically.';
+
+  @override
+  String get routePlanning => 'Plan route';
+
+  @override
+  String get routePlanningTitle => 'Route planning';
+
+  @override
+  String get routeOnlineHint =>
+      'The route is calculated online via Apple map services.';
+
+  @override
+  String get routeStartLabel => 'Start';
+
+  @override
+  String get routeDestinationLabel => 'Destination';
+
+  @override
+  String get routeEndpointHint => 'Place, address, or coordinate';
+
+  @override
+  String get routeUseCurrentLocation => 'Use current location as start';
+
+  @override
+  String get routeCalculate => 'Calculate route';
+
+  @override
+  String get routeCalculating => 'Calculating route …';
+
+  @override
+  String get routeStartNotFound => 'The start could not be found.';
+
+  @override
+  String get routeDestinationNotFound => 'The destination could not be found.';
+
+  @override
+  String routeDurationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String routeDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String routeSummary(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String routeDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get routeOverviewTitle => 'Route';
+
+  @override
+  String get routeMapSemantics => 'Map showing the planned route';
+
+  @override
+  String get routeAlternativesHeading => 'Alternatives';
+
+  @override
+  String routeOptionLabel(int index) {
+    return 'Route $index';
+  }
+
+  @override
+  String get routeShowOnMap => 'Show on map';
+
+  @override
+  String get routeNewRoute => 'New route';
+
+  @override
+  String get routeClear => 'Clear route';
+
+  @override
+  String get routeErrorOffline =>
+      'A route cannot be calculated without an internet connection.';
+
+  @override
+  String get routeErrorThrottled =>
+      'The map service is busy right now. Please wait a moment and try again.';
+
+  @override
+  String get routeErrorNotFound =>
+      'No route was found for the start and destination.';
+
+  @override
+  String get routeErrorInvalid => 'Start and destination are required.';
+
+  @override
+  String get routeErrorFailed => 'The route could not be calculated.';
+
+  @override
+  String get routeRetry => 'Try again';
+
+  @override
+  String get planRouteToHere => 'Plan a route here';
+
+  @override
+  String get routeCorridorTitle => 'Charging parks along the route';
+
+  @override
+  String routeCorridorSearching(int done, int total) {
+    return '$done of $total sections checked';
+  }
+
+  @override
+  String get routeCorridorEmpty =>
+      'No matching charging park was found along this route.';
+
+  @override
+  String get routeCorridorLimit =>
+      'There are more results than shown. Narrow the route or the filters.';
+
+  @override
+  String get routeCorridorFailed => 'Some sections could not be checked.';
+
+  @override
+  String routeCorridorCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charging parks in the corridor',
+      one: '1 charging park in the corridor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routeInsertStop => 'Insert charging stop';
+
+  @override
+  String get routeRemoveStop => 'Remove charging stop';
+
+  @override
+  String get routeOpenInNavigation => 'Open in navigation app';
+
+  @override
+  String get routeNavigationTruncated =>
+      'Google Maps does not take a chain of stops. It is guided to the next charging stop; re-open the rest of the route there afterwards.';
+
+  @override
+  String routeStopsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charging stops',
+      one: '1 charging stop',
+      zero: 'No charging stops',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routeStartSocLabel => 'Start state of charge';
+
+  @override
+  String get routeChargeTargetLabel => 'Charge target at stop';
+
+  @override
+  String get routeCorridorWidthLabel => 'Corridor width';
+
+  @override
+  String routeRangeDeficit(int km) {
+    return 'Range only reaches km $km';
+  }
+
+  @override
+  String routeSocBreakdownStart(int soc) {
+    return 'Start $soc%';
+  }
+
+  @override
+  String routeSocBreakdownStop(int index, int arrival, int departure) {
+    return 'Stop $index: arrive ~$arrival% → leave $departure%';
+  }
+
+  @override
+  String routeSocBreakdownTarget(int soc) {
+    return 'Arrival ~$soc%';
+  }
+
+  @override
+  String routeSocAtArrival(int soc) {
+    return 'State of charge on arrival: ~$soc%';
+  }
+
+  @override
+  String routeSocAfterStop(int soc) {
+    return 'After the charging stop: $soc%';
+  }
+
+  @override
+  String get vehicleProfileTitle => 'Vehicle profile';
+
+  @override
+  String get vehicleProfileExplanation =>
+      'These values stay on this device only and are used for the range and charging estimation.';
+
+  @override
+  String get vehicleProfileNotSet => 'Not set up yet';
+
+  @override
+  String vehicleProfileSummary(String battery, String consumption) {
+    return '$battery kWh · $consumption kWh/100 km';
+  }
+
+  @override
+  String get vehicleBatteryLabel => 'Usable battery capacity (kWh)';
+
+  @override
+  String get vehicleConsumptionLabel => 'Average consumption (kWh/100 km)';
+
+  @override
+  String get vehicleMaxPowerLabel => 'Maximum charging power (kW)';
+
+  @override
+  String get vehicleReserveLabel => 'Reserve state of charge (%)';
+
+  @override
+  String get vehicleTargetLabel => 'Target state of charge on arrival (%)';
+
+  @override
+  String get vehicleStartLabel => 'Start state of charge (%)';
+
+  @override
+  String get vehicleConnectorsLabel => 'Compatible connector types';
+
+  @override
+  String get vehicleProfileSave => 'Save';
+
+  @override
+  String get vehicleProfileDelete => 'Delete profile';
+
+  @override
+  String get vehicleProfileSaved => 'Vehicle profile saved.';
+
+  @override
+  String get vehicleProfileInvalid =>
+      'Enter battery capacity, consumption and charging power as positive numbers and the states of charge as percentages; the reserve must be below the target state of charge.';
 }

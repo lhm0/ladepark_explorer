@@ -3,7 +3,8 @@
 ## Projekt
 
 Der Ladepark Explorer ist eine offline-first iPhone-App zur Recherche
-zusammenhängender Ladestandorte in Deutschland. Version 1.0 besitzt kein
+zusammenhängender Ladestandorte in Deutschland. Version 1.0 und die
+funktional eingefrorene Version 1.1 („Routen-Update“) besitzen kein
 dauerhaftes fachliches Backend und keine Community-Funktionen.
 
 ## Einstieg in einen neuen Chat

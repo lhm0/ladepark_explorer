@@ -55,6 +55,14 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       MKMarkerAnnotationView.self,
       forAnnotationViewWithReuseIdentifier: Self.groupReuseIdentifier
     )
+    mapView.register(
+      MKMarkerAnnotationView.self,
+      forAnnotationViewWithReuseIdentifier: Self.routeStopReuseIdentifier
+    )
+    mapView.register(
+      MKMarkerAnnotationView.self,
+      forAnnotationViewWithReuseIdentifier: Self.corridorReuseIdentifier
+    )
     configureInitialRegion(arguments)
     channel.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
@@ -62,12 +70,18 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   }
 
   private static let groupReuseIdentifier = "charging-group"
+  private static let routeStopReuseIdentifier = "route-stop"
+  private static let corridorReuseIdentifier = "route-corridor"
   private let mapView: MKMapView
   private let channel: FlutterMethodChannel
   private let locationManager = CLLocationManager()
   private var groupsById: [String: ChargingGroupAnnotation] = [:]
   private var pendingLocationResult: FlutterResult?
   private var pendingRadiusKm = 25.0
+  private var routeOverlay: MKPolyline?
+  private var routeSegmentOverlays: [(polyline: MKPolyline, colour: UIColor)] = []
+  private var routeStopAnnotations: [RouteStopAnnotation] = []
+  private var corridorAnnotations: [CorridorParkAnnotation] = []
 
   func view() -> UIView {
     mapView
@@ -83,6 +97,22 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       mapView.deselectAnnotation(cluster, animated: false)
       return
     }
+    if let park = view.annotation as? CorridorParkAnnotation {
+      mapView.deselectAnnotation(park, animated: false)
+      let groupId = park.groupId
+      DispatchQueue.main.async { [weak self] in
+        self?.channel.invokeMethod("corridorParkSelected", arguments: groupId)
+      }
+      return
+    }
+    if let stop = view.annotation as? RouteStopAnnotation {
+      mapView.deselectAnnotation(stop, animated: false)
+      let groupId = stop.groupId
+      DispatchQueue.main.async { [weak self] in
+        self?.channel.invokeMethod("routeStopSelected", arguments: groupId)
+      }
+      return
+    }
     guard let group = view.annotation as? ChargingGroupAnnotation else { return }
     mapView.deselectAnnotation(group, animated: false)
     let groupId = group.groupId
@@ -95,6 +125,31 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     _ mapView: MKMapView,
     viewFor annotation: MKAnnotation
   ) -> MKAnnotationView? {
+    if let stop = annotation as? RouteStopAnnotation {
+      let view = mapView.dequeueReusableAnnotationView(
+        withIdentifier: Self.routeStopReuseIdentifier,
+        for: stop
+      ) as! MKMarkerAnnotationView
+      view.annotation = stop
+      view.markerTintColor = .systemBlue
+      view.glyphText = "\(stop.number)"
+      view.clusteringIdentifier = nil
+      view.displayPriority = .required
+      view.zPriority = .max
+      return view
+    }
+    if let park = annotation as? CorridorParkAnnotation {
+      let view = mapView.dequeueReusableAnnotationView(
+        withIdentifier: Self.corridorReuseIdentifier,
+        for: park
+      ) as! MKMarkerAnnotationView
+      view.annotation = park
+      view.markerTintColor = .systemOrange
+      view.glyphImage = UIImage(systemName: "bolt.fill")
+      view.clusteringIdentifier = nil
+      view.displayPriority = .required
+      return view
+    }
     if annotation is MKClusterAnnotation {
       return nil
     }
@@ -176,9 +231,171 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     case "showGermanyOverview":
       configureInitialRegion(nil, animated: true)
       result(nil)
+    case "showRoute":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawPoints = values["polyline"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_route", message: nil, details: nil))
+        return
+      }
+      showRoute(
+        rawPoints.compactMap(routeCoordinate(from:)),
+        segmentColors: (values["segmentColors"] as? [Any])?.compactMap {
+          ($0 as? NSNumber)?.int64Value
+        },
+        fit: (values["fit"] as? Bool) ?? true
+      )
+      result(nil)
+    case "showRouteStops":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawStops = values["stops"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_route_stops", message: nil, details: nil))
+        return
+      }
+      showRouteStops(rawStops)
+      result(nil)
+    case "showRouteCorridor":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawParks = values["parks"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_corridor", message: nil, details: nil))
+        return
+      }
+      showRouteCorridor(rawParks)
+      result(nil)
+    case "clearRoute":
+      clearRoute()
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func showRouteStops(_ stops: [[String: Any]]) {
+    mapView.removeAnnotations(routeStopAnnotations)
+    routeStopAnnotations = stops.enumerated().compactMap { index, stop in
+      guard
+        let latitude = stop["latitude"] as? Double,
+        let longitude = stop["longitude"] as? Double,
+        let groupId = stop["groupId"] as? String
+      else { return nil }
+      return RouteStopAnnotation(
+        groupId: groupId,
+        coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+        number: index + 1
+      )
+    }
+    mapView.addAnnotations(routeStopAnnotations)
+  }
+
+  private func showRouteCorridor(_ parks: [[String: Any]]) {
+    mapView.removeAnnotations(corridorAnnotations)
+    corridorAnnotations = parks.compactMap { park in
+      guard
+        let latitude = park["latitude"] as? Double,
+        let longitude = park["longitude"] as? Double,
+        let groupId = park["groupId"] as? String
+      else { return nil }
+      return CorridorParkAnnotation(
+        groupId: groupId,
+        coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+      )
+    }
+    mapView.addAnnotations(corridorAnnotations)
+  }
+
+  private func showRoute(
+    _ coordinates: [CLLocationCoordinate2D],
+    segmentColors: [Int64]?,
+    fit: Bool
+  ) {
+    clearRouteOverlays()
+    guard coordinates.count >= 2 else { return }
+
+    if let segmentColors, segmentColors.count == coordinates.count - 1 {
+      for index in 0..<(coordinates.count - 1) {
+        var pair = [coordinates[index], coordinates[index + 1]]
+        let polyline = MKPolyline(coordinates: &pair, count: 2)
+        routeSegmentOverlays.append((polyline, colour(fromArgb: segmentColors[index])))
+        mapView.addOverlay(polyline, level: .aboveRoads)
+      }
+    } else {
+      let overlay = MKPolyline(coordinates: coordinates, count: coordinates.count)
+      routeOverlay = overlay
+      mapView.addOverlay(overlay, level: .aboveRoads)
+    }
+
+    guard fit else { return }
+    var boundingCoordinates = coordinates
+    let boundingPolyline = MKPolyline(
+      coordinates: &boundingCoordinates,
+      count: boundingCoordinates.count
+    )
+    mapView.setVisibleMapRect(
+      boundingPolyline.boundingMapRect,
+      edgePadding: UIEdgeInsets(top: 72, left: 48, bottom: 160, right: 48),
+      animated: true
+    )
+  }
+
+  private func colour(fromArgb argb: Int64) -> UIColor {
+    let alpha = CGFloat((argb >> 24) & 0xFF) / 255.0
+    let red = CGFloat((argb >> 16) & 0xFF) / 255.0
+    let green = CGFloat((argb >> 8) & 0xFF) / 255.0
+    let blue = CGFloat(argb & 0xFF) / 255.0
+    return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+  }
+
+  private func clearRouteOverlays() {
+    if let overlay = routeOverlay {
+      mapView.removeOverlay(overlay)
+      routeOverlay = nil
+    }
+    if !routeSegmentOverlays.isEmpty {
+      mapView.removeOverlays(routeSegmentOverlays.map { $0.polyline })
+      routeSegmentOverlays = []
+    }
+  }
+
+  private func clearRoute() {
+    clearRouteOverlays()
+    if !routeStopAnnotations.isEmpty {
+      mapView.removeAnnotations(routeStopAnnotations)
+      routeStopAnnotations = []
+    }
+    if !corridorAnnotations.isEmpty {
+      mapView.removeAnnotations(corridorAnnotations)
+      corridorAnnotations = []
+    }
+  }
+
+  private func routeCoordinate(from value: [String: Any]) -> CLLocationCoordinate2D? {
+    guard
+      let latitude = value["latitude"] as? Double,
+      let longitude = value["longitude"] as? Double
+    else { return nil }
+    return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+  }
+
+  func mapView(
+    _ mapView: MKMapView,
+    rendererFor overlay: MKOverlay
+  ) -> MKOverlayRenderer {
+    guard let polyline = overlay as? MKPolyline else {
+      return MKOverlayRenderer(overlay: overlay)
+    }
+    let renderer = MKPolylineRenderer(polyline: polyline)
+    let segmentColour = routeSegmentOverlays.first { $0.polyline === polyline }?.colour
+    renderer.strokeColor =
+      segmentColour ?? UIColor.systemBlue.withAlphaComponent(0.85)
+    renderer.lineWidth = 5
+    renderer.lineJoin = .round
+    renderer.lineCap = .round
+    return renderer
   }
 
   private func requestUserLocation(_ arguments: Any?, result: @escaping FlutterResult) {
@@ -362,4 +579,29 @@ final class ChargingGroupAnnotation: NSObject, MKAnnotation {
   var hpcEvseCount: Int
   var isFavorite: Bool
   var title: String? { "\(evseCount) Ladepunkte" }
+}
+
+final class RouteStopAnnotation: NSObject, MKAnnotation {
+  init(groupId: String, coordinate: CLLocationCoordinate2D, number: Int) {
+    self.groupId = groupId
+    self.coordinate = coordinate
+    self.number = number
+    super.init()
+  }
+
+  let groupId: String
+  let coordinate: CLLocationCoordinate2D
+  let number: Int
+  var title: String? { "Ladestopp \(number)" }
+}
+
+final class CorridorParkAnnotation: NSObject, MKAnnotation {
+  init(groupId: String, coordinate: CLLocationCoordinate2D) {
+    self.groupId = groupId
+    self.coordinate = coordinate
+    super.init()
+  }
+
+  let groupId: String
+  let coordinate: CLLocationCoordinate2D
 }

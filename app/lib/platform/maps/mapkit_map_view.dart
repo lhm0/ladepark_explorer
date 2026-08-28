@@ -15,11 +15,17 @@ class MapKitMapView extends StatelessWidget {
   const MapKitMapView({
     required this.onMapCreated,
     required this.unavailableLabel,
+    this.eagerGestures = true,
     super.key,
   });
 
   final ValueChanged<MapKitAdapter> onMapCreated;
   final String unavailableLabel;
+
+  /// Whether the platform view claims every pointer eagerly. The main map keeps
+  /// this on for immediate panning; the route preview turns it off to reduce
+  /// the iOS platform-view gesture-wedge risk (see ADR-0019 Nachtrag).
+  final bool eagerGestures;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +37,11 @@ class MapKitMapView extends StatelessWidget {
     }
     return UiKitView(
       viewType: _viewType,
-      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-        Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new),
-      },
+      gestureRecognizers: eagerGestures
+          ? <Factory<OneSequenceGestureRecognizer>>{
+              Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new),
+            }
+          : const <Factory<OneSequenceGestureRecognizer>>{},
       creationParams: const <String, Object?>{
         'latitude': 51.1657,
         'longitude': 10.4515,
@@ -57,12 +65,22 @@ final class MapKitAdapter implements MapAdapter {
   final MethodChannel _channel;
   final StreamController<GeoBounds> _bounds = StreamController.broadcast();
   final StreamController<String> _selections = StreamController.broadcast();
+  final StreamController<String> _corridorSelections =
+      StreamController.broadcast();
+  final StreamController<String> _routeStopSelections =
+      StreamController.broadcast();
   List<ChargingGroupSummary>? _pendingMarkerGroups;
   Future<void>? _markerDrain;
   bool _disposed = false;
 
   @override
   Stream<String> get selectedGroupIds => _selections.stream;
+
+  @override
+  Stream<String> get selectedCorridorParkIds => _corridorSelections.stream;
+
+  @override
+  Stream<String> get selectedRouteStopIds => _routeStopSelections.stream;
 
   @override
   Stream<GeoBounds> get visibleBounds => _bounds.stream;
@@ -154,6 +172,72 @@ final class MapKitAdapter implements MapAdapter {
     }
   }
 
+  @override
+  Future<void> showRoute(
+    List<GeoCoordinate> polyline, {
+    List<int>? segmentColorsArgb,
+    bool fitToRoute = true,
+  }) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRoute', <String, Object?>{
+      'polyline': polyline
+          .map(
+            (point) => <String, Object?>{
+              'latitude': point.latitude,
+              'longitude': point.longitude,
+            },
+          )
+          .toList(growable: false),
+      'segmentColors': ?segmentColorsArgb,
+      'fit': fitToRoute,
+    });
+  }
+
+  @override
+  Future<void> showRouteStops(List<RouteStopMarker> stops) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRouteStops', <String, Object?>{
+      'stops': stops
+          .map(
+            (stop) => <String, Object?>{
+              'latitude': stop.coordinate.latitude,
+              'longitude': stop.coordinate.longitude,
+              'groupId': stop.id,
+            },
+          )
+          .toList(growable: false),
+    });
+  }
+
+  @override
+  Future<void> showRouteCorridor(List<ChargingGroupSummary> parks) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRouteCorridor', <String, Object?>{
+      'parks': parks
+          .map(
+            (park) => <String, Object?>{
+              'latitude': park.latitude,
+              'longitude': park.longitude,
+              'groupId': park.groupId,
+            },
+          )
+          .toList(growable: false),
+    });
+  }
+
+  @override
+  Future<void> clearRoute() async {
+    if (!_disposed) {
+      await _channel.invokeMethod<void>('clearRoute');
+    }
+  }
+
   Future<Object?> _handleMethodCall(MethodCall call) async {
     final arguments = call.arguments;
     if (call.method == 'boundsChanged' && arguments is Map<Object?, Object?>) {
@@ -167,6 +251,10 @@ final class MapKitAdapter implements MapAdapter {
       );
     } else if (call.method == 'groupSelected' && arguments is String) {
       _selections.add(arguments);
+    } else if (call.method == 'corridorParkSelected' && arguments is String) {
+      _corridorSelections.add(arguments);
+    } else if (call.method == 'routeStopSelected' && arguments is String) {
+      _routeStopSelections.add(arguments);
     }
     return null;
   }
@@ -182,6 +270,8 @@ final class MapKitAdapter implements MapAdapter {
     _channel.setMethodCallHandler(null);
     await _bounds.close();
     await _selections.close();
+    await _corridorSelections.close();
+    await _routeStopSelections.close();
   }
 }
 

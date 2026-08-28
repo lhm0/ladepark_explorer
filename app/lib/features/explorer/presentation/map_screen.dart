@@ -16,13 +16,22 @@ import 'package:ladepark_explorer/features/favorites/application/favorite_provid
 import 'package:ladepark_explorer/features/favorites/presentation/favorites_page.dart';
 import 'package:ladepark_explorer/features/park_info/application/park_information_providers.dart';
 import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
-import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
-import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
+import 'package:ladepark_explorer/features/route_planning/application/energy_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_corridor.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/navigation_launcher.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_planning_page.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/features/settings/presentation/settings_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/inbound/inbound_location_adapter.dart';
+import 'package:ladepark_explorer/platform/maps/map_adapter.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
-import 'package:ladepark_explorer/platform/navigation/navigation_providers.dart';
 import 'package:ladepark_explorer/platform/search/mapkit_place_search_adapter.dart';
 
 class MapScreen extends ConsumerStatefulWidget {
@@ -36,10 +45,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   MapKitAdapter? _mapAdapter;
   StreamSubscription<Object?>? _boundsSubscription;
   StreamSubscription<Object?>? _selectionSubscription;
+  StreamSubscription<Object?>? _routeStopSubscription;
   bool _detailsOpen = false;
   InboundLocationAdapter? _inboundLocationAdapter;
   StreamSubscription<GeoCoordinate>? _inboundLocationSubscription;
   GeoCoordinate? _pendingExternalLocation;
+  RouteWaypoint? _pendingRouteDestination;
   final MapKitPlaceSearchAdapter _placeSearchAdapter =
       const MapKitPlaceSearchAdapter();
 
@@ -85,6 +96,25 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 .toList(growable: false),
           );
     });
+    ref.listen<RoutePlanningState>(routePlanningControllerProvider, (
+      previous,
+      next,
+    ) {
+      final option = next.selectedOption;
+      if (option == null) {
+        unawaited(_mapAdapter?.clearRoute());
+        return;
+      }
+      final routeChanged = !identical(option, previous?.selectedOption);
+      final stopsChanged = !identical(next.stops, previous?.stops);
+      if (routeChanged || stopsChanged) {
+        _drawRoute();
+        unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
+      }
+    });
+    ref.listen<TripEnergyProfile?>(tripEnergyProfileProvider, (previous, next) {
+      _drawRoute();
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.appTitle),
@@ -93,6 +123,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             onPressed: _openSettings,
             tooltip: strings.settings,
             icon: const Icon(Icons.settings_outlined),
+          ),
+          IconButton(
+            onPressed: mapState.hasValue ? _openRoutePlanning : null,
+            tooltip: strings.routePlanning,
+            icon: const Icon(Icons.directions_outlined),
           ),
           IconButton(
             onPressed: mapState.hasValue ? _openFavorites : null,
@@ -201,6 +236,111 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Future<void> _openSettings() => Navigator.of(
     context,
   ).push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsPage()));
+
+  Future<void> _openRoutePlanning() async {
+    final hasRoute = ref.read(routePlanningControllerProvider).hasRoute;
+    if (hasRoute && _pendingRouteDestination == null) {
+      final result = await _openRoutePreview();
+      if (result == RoutePreviewResult.newRoute && mounted) {
+        await _openRoutePlanningInput();
+      }
+      return;
+    }
+    await _openRoutePlanningInput();
+  }
+
+  Future<void> _openRoutePlanningInput() async {
+    final destination = _pendingRouteDestination;
+    _pendingRouteDestination = null;
+    await Navigator.of(context).push<void>(
+      PageRouteBuilder<void>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            RoutePlanningPage(
+              resolveEndpoint: _resolveRouteEndpoint,
+              currentLocation: _currentLocationForRoute,
+              initialDestination: destination,
+            ),
+      ),
+    );
+    if (mounted && ref.read(routePlanningControllerProvider).hasRoute) {
+      await _openRoutePreview();
+    }
+  }
+
+  Future<RoutePreviewResult?> _openRoutePreview() {
+    return Navigator.of(context).push<RoutePreviewResult>(
+      PageRouteBuilder<RoutePreviewResult>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            RoutePreviewPage(onOpenDetail: _openCorridorParkDetail),
+      ),
+    );
+  }
+
+  List<RouteStopMarker> _stopMarkers(List<RouteStop> stops) => stops
+      .map((stop) => (id: stop.groupId, coordinate: stop.coordinate))
+      .toList(growable: false);
+
+  List<int>? _routeSegmentColours() {
+    final energy = ref.read(tripEnergyProfileProvider);
+    if (energy == null || energy.socPercentByPoint.length < 2) return null;
+    final soc = energy.socPercentByPoint;
+    return <int>[
+      for (var i = 0; i < soc.length - 1; i++)
+        socColourArgb(
+          (soc[i] + soc[i + 1]) / 2,
+          reservePercent: energy.reservePercent,
+        ),
+    ];
+  }
+
+  void _drawRoute() {
+    final adapter = _mapAdapter;
+    final option = ref.read(routePlanningControllerProvider).selectedOption;
+    if (adapter == null || option == null) return;
+    unawaited(
+      adapter.showRoute(
+        option.polyline,
+        segmentColorsArgb: _routeSegmentColours(),
+      ),
+    );
+  }
+
+  Future<void> _openCorridorParkDetail(String groupId) {
+    final detailFuture = ref
+        .read(explorerMapControllerProvider.notifier)
+        .loadGroupDetail(groupId);
+    return Navigator.of(context).push<void>(
+      PageRouteBuilder<void>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            GroupDetailPage(future: detailFuture, showChargingStopAction: true),
+      ),
+    );
+  }
+
+  Future<GeoCoordinate?> _resolveRouteEndpoint(String query) async {
+    try {
+      return await _placeSearchAdapter.geocodePlace(query);
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  Future<GeoCoordinate> _currentLocationForRoute() async {
+    final adapter = _mapAdapter;
+    if (adapter == null) {
+      throw PlatformException(code: 'location_unavailable');
+    }
+    return adapter.focusUserLocation(radiusKm: 10);
+  }
 
   Future<void> _openFavorites() async {
     final favorites = await ref.read(favoritesControllerProvider.future);
@@ -318,9 +458,23 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       ref.read(explorerMapControllerProvider.notifier).visibleBoundsChanged,
     );
     _selectionSubscription = adapter.selectedGroupIds.listen(_groupSelected);
+    _routeStopSubscription = adapter.selectedRouteStopIds.listen(
+      _openCorridorParkDetail,
+    );
     final groups = ref.read(explorerMapControllerProvider).value?.groups;
     if (groups != null) {
       unawaited(adapter.showGroups(groups));
+    }
+    final routePlanning = ref.read(routePlanningControllerProvider);
+    final routeOption = routePlanning.selectedOption;
+    if (routeOption != null) {
+      unawaited(
+        adapter.showRoute(
+          routeOption.polyline,
+          segmentColorsArgb: _routeSegmentColours(),
+        ),
+      );
+      unawaited(adapter.showRouteStops(_stopMarkers(routePlanning.stops)));
     }
     final pendingExternalLocation = _pendingExternalLocation;
     if (pendingExternalLocation != null) {
@@ -346,7 +500,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
           pageBuilder: (context, animation, secondaryAnimation) =>
-              GroupDetailPage(future: detailFuture),
+              GroupDetailPage(
+                future: detailFuture,
+                onPlanRoute: (detail) {
+                  _pendingRouteDestination = RouteWaypoint(
+                    coordinate: GeoCoordinate(
+                      latitude: detail.latitude,
+                      longitude: detail.longitude,
+                    ),
+                    label: detail.name ?? detail.city,
+                  );
+                  unawaited(_openRoutePlanning());
+                },
+              ),
         ),
       );
     } finally {
@@ -409,12 +575,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Future<void> _disposeMapAdapter() async {
     final boundsSubscription = _boundsSubscription;
     final selectionSubscription = _selectionSubscription;
+    final routeStopSubscription = _routeStopSubscription;
     final mapAdapter = _mapAdapter;
     _boundsSubscription = null;
     _selectionSubscription = null;
+    _routeStopSubscription = null;
     _mapAdapter = null;
     await boundsSubscription?.cancel();
     await selectionSubscription?.cancel();
+    await routeStopSubscription?.cancel();
     await mapAdapter?.dispose();
   }
 
@@ -485,11 +654,20 @@ class GroupDetailPage extends StatefulWidget {
   const GroupDetailPage({
     required this.future,
     this.enableFavoriteAction = true,
+    this.onPlanRoute,
+    this.showChargingStopAction = false,
     super.key,
   });
 
   final Future<ChargingGroupDetail?> future;
   final bool enableFavoriteAction;
+
+  /// When set, the detail sheet offers to plan a route to this park.
+  final void Function(ChargingGroupDetail detail)? onPlanRoute;
+
+  /// When true, the detail sheet offers to add or remove this park as a
+  /// charging stop on the active route (FR-ROUTE-004).
+  final bool showChargingStopAction;
 
   @override
   State<GroupDetailPage> createState() => _GroupDetailPageState();
@@ -516,6 +694,8 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             detail: snapshot.data!,
             scrollController: _scrollController,
             enableFavoriteAction: widget.enableFavoriteAction,
+            onPlanRoute: widget.onPlanRoute,
+            showChargingStopAction: widget.showChargingStopAction,
           );
         },
       ),
@@ -565,12 +745,16 @@ class GroupDetailSheet extends ConsumerWidget {
     required this.detail,
     required this.scrollController,
     this.enableFavoriteAction = true,
+    this.onPlanRoute,
+    this.showChargingStopAction = false,
     super.key,
   });
 
   final ChargingGroupDetail detail;
   final ScrollController scrollController;
   final bool enableFavoriteAction;
+  final void Function(ChargingGroupDetail detail)? onPlanRoute;
+  final bool showChargingStopAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -672,6 +856,24 @@ class GroupDetailSheet extends ConsumerWidget {
               label: Text(strings.openNavigation),
             ),
           ),
+          if (onPlanRoute case final planRoute?) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  planRoute(detail);
+                },
+                icon: const Icon(Icons.directions_outlined),
+                label: Text(strings.planRouteToHere),
+              ),
+            ),
+          ],
+          if (showChargingStopAction) ...[
+            _ChargingStopSocInfo(detail: detail),
+            _ChargingStopButton(detail: detail),
+          ],
         ],
       ),
     );
@@ -683,83 +885,120 @@ class GroupDetailSheet extends ConsumerWidget {
     String name,
   ) async {
     final strings = AppLocalizations.of(context);
-    final preference =
-        ref.read(settingsControllerProvider).value?.navigationPreference ??
-        NavigationPreference.askEveryTime;
-    final google = ref.read(googleMapsNavigationAdapterProvider);
-    final apple = ref.read(appleMapsNavigationAdapterProvider);
-    final googleAvailable = await google.isAvailable();
-    if (!context.mounted) return;
-
-    var choice = preference;
-    if (preference == NavigationPreference.askEveryTime && googleAvailable) {
-      choice =
-          await showModalBottomSheet<NavigationPreference>(
-            context: context,
-            builder: (context) => SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  ListTile(
-                    leading: const Icon(Icons.map_outlined),
-                    title: const Text('Apple Maps'),
-                    onTap: () =>
-                        Navigator.pop(context, NavigationPreference.appleMaps),
-                  ),
-                  ListTile(
-                    leading: const Icon(Icons.map_outlined),
-                    title: const Text('Google Maps'),
-                    onTap: () =>
-                        Navigator.pop(context, NavigationPreference.googleMaps),
-                  ),
-                ],
-              ),
-            ),
-          ) ??
-          NavigationPreference.askEveryTime;
-      if (choice == NavigationPreference.askEveryTime) return;
-    } else if (preference == NavigationPreference.askEveryTime) {
-      choice = NavigationPreference.appleMaps;
-    }
-
-    if (!context.mounted) return;
-    if (choice == NavigationPreference.googleMaps && !googleAvailable) {
-      final useApple = await showDialog<bool>(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text(strings.googleMapsUnavailable),
-          content: Text(strings.googleMapsFallbackExplanation),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context, false),
-              child: Text(strings.cancel),
-            ),
-            FilledButton(
-              onPressed: () => Navigator.pop(context, true),
-              child: Text(strings.useAppleMaps),
-            ),
-          ],
-        ),
-      );
-      if (!context.mounted) return;
-      if (useApple != true) return;
-      choice = NavigationPreference.appleMaps;
-    }
-
+    final adapter = await resolveNavigationAdapter(context, ref);
+    if (adapter == null || !context.mounted) return;
+    final messenger = ScaffoldMessenger.of(context);
     try {
-      await (choice == NavigationPreference.googleMaps ? google : apple)
-          .openDirections(
-            latitude: detail.latitude,
-            longitude: detail.longitude,
-            name: name,
-          );
+      await adapter.openDirections(
+        latitude: detail.latitude,
+        longitude: detail.longitude,
+        name: name,
+      );
     } on Object {
-      if (context.mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text(strings.navigationUnavailable)));
-      }
+      messenger.showSnackBar(
+        SnackBar(content: Text(strings.navigationUnavailable)),
+      );
     }
+  }
+}
+
+/// Shows the estimated state of charge on arrival at this park and the value
+/// the plan assumes after charging here, so the reset is visible (FR-ROUTE-006).
+class _ChargingStopSocInfo extends ConsumerWidget {
+  const _ChargingStopSocInfo({required this.detail});
+
+  final ChargingGroupDetail detail;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final energy = ref.watch(tripEnergyProfileProvider);
+    final planning = ref.watch(routePlanningControllerProvider);
+    final option = planning.selectedOption;
+    if (energy == null || option == null || option.polyline.length < 2) {
+      return const SizedBox.shrink();
+    }
+    final km = positionAlongPolylineKm(
+      option.polyline,
+      GeoCoordinate(latitude: detail.latitude, longitude: detail.longitude),
+    );
+    final arrival = energy.socAtKm(km).round();
+    final plannedStop = planning.containsStop(detail.groupId)
+        ? energy.stopSocs
+              .where((s) => s.groupId == detail.groupId)
+              .map((s) => s.departureSocPercent.round())
+              .firstOrNull
+        : null;
+    final afterStop = plannedStop ?? energy.chargeTargetSocPercent;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            strings.routeSocAtArrival(arrival),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          Text(
+            strings.routeSocAfterStop(afterStop),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// Adds or removes this park as a charging stop on the active route
+/// (FR-ROUTE-004) and returns to the map.
+class _ChargingStopButton extends ConsumerWidget {
+  const _ChargingStopButton({required this.detail});
+
+  final ChargingGroupDetail detail;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final planning = ref.watch(routePlanningControllerProvider);
+    final isStop = planning.containsStop(detail.groupId);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: planning.isCalculating || !planning.canRecalculate
+              ? null
+              : () {
+                  final notifier = ref.read(
+                    routePlanningControllerProvider.notifier,
+                  );
+                  if (isStop) {
+                    unawaited(notifier.removeStop(detail.groupId));
+                  } else {
+                    unawaited(
+                      notifier.addStop(
+                        groupId: detail.groupId,
+                        coordinate: GeoCoordinate(
+                          latitude: detail.latitude,
+                          longitude: detail.longitude,
+                        ),
+                        name: detail.name ?? detail.city,
+                      ),
+                    );
+                  }
+                  Navigator.of(context).pop();
+                },
+          icon: Icon(
+            isStop
+                ? Icons.wrong_location_outlined
+                : Icons.add_location_alt_outlined,
+          ),
+          label: Text(
+            isStop ? strings.routeRemoveStop : strings.routeInsertStop,
+          ),
+        ),
+      ),
+    );
   }
 }
 

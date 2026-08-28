@@ -5,6 +5,7 @@ import 'package:ladepark_explorer/app/ladepark_explorer_app.dart';
 import 'package:ladepark_explorer/features/explorer/application/explorer_providers.dart';
 
 import 'support/fake_charging_repository.dart';
+import 'support/fake_explorer_filters_repository.dart';
 
 void main() {
   testWidgets('shows the localized Wurf A map shell', (tester) async {
@@ -13,6 +14,9 @@ void main() {
         overrides: [
           chargingRepositoryProvider.overrideWith(
             (ref) async => FakeChargingRepository(),
+          ),
+          explorerFiltersRepositoryProvider.overrideWith(
+            (ref) async => FakeExplorerFiltersRepository(),
           ),
         ],
         child: const LadeparkExplorerApp(locale: Locale('de')),

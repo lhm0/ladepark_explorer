@@ -135,6 +135,12 @@ Folgende Funktionen sind ausdrücklich nicht Bestandteil:
 Community-Funktionen sind für eine spätere Version vorgesehen und dürfen die
 Auslieferung von Version 1.0 nicht blockieren.
 
+Eine Routenplanung mit einfacher Reichweiten- und Ladeplanung folgt als
+Planungshilfe – nicht als Turn-by-Turn-Navigation – in Version 1.1 und ist in
+[`17_Route_Planning.md`](17_Route_Planning.md) spezifiziert. Der redaktionelle
+und gemeinschaftliche Ausbau folgt danach als Version 2.0; ältere Kapitel und
+ADRs nennen diesen Umfang noch „Version 1.5“.
+
 ## 7. Produktprinzipien
 
 1. **Gemeinsame Betrachtung statt Einzelsäule:** Räumlich benachbarte

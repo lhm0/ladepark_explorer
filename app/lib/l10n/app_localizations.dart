@@ -847,6 +847,390 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.'**
   String get diagnosticsPrivacyExplanation;
+
+  /// No description provided for @routePlanning.
+  ///
+  /// In de, this message translates to:
+  /// **'Route planen'**
+  String get routePlanning;
+
+  /// No description provided for @routePlanningTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Routenplanung'**
+  String get routePlanningTitle;
+
+  /// No description provided for @routeOnlineHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Route wird online über Apple-Kartendienste berechnet.'**
+  String get routeOnlineHint;
+
+  /// No description provided for @routeStartLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start'**
+  String get routeStartLabel;
+
+  /// No description provided for @routeDestinationLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel'**
+  String get routeDestinationLabel;
+
+  /// No description provided for @routeEndpointHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ort, Adresse oder Koordinate'**
+  String get routeEndpointHint;
+
+  /// No description provided for @routeUseCurrentLocation.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktuellen Standort als Start verwenden'**
+  String get routeUseCurrentLocation;
+
+  /// No description provided for @routeCalculate.
+  ///
+  /// In de, this message translates to:
+  /// **'Route berechnen'**
+  String get routeCalculate;
+
+  /// No description provided for @routeCalculating.
+  ///
+  /// In de, this message translates to:
+  /// **'Route wird berechnet …'**
+  String get routeCalculating;
+
+  /// No description provided for @routeStartNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Start wurde nicht gefunden.'**
+  String get routeStartNotFound;
+
+  /// No description provided for @routeDestinationNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Ziel wurde nicht gefunden.'**
+  String get routeDestinationNotFound;
+
+  /// No description provided for @routeDurationHoursMinutes.
+  ///
+  /// In de, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String routeDurationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @routeDurationMinutes.
+  ///
+  /// In de, this message translates to:
+  /// **'{minutes} min'**
+  String routeDurationMinutes(int minutes);
+
+  /// No description provided for @routeSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'{distance} · {duration}'**
+  String routeSummary(String distance, String duration);
+
+  /// No description provided for @routeDistanceKm.
+  ///
+  /// In de, this message translates to:
+  /// **'{km} km'**
+  String routeDistanceKm(String km);
+
+  /// No description provided for @routeOverviewTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Route'**
+  String get routeOverviewTitle;
+
+  /// No description provided for @routeMapSemantics.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte mit der geplanten Route'**
+  String get routeMapSemantics;
+
+  /// No description provided for @routeAlternativesHeading.
+  ///
+  /// In de, this message translates to:
+  /// **'Alternativen'**
+  String get routeAlternativesHeading;
+
+  /// No description provided for @routeOptionLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Route {index}'**
+  String routeOptionLabel(int index);
+
+  /// No description provided for @routeShowOnMap.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf Karte anzeigen'**
+  String get routeShowOnMap;
+
+  /// No description provided for @routeNewRoute.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Route'**
+  String get routeNewRoute;
+
+  /// No description provided for @routeClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Route beenden'**
+  String get routeClear;
+
+  /// No description provided for @routeErrorOffline.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Internetverbindung kann keine Route berechnet werden.'**
+  String get routeErrorOffline;
+
+  /// No description provided for @routeErrorThrottled.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Kartendienst ist zurzeit ausgelastet. Bitte kurz warten und erneut versuchen.'**
+  String get routeErrorThrottled;
+
+  /// No description provided for @routeErrorNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Für Start und Ziel wurde keine Route gefunden.'**
+  String get routeErrorNotFound;
+
+  /// No description provided for @routeErrorInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Start und Ziel müssen angegeben sein.'**
+  String get routeErrorInvalid;
+
+  /// No description provided for @routeErrorFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Route konnte nicht berechnet werden.'**
+  String get routeErrorFailed;
+
+  /// No description provided for @routeRetry.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut versuchen'**
+  String get routeRetry;
+
+  /// No description provided for @planRouteToHere.
+  ///
+  /// In de, this message translates to:
+  /// **'Route hierher planen'**
+  String get planRouteToHere;
+
+  /// No description provided for @routeCorridorTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeparks entlang der Route'**
+  String get routeCorridorTitle;
+
+  /// No description provided for @routeCorridorSearching.
+  ///
+  /// In de, this message translates to:
+  /// **'{done} von {total} Abschnitten geprüft'**
+  String routeCorridorSearching(int done, int total);
+
+  /// No description provided for @routeCorridorEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf dieser Route wurde kein passender Ladepark gefunden.'**
+  String get routeCorridorEmpty;
+
+  /// No description provided for @routeCorridorLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.'**
+  String get routeCorridorLimit;
+
+  /// No description provided for @routeCorridorFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Einige Abschnitte konnten nicht geprüft werden.'**
+  String get routeCorridorFailed;
+
+  /// No description provided for @routeCorridorCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =1{1 Ladepark im Korridor} other{{count} Ladeparks im Korridor}}'**
+  String routeCorridorCount(int count);
+
+  /// No description provided for @routeInsertStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladestop einfügen'**
+  String get routeInsertStop;
+
+  /// No description provided for @routeRemoveStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladestop entfernen'**
+  String get routeRemoveStop;
+
+  /// No description provided for @routeOpenInNavigation.
+  ///
+  /// In de, this message translates to:
+  /// **'In Navigation öffnen'**
+  String get routeOpenInNavigation;
+
+  /// No description provided for @routeNavigationTruncated.
+  ///
+  /// In de, this message translates to:
+  /// **'Google Maps übernimmt keine Zwischenstopp-Kette. Es wird zum nächsten Ladestopp geführt; die weitere Route danach dort erneut öffnen.'**
+  String get routeNavigationTruncated;
+
+  /// No description provided for @routeStopsCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}'**
+  String routeStopsCount(int count);
+
+  /// No description provided for @routeStartSocLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start-Ladezustand'**
+  String get routeStartSocLabel;
+
+  /// No description provided for @routeChargeTargetLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeziel am Stopp'**
+  String get routeChargeTargetLabel;
+
+  /// No description provided for @routeCorridorWidthLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Korridorbreite'**
+  String get routeCorridorWidthLabel;
+
+  /// No description provided for @routeRangeDeficit.
+  ///
+  /// In de, this message translates to:
+  /// **'Reichweite reicht nur bis km {km}'**
+  String routeRangeDeficit(int km);
+
+  /// No description provided for @routeSocBreakdownStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Start {soc} %'**
+  String routeSocBreakdownStart(int soc);
+
+  /// No description provided for @routeSocBreakdownStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Stopp {index}: an ~{arrival} % → ab {departure} %'**
+  String routeSocBreakdownStop(int index, int arrival, int departure);
+
+  /// No description provided for @routeSocBreakdownTarget.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel ~{soc} %'**
+  String routeSocBreakdownTarget(int soc);
+
+  /// No description provided for @routeSocAtArrival.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladezustand bei Ankunft: ~{soc} %'**
+  String routeSocAtArrival(int soc);
+
+  /// No description provided for @routeSocAfterStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach dem Ladestopp: {soc} %'**
+  String routeSocAfterStop(int soc);
+
+  /// No description provided for @vehicleProfileTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugprofil'**
+  String get vehicleProfileTitle;
+
+  /// No description provided for @vehicleProfileExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Angaben bleiben nur auf diesem Gerät und dienen der Reichweiten- und Ladeplanung.'**
+  String get vehicleProfileExplanation;
+
+  /// No description provided for @vehicleProfileNotSet.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht angelegt'**
+  String get vehicleProfileNotSet;
+
+  /// No description provided for @vehicleProfileSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'{battery} kWh · {consumption} kWh/100 km'**
+  String vehicleProfileSummary(String battery, String consumption);
+
+  /// No description provided for @vehicleBatteryLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Nutzbare Batteriekapazität (kWh)'**
+  String get vehicleBatteryLabel;
+
+  /// No description provided for @vehicleConsumptionLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittsverbrauch (kWh/100 km)'**
+  String get vehicleConsumptionLabel;
+
+  /// No description provided for @vehicleMaxPowerLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximale Ladeleistung (kW)'**
+  String get vehicleMaxPowerLabel;
+
+  /// No description provided for @vehicleReserveLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Reserve-Ladezustand (%)'**
+  String get vehicleReserveLabel;
+
+  /// No description provided for @vehicleTargetLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel-Ladezustand bei Ankunft (%)'**
+  String get vehicleTargetLabel;
+
+  /// No description provided for @vehicleStartLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start-Ladezustand (%)'**
+  String get vehicleStartLabel;
+
+  /// No description provided for @vehicleConnectorsLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Kompatible Steckertypen'**
+  String get vehicleConnectorsLabel;
+
+  /// No description provided for @vehicleProfileSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Speichern'**
+  String get vehicleProfileSave;
+
+  /// No description provided for @vehicleProfileDelete.
+  ///
+  /// In de, this message translates to:
+  /// **'Profil löschen'**
+  String get vehicleProfileDelete;
+
+  /// No description provided for @vehicleProfileSaved.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugprofil gespeichert.'**
+  String get vehicleProfileSaved;
+
+  /// No description provided for @vehicleProfileInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte Batteriekapazität, Verbrauch und Ladeleistung als positive Zahlen und die Ladezustände in Prozent eingeben; die Reserve muss unter dem Ziel-Ladezustand liegen.'**
+  String get vehicleProfileInvalid;
 }
 
 class _AppLocalizationsDelegate

@@ -1,0 +1,137 @@
+# ADR-0023 – Ladezustandsfärbung der Route
+
+Status: Angenommen
+
+Datum: 28. August 2026
+
+## Kontext
+
+`FR-ROUTE-006` verlangt, den geschätzten Ladezustandsverlauf entlang der Route
+sichtbar zu machen. Der Produktwunsch ist eine anschauliche Darstellung: die
+Routenlinie verläuft farblich von Grün über Gelb nach Rot, wobei Rot dem
+Reserve-Ladezustand entspricht. An jedem Ladestopp beginnt die Färbung wieder
+bei Grün. So ist auf einen Blick erkennbar, wo der nächste Ladestopp nötig ist.
+
+Die Route wird nativ als Overlay in `MKMapView` gezeichnet (`ADR-0019`). Der
+`RoutePlanningService` liefert eine dezimierte Polyline; die Verbrauchs- und
+Ladeplanung liegt hinter den Schnittstellen aus `ADR-0020`. Ein
+`TripEnergySimulator` wendet `EnergyModel` und `ChargingModel` entlang der
+Teilstrecken an und erzeugt einen Ladezustandsverlauf.
+
+`MKPolylineRenderer` kann keinen Farbverlauf entlang einer einzelnen Polylinie
+zeichnen. Die Färbung muss deshalb aus mehreren, je einfarbigen Abschnitten
+bestehen.
+
+## Entscheidung
+
+- Der `TripEnergySimulator` liefert je Stützpunkt der dezimierten Polyline
+  einen geschätzten Ladezustand in Prozent. Zwischen zwei Ladestopps sinkt er
+  gemäß `EnergyModel` monoton; an einem Ladestopp springt er auf den
+  Abfahrt-Ladezustand. In Version 1.1 ist der Abfahrtswert das je Fahrt
+  einstellbare Ladeziel am Stopp (feste Vorgabe 80 %); ab `FR-ROUTE-008` stammt
+  er aus dem `ChargingModel`.
+- Die App bildet jeden Polylinienabschnitt (zwei benachbarte Stützpunkte) über
+  seinen mittleren Ladezustand auf eine Farbe ab. Die Verlaufsfunktion ist
+  stückweise linear zwischen festen Stützfarben (Konstanten in
+  `route_soc_colour.dart`, mit Tests):
+  - `>= 60 %` Grün (`#2E7D32`),
+  - `35 %` Gelb (`#F9A825`), linear zwischen Grün und Gelb im Bereich 60–35 %,
+  - `Reserve` (Vorgabe 10 %) Rot (`#D32F2F`), linear zwischen Gelb und Rot im
+    Bereich 35 % bis Reserve,
+  - unterhalb der Reserve Dunkelrot (`#7F0000`), damit ein kritischer
+    Ladezustand sofort auffällt.
+- Die eingefärbten Abschnitte werden über den bestehenden Kartenkanal
+  übergeben: `showRoute` erhält zusätzlich zur Polyline optional eine geordnete
+  Liste von ARGB-Farbwerten, einen je Abschnitt (also `Punktzahl − 1`
+  Einträge). Fehlt die Liste, zeichnet die native Seite die Route wie bisher
+  einfarbig.
+- Nativ wird je Abschnitt eine kurze `MKPolyline` mit eigenem
+  `MKPolylineRenderer` und `strokeColor` gezeichnet. Die Abschnitte teilen
+  sich Linienbreite, `lineCap` und `lineJoin`, sodass die Route trotz Zerlegung
+  durchgehend wirkt.
+- Ein optionaler halbtransparenter Farbsaum (breitere, deckungsreduzierte
+  Linie unter der eigentlichen Route) ist als spätere Ausbaustufe vorgesehen.
+  Breite und Deckkraft werden dann festgelegt; die Farbcodierung bleibt
+  identisch.
+- Ohne vollständiges Fahrzeugprofil wird keine Farbliste übergeben; die Route
+  bleibt einfarbig.
+- Die Farbcodierung der Route ist von der Markerfarbe der Korridor-Ladeparks
+  (`ADR-0022`, derzeit Orange) und der Ladestopps (Blau) unterscheidbar zu
+  halten.
+- `showRoute` erhält zusätzlich ein `fit`-Flag: nur die erste Darstellung
+  bewegt die Karte auf die Route, spätere Farb- oder Stoppänderungen nicht.
+- Die Vorschauseite gleicht die native Karte in einem `addPostFrameCallback`
+  aus `build` heraus ab (mit einem Render-Schlüssel gegen Doppelarbeit), damit
+  die Färbung auch dann folgt, wenn die Seite während des Einfügens eines
+  Ladestopps von der Detailansicht verdeckt ist.
+
+## Gründe
+
+- Zerlegte einfarbige Abschnitte sind mit vorhandenen MapKit-Renderern
+  zuverlässig darstellbar; ein echter Gradient wäre nur mit eigenem Rendering
+  erreichbar.
+- Die Farbliste als optionale Beigabe zu `showRoute` hält den Kanalvertrag
+  klein und abwärtskompatibel; ohne Profil ändert sich nichts.
+- Die Zuständigkeit bleibt getrennt: der `TripEnergySimulator` (Domäne)
+  liefert Ladezustände, die Präsentation bildet sie auf Farben ab, die
+  Plattform zeichnet. Ein genaueres `EnergyModel` verändert nur die Zahlen,
+  nicht die Darstellung.
+- „Neustart bei Grün am Ladestopp" ergibt sich zwangsläufig aus dem Sprung des
+  Ladezustands auf den Abfahrtswert; es ist keine Sonderbehandlung in der
+  Darstellung nötig.
+
+## Folgen
+
+Positiv:
+
+- unmittelbar verständliche Anzeige, wann der nächste Ladestopp nötig ist,
+- kein neues Overlay-Konzept; die opake-Route-Regel aus `ADR-0011` bleibt
+  unberührt, da weiterhin nur nativ gezeichnet wird,
+- die Darstellung ist unabhängig vom konkreten Verbrauchsmodell.
+
+Negativ beziehungsweise zu beachten:
+
+- Die dezimierte Polyline begrenzt die Farbauflösung; bei sehr langen
+  Abschnitten kann der Farbwechsel grob wirken. Bei Bedarf werden vor der
+  Färbung zusätzliche Stützpunkte eingefügt.
+- Viele kurze `MKPolyline`-Abschnitte kosten etwas Renderleistung; die
+  Abschnittszahl folgt der ohnehin begrenzten Polylinienpunktzahl.
+- Farbwahl und Kontrast (auch für Farbsehschwäche) sind Teil der
+  M16-Zugänglichkeitsprüfung; die Reserve-Stelle wird zusätzlich nicht nur
+  über Farbe markiert.
+
+## Nachtrag (M16b, Nachbesserung)
+
+Auf dem Gerät blieb die Färbung nach dem Einfügen eines Ladestopps unverändert.
+Ursache war nicht die Simulation, sondern die Zustandsführung: das Einfügen löst
+eine Neuberechnung der Route über den neuen Wegpunkt aus, und schlug diese fehl
+(häufiger als die erste A‑nach‑B‑Route, weil sie abschnittsweise über eine
+beliebige Ladepark-Koordinate führt), wurde der Stopp stillschweigend wieder aus
+dem Zustand entfernt. Der Zustand war dann Byte für Byte der Zustand ohne Stopp,
+also auch die Farbabschnitte.
+
+Korrektur:
+
+- Ein gesetzter Ladestopp bleibt bestehen, auch wenn die Neuberechnung
+  fehlschlägt. Die Schätzung projiziert ihn über `positionAlongPolylineKm` auf
+  die vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün
+  beginnt. Der Fehlschlag erscheint als wiederholbarer Hinweis im
+  Vorschaupanel.
+- Der Abfahrt-Ladezustand nach einem Stopp ist als „Ladeziel am Stopp" für die
+  Fahrt einstellbar (Steller neben dem Start-Ladezustand). Ohne Einstellung
+  gilt die feste Vorgabe 80 % (`kDefaultChargeTargetSocPercent`), bewusst
+  unabhängig vom Ziel-Ladezustand bei Ankunft des Fahrzeugprofils: an einem
+  Zwischenstopp wird aufgeladen, nicht auf den Ankunftswunsch entladen. Der
+  `TripEnergySimulator` nimmt den Wert als Parameter `chargeTargetSocPercent`
+  entgegen und legt ihn auf `TripEnergyProfile.chargeTargetSocPercent` ab.
+- `TripEnergyProfile` liefert zusätzlich `stopSocs` (Ankunfts- und
+  Abfahrtswert je Stopp) und `socAtKm(km)`. Das Vorschaupanel zeigt daraus
+  eine Textzeile „Start … · Stopp n: an … / ab … · Ziel …"; die
+  Korridor-Detailansicht zeigt den Ankunftswert am Ladepark und den Wert nach
+  einem Stopp dort. Beides dient der Nachvollziehbarkeit der Rücksetzung.
+
+## Referenzen
+
+- [`ADR-0019 – Plattformneutraler Route-Planning-Service`](ADR-0019-Route-Planning-Service.md)
+- [`ADR-0020 – Energie- und Segmentmodell`](ADR-0020-Energy-and-Segment-Model.md)
+- [`ADR-0021 – Lokaler Fahrzeugprofil-Speicher`](ADR-0021-Vehicle-Profile-Store.md)

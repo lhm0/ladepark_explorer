@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ladepark_explorer/features/dataset_update/application/dataset_update_providers.dart';
 import 'package:ladepark_explorer/features/dataset_update/domain/dataset_update_manifest.dart';
+import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:ladepark_explorer/features/settings/presentation/privacy_page.dart';
+import 'package:ladepark_explorer/features/settings/presentation/vehicle_profile_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/navigation/navigation_providers.dart';
 
@@ -83,6 +85,9 @@ class SettingsPage extends ConsumerWidget {
                   .setAutomaticDatasetChecks(enabled),
             ),
             _DatasetUpdateTile(update: update),
+            const Divider(),
+            _SectionTitle(strings.routePlanningTitle),
+            const _VehicleProfileTile(),
             const Divider(),
             _SectionTitle(strings.privacy),
             ListTile(
@@ -221,6 +226,38 @@ class _DatasetUpdateTile extends ConsumerWidget {
     }
   }
 }
+
+class _VehicleProfileTile extends ConsumerWidget {
+  const _VehicleProfileTile();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final profile = ref.watch(vehicleProfileControllerProvider).value;
+    return ListTile(
+      key: const ValueKey('vehicle-profile'),
+      leading: const Icon(Icons.electric_car_outlined),
+      title: Text(strings.vehicleProfileTitle),
+      subtitle: Text(
+        profile == null
+            ? strings.vehicleProfileNotSet
+            : strings.vehicleProfileSummary(
+                _trimZeros(profile.usableBatteryKwh.toStringAsFixed(1)),
+                _trimZeros(profile.consumptionKwhPer100Km.toStringAsFixed(1)),
+              ),
+      ),
+      trailing: const Icon(Icons.chevron_right),
+      onTap: () => Navigator.of(context).push<void>(
+        MaterialPageRoute<void>(
+          builder: (_) => VehicleProfilePage(initial: profile),
+        ),
+      ),
+    );
+  }
+}
+
+String _trimZeros(String value) =>
+    value.contains('.') ? value.replaceAll(RegExp(r'\.?0+$'), '') : value;
 
 String _megabytes(int bytes) => (bytes / 1000000).toStringAsFixed(0);
 

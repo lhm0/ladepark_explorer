@@ -15,6 +15,8 @@ import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate
 import 'package:ladepark_explorer/features/explorer/domain/models/location_search_target.dart';
 import 'package:ladepark_explorer/features/explorer/domain/repositories/charging_repository.dart';
 import 'package:ladepark_explorer/features/explorer/domain/repositories/charging_repository_exception.dart';
+import 'package:ladepark_explorer/features/explorer/domain/repositories/explorer_filters_repository.dart';
+import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 
 final chargingRepositoryProvider = FutureProvider<ChargingRepository>((
   ref,
@@ -24,6 +26,16 @@ final chargingRepositoryProvider = FutureProvider<ChargingRepository>((
   ref.onDispose(() => unawaited(repository.close()));
   return repository;
 });
+
+/// Persistence for the map filter selection (FR-FILTER-001). Backed by the same
+/// local settings database as the app settings and the vehicle profile
+/// (ADR-0016).
+final explorerFiltersRepositoryProvider =
+    FutureProvider<ExplorerFiltersRepository>(
+      (ref) async =>
+          await ref.watch(settingsRepositoryProvider.future)
+              as ExplorerFiltersRepository,
+    );
 
 final explorerMapControllerProvider =
     AsyncNotifierProvider<ExplorerMapController, ExplorerMapState>(
@@ -42,13 +54,29 @@ final class ExplorerMapController extends AsyncNotifier<ExplorerMapState> {
   @override
   Future<ExplorerMapState> build() async {
     await ref.watch(chargingRepositoryProvider.future);
+    final savedFilters = await ref
+        .watch(explorerFiltersRepositoryProvider.future)
+        .then((repository) => repository.loadFilters());
     ref.onDispose(() {
       _disposed = true;
       _queryRevision++;
       _queryTimer?.cancel();
       _pendingBounds = null;
     });
-    return const ExplorerMapState();
+    return ExplorerMapState(filters: savedFilters ?? ExplorerFilters.defaults);
+  }
+
+  /// Best-effort persistence of the filter selection so it survives a restart
+  /// (FR-FILTER-001). A failure here must never break filtering.
+  Future<void> _persistFilters(ExplorerFilters filters) async {
+    try {
+      final repository = await ref.read(
+        explorerFiltersRepositoryProvider.future,
+      );
+      await repository.saveFilters(filters);
+    } on Object {
+      // Ignored on purpose: the in-memory filter still applies.
+    }
   }
 
   void visibleBoundsChanged(GeoBounds bounds) {
@@ -110,6 +138,26 @@ final class ExplorerMapController extends AsyncNotifier<ExplorerMapState> {
         amenityAnchorStationIds: current.amenityAnchorStationIds,
         searchText: text,
         limit: 50,
+      ),
+    );
+  }
+
+  /// Groups within [radiusKm] of [center] under the current filters and
+  /// favorite/amenity anchors. Used by the route corridor search (FR-ROUTE-003).
+  Future<List<ChargingGroupSummary>> findGroupsNear(
+    GeoCoordinate center, {
+    required double radiusKm,
+  }) async {
+    final current = state.requireValue;
+    final repository = await ref.read(chargingRepositoryProvider.future);
+    return repository.findGroups(
+      _queryFor(
+        _boundsForRadius(center, radiusKm),
+        current.filters,
+        favoriteAnchorStationIds: current.favoriteAnchorStationIds,
+        amenityAnchorStationIds: current.amenityAnchorStationIds,
+        center: center,
+        radiusKm: radiusKm,
       ),
     );
   }
@@ -199,6 +247,7 @@ final class ExplorerMapController extends AsyncNotifier<ExplorerMapState> {
         clearError: true,
       ),
     );
+    unawaited(_persistFilters(filters));
     final bounds = current.bounds ?? _lastAcceptedBounds;
     if (bounds == null) return;
     _pendingBounds = bounds;

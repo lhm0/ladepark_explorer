@@ -35,15 +35,32 @@ selbst festlegen, was ein geeigneter Ladepark ist: Gruppendurchmesser, Zahl und
 Mindestleistung der Ladepunkte, Betreiber, Anschlüsse, 24/7-Zugänglichkeit,
 Infrastruktur, Umkreis und Favoriten sind kombinierbar.
 
-**Ist-Zustand:** M0 bis M12 sind implementiert. Die App besitzt eine native
-MapKit-Karte, lokalen SQLite-Datenzugriff, Suche, Standort, Filter, Details,
-Favoriten, eigene Vor-Ort-Informationen und Fotos, Apple-/Google-Maps-Übergabe,
-Deutsch/Englisch, statische verifizierte Datensatzupdates und eine bewusste
-No-Telemetry-Entscheidung. Der erste Datensatz `2026.07.0` ist öffentlich als
-GitHub Release verfügbar.
+**Ist-Zustand:** M0 bis M12 (Version 1.0) sind implementiert. Die App besitzt
+eine native MapKit-Karte, lokalen SQLite-Datenzugriff, Suche, Standort, Filter
+(seit 1.1 über einen Neustart erhalten), Details, Favoriten, eigene
+Vor-Ort-Informationen und Fotos, Apple-/Google-Maps-Übergabe, Deutsch/Englisch,
+statische verifizierte Datensatzupdates und eine bewusste No-Telemetry-
+Entscheidung. Der erste Datensatz `2026.07.0` ist öffentlich als GitHub
+Release verfügbar.
 
-**Nächster verbindlicher Schritt:** M13 – Release-Härtung und
+Zusätzlich ist **Version 1.1 („Routen-Update“) funktional eingefroren**
+(App-Version `1.1.0`): die Meilensteine M14, M15, M16 und M19 sind
+implementiert und auf Simulator und echtem iPhone manuell abgenommen. Die App
+plant eine Autoroute A→B, sucht Ladeparks im Korridor, nimmt manuell gesetzte
+Ladestopps auf, färbt die Route nach geschätztem Ladezustand (grün → gelb →
+rot, Neustart bei Grün je Stopp) und übergibt die Route an Apple Maps oder
+Google Maps.
+
+**Nächster verbindlicher Schritt (Version 1.0):** M13 – Release-Härtung und
 App-Store-Vorbereitung. TestFlight wurde bewusst noch nicht begonnen.
+
+**Fortsetzung der Routenplanung (Version 1.2):** M17 (automatischer
+Ladestopp-Vorschlag mit Lademenge, Ladezeit, Gesamtreisezeit) und M18
+(Alternativen, adaptive Neuplanung, Sperren) bleiben in
+[`specification/17_Route_Planning.md`](specification/17_Route_Planning.md)
+(`FR-ROUTE-007` bis `FR-ROUTE-010`) spezifiziert, sind aber nicht Teil des
+1.1-Stands. Die Schnittstellen `ChargingModel`/`StopPlanner` (ADR-0020) sind
+dafür bereits vorhanden. Siehe Abschnitt 10.4.
 
 **Nicht Bestandteil von 1.0:** Benutzerkonten, Community-Inhalte,
 Live-Belegung, Preise, Bezahlung, ein dauerhaftes fachliches Backend, Android-
@@ -146,6 +163,7 @@ lib/
 │   ├── favorites/             Modell, Zustand und Favoritenliste
 │   ├── park_info/             redaktionelle Informationen
 │   ├── dataset_update/        Manifest- und Updatezustand
+│   ├── route_planning/        Route, Korridor, Fahrzeugprofil, Ladezustand (1.1)
 │   └── settings/              Sprache, Navigation, Updates, Datenschutz
 ├── data/
 │   ├── charging/              read-only SQLite im Hintergrund-Isolate
@@ -155,9 +173,10 @@ lib/
 │   └── settings/              versionierter lokaler SQLite-Speicher
 ├── platform/
 │   ├── maps/                  plattformneutraler Vertrag und MapKit-Kanal
+│   ├── route/                 MKDirections-Adapter für den RoutePlanningService (1.1)
 │   ├── search/                MKLocalSearch
 │   ├── inbound/               eingehende Koordinaten/Deep Link
-│   └── navigation/            Apple-/Google-Maps-Adapter
+│   └── navigation/            Apple-/Google-Maps-Adapter, Routenübergabe (1.1)
 └── l10n/                      deutsche und englische Ressourcen
 ```
 
@@ -258,17 +277,30 @@ Originalfotos gehören nicht in Git. Pflegevertrag und Arbeitsablauf stehen in
 | M11 | implementiert | statische, verifizierte und atomare Datensatzupdates |
 | M12 | implementiert | keine Telemetrie; transparente lokale Diagnose und Netzwerkgrenzen |
 | M13 | geplant | Release-Härtung, TestFlight und App-Store-Vorbereitung |
+| M14 (1.1) | implementiert und abgenommen | Basisroute A→B, natives Overlay, Distanz/Fahrzeit, Alternativen |
+| M15 (1.1) | implementiert und abgenommen | Korridorsuche als Kartenmarker (einstellbare Breite), manuelle Ladestopps, Teilstrecken-Neuberechnung |
+| M16 (1.1) | implementiert und abgenommen | Fahrzeugprofil, Segmentmodell, `EnergyModel`, farbige Ladezustandsroute mit Neustart bei Grün je Stopp, Start-SoC und Ladeziel einstellbar |
+| M19 (1.1) | implementiert und abgenommen | Routenübergabe an Apple Maps (ganze Kette) bzw. Google Maps (nächster Stopp) |
+| M17 (1.2) | geplant | `ChargingModel`, `StopPlanner`, automatischer Ladestopp-Vorschlag mit Ladezeit und Gesamtreisezeit |
+| M18 (1.2) | geplant | Alternativen, adaptive Neuplanung, Sperren vorgelagerter Stopps |
 
 Details und Requirement-Zuordnung stehen in
-[`specification/14_Roadmap.md`](specification/14_Roadmap.md) und
+[`specification/14_Roadmap.md`](specification/14_Roadmap.md),
+[`specification/17_Route_Planning.md`](specification/17_Route_Planning.md) und
 [`specification/11_Testing.md`](specification/11_Testing.md).
 
 ### 7.1 Anforderungsabdeckung und verbleibende Lücken
 
 **Implementiert:** `FR-MAP-001/002`, `FR-GROUP-001`, `FR-SEARCH-001/002`,
-`FR-FILTER-001/002/003`, `FR-DETAIL-001`, `FR-NAV-001`, `FR-FAV-001`,
+`FR-FILTER-001/002/003` (die Auswahl bleibt seit 1.1 über einen Neustart
+erhalten), `FR-DETAIL-001`, `FR-NAV-001`, `FR-FAV-001`,
 `FR-DATA-001/002/003/004`, `FR-I18N-001` und `FR-PRIV-001` besitzen
 Implementierungen und automatisierte Nachweise in unterschiedlicher Tiefe.
+Für Version 1.1 sind zusätzlich `FR-ROUTE-001` bis `FR-ROUTE-006` und
+`FR-ROUTE-011` sowie `NFR-ROUTE-OFFLINE-001`, `NFR-ROUTE-EXT-001` und
+`NFR-ROUTE-PRIV-001` implementiert und mit automatisierten Tests belegt.
+`FR-ROUTE-007` bis `FR-ROUTE-010` (M17/M18, Version 1.2) und die formale
+`NFR-ROUTE-PERF-001`-Messung sind noch offen.
 
 **Teilweise beziehungsweise vor Release offen:**
 
@@ -351,12 +383,14 @@ python3 tooling/check_markdown_links.py
 git diff --check
 ```
 
-Zuletzt verifiziert: 72 Importertests und 55 Flutter-Tests; Ruff, Mypy,
-Flutter-Analyse, Architekturprüfung, Markdownlinks und iOS-Simulator-Build
-waren erfolgreich. Der vollständige manuelle Produktlauf wurde auf einem
-iPhone-16-Simulator ausgeführt; Teilfunktionen wurden auch auf einem echten
-iPhone geprüft. Alle öffentlichen GitHub-Actions-Läufe bis einschließlich
-Commit `fb49f22` wurden erfolgreich abgeschlossen.
+Zuletzt verifiziert: 72 Importertests und 115 Flutter-Tests; `dart format
+--set-exit-if-changed`, Flutter-Analyse, Architekturprüfung, Markdownlinks,
+`git diff --check` und der iOS-Simulator-Build waren erfolgreich, ebenso Ruff,
+Mypy und die Importer-Tests. Der vollständige manuelle Produktlauf wurde auf
+einem iPhone-16-Simulator ausgeführt; die Routenplanung von Version 1.1 wurde
+zusätzlich auf einem echten iPhone abgenommen. Die öffentlichen
+GitHub-Actions-Läufe von `main` bis Commit `fb49f22` waren erfolgreich; die
+Version-1.1-Arbeit lag bis zum Einfrieren auf einem Featurebranch.
 
 ## 10. Roadmap und Zukunftsfähigkeit
 
@@ -389,25 +423,50 @@ Ausfallsemantik, wahrscheinlich ein Backend und eine eigene Lizenz- und
 Datenschutzprüfung. PostgreSQL/PostGIS, Redis und FastAPI sind nur
 Technologiekandidaten, keine Entscheidung.
 
-### 10.4 Routenplanung – diskutierte Erweiterung
+### 10.4 Routenplanung – Version 1.1 („Routen-Update“) und Version 1.2
 
-**Idee, noch kein beschlossener Scope:**
+**Version 1.1 ist funktional eingefroren (App-Version `1.1.0`).** Verbindlich in
+[`specification/17_Route_Planning.md`](specification/17_Route_Planning.md)
+(`FR-ROUTE-001` bis `FR-ROUTE-011`, `NFR-ROUTE-*`) und in ADR-0019 bis
+ADR-0023. Version 1.1 ergänzt Version 1.0 um die Routenplanung; sie ist von
+M13 unabhängig.
 
-- M14 könnte eine normale Online-Autoroute von A nach B über Apple
-  `MKDirections` berechnen, nativ als Polyline darstellen und Distanz/Fahrzeit
-  zeigen.
-- M15 könnte lokal Ladeparks in einem Routenkorridor suchen und manuell
-  gewählte Zwischenstopps unterstützen.
-- Eine automatische E-Auto-Planung mit Reichweite, Verbrauch, Akkustand,
-  Ladekurve, Ladezeit und optimaler Stoppauswahl wäre ein eigener großer
-  Produktbereich und wird von MapKit nicht vollständig geliefert.
+Umgesetzt und manuell abgenommen:
 
-Vor M14 sind neue Requirement-IDs und ein ADR erforderlich. Der
-plattformneutrale Vertrag sollte etwa `RoutePlanningService` heißen; die
-MapKit-Implementierung gehört nach `platform/`, die Routengeometrie als
-Overlay in den nativen View. Exakte Apple-Polylines sollten nicht unnötig über
-den Method Channel transportiert werden. Start, Ziel und Zwischenziele werden
-an Apple übertragen und müssen in der Datenschutzdokumentation ergänzt werden.
+- **M14** – Online-Autoroute A→B über Apple `MKDirections`, nativ als Overlay
+  in `MKMapView`, mit Distanz/Fahrzeit und Alternativrouten.
+- **M15** – lokale Korridorsuche unter den aktiven Filtern (Abtastung der
+  dezimierten Polyline mit der bestehenden Radiusabfrage, ADR-0022; die
+  Korridorbreite ist je Fahrt einstellbar), Ladeparks als Kartenmarker,
+  manuell gesetzte Ladestopps mit Neuberechnung der Teilstrecken.
+- **M16** – lokales Fahrzeugprofil in den Einstellungen (ADR-0021),
+  Segmentmodell und `EnergyModel` (ADR-0020), `TripEnergySimulator`, farbige
+  Ladezustandsroute (ADR-0023) mit Neustart bei Grün nach jedem Stopp;
+  Start-Ladezustand und Ladeziel am Stopp sind je Fahrt einstellbar.
+- **M19** – Übergabe der geplanten Route an eine Navigations-App (ADR-0016
+  Nachtrag): Apple Maps erhält die ganze Kette über `MKMapItem.openMaps`,
+  Google Maps wird über `comgooglemaps://` zum nächsten Ladestopp geführt, da
+  das Schema keine Wegpunktkette kennt.
+- **FR-FILTER-001** – die Kartenfilter überleben seit 1.1 einen App-Neustart
+  (JSON im Einstellungsspeicher, Vertrag `ExplorerFiltersRepository`).
+
+**Version 1.2 – noch offen:** M17 (`ChargingModel`, `StopPlanner`,
+automatischer Ladestopp-Vorschlag mit Lademenge, Ladezeit und
+Gesamtreisezeit) und M18 (Alternativenauswahl, adaptive Neuplanung, Sperren
+vorgelagerter Stopps). `FR-ROUTE-007` bis `FR-ROUTE-010`. Die Verträge
+`ChargingModel` und `StopPlanner` sind in ADR-0020 entschieden;
+`TripEnergySimulator` nimmt den Abfahrt-Ladezustand bereits über einen
+Rückruf entgegen.
+
+Der plattformneutrale Vertrag heißt `RoutePlanningService`
+(`features/route_planning/domain/`); die MapKit-Implementierung liegt unter
+`platform/route/`, die Routengeometrie als Overlay im nativen View. Exakte
+Apple-Polylines werden nicht über den Method Channel transportiert; Flutter
+erhält nur eine dezimierte Polyline und Kennzahlen. Start, Ziel und
+Zwischenziele werden an Apple übertragen und sind in der
+Datenschutzdokumentation ergänzt. Die austauschbaren Modellschnittstellen
+halten die spätere „intelligente“ Vorhersage (Straßenart, Steigung,
+Temperatur, Ladekurve, Fahrergewohnheiten) nachrüstbar.
 
 ### 10.5 Weitere bewusst vorbereitete Erweiterungen
 

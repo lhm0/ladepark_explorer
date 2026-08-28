@@ -1,0 +1,157 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
+import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_corridor.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_planning_exception.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_planning_service.dart';
+import 'package:ladepark_explorer/platform/route/mkdirections_route_planning_service.dart';
+
+final routePlanningServiceProvider = Provider<RoutePlanningService>(
+  (ref) => const MkDirectionsRoutePlanningService(),
+);
+
+final routePlanningControllerProvider =
+    NotifierProvider<RoutePlanningController, RoutePlanningState>(
+      RoutePlanningController.new,
+    );
+
+/// Coordinates route calculation, alternative selection and the manually
+/// chosen charging stops (FR-ROUTE-001, FR-ROUTE-002, FR-ROUTE-004,
+/// NFR-ROUTE-OFFLINE-001). The selected route is drawn natively on the map by
+/// the map screen.
+final class RoutePlanningController extends Notifier<RoutePlanningState> {
+  @override
+  RoutePlanningState build() => const RoutePlanningState();
+
+  Future<void> planRoute(RouteRequest request) async {
+    state = state.copyWith(
+      isCalculating: true,
+      clearError: true,
+      origin: request.origin,
+      destination: request.destination,
+      stops: const <RouteStop>[],
+      clearTripStartSoc: true,
+      clearTripChargeTargetSoc: true,
+    );
+    ref.read(corridorControllerProvider.notifier).clear();
+    await _run(request);
+  }
+
+  /// Sets the start state of charge for this trip, or null to fall back to the
+  /// vehicle profile default (FR-ROUTE-005, FR-ROUTE-006).
+  void setTripStartSoc(int? percent) {
+    state = state.copyWith(
+      tripStartSocPercent: percent,
+      clearTripStartSoc: percent == null,
+    );
+  }
+
+  /// Sets the state of charge the plan assumes on departure from every charging
+  /// stop for this trip, or null to fall back to the vehicle profile target
+  /// (FR-ROUTE-006).
+  void setTripChargeTargetSoc(int? percent) {
+    state = state.copyWith(
+      tripChargeTargetSocPercent: percent,
+      clearTripChargeTargetSoc: percent == null,
+    );
+  }
+
+  Future<void> retry() async {
+    if (!state.canRecalculate) return;
+    state = state.copyWith(isCalculating: true, clearError: true);
+    await _run(_currentRequest());
+  }
+
+  Future<void> addStop({
+    required String groupId,
+    required GeoCoordinate coordinate,
+    String? name,
+  }) async {
+    if (!state.canRecalculate || state.containsStop(groupId)) return;
+    final polyline = state.selectedOption?.polyline ?? const <GeoCoordinate>[];
+    final stop = RouteStop(
+      groupId: groupId,
+      coordinate: coordinate,
+      positionKm: positionAlongPolylineKm(polyline, coordinate),
+      name: name,
+    );
+    final stops = <RouteStop>[...state.stops, stop]
+      ..sort((a, b) => a.positionKm.compareTo(b.positionKm));
+    state = state.copyWith(stops: stops, isCalculating: true, clearError: true);
+    // The stop stays even if the re-route through it fails: the range estimate
+    // then projects it onto the existing geometry, so the colouring still
+    // restarts from the stop (FR-ROUTE-006). The failed re-route surfaces as a
+    // retryable notice in the preview panel.
+    await _run(_currentRequest());
+  }
+
+  Future<void> removeStop(String groupId) async {
+    if (!state.canRecalculate || !state.containsStop(groupId)) return;
+    state = state.copyWith(
+      stops: state.stops
+          .where((stop) => stop.groupId != groupId)
+          .toList(growable: false),
+      isCalculating: true,
+      clearError: true,
+    );
+    await _run(_currentRequest());
+  }
+
+  void selectAlternative(int index) {
+    if (index < 0 ||
+        index >= state.options.length ||
+        index == state.selectedIndex) {
+      return;
+    }
+    state = state.copyWith(selectedIndex: index);
+  }
+
+  void clear() {
+    state = const RoutePlanningState();
+    ref.read(corridorControllerProvider.notifier).clear();
+  }
+
+  RouteRequest _currentRequest() => RouteRequest(
+    origin: state.origin!,
+    destination: state.destination!,
+    intermediateWaypoints: state.stops
+        .map(
+          (stop) =>
+              RouteWaypoint(coordinate: stop.coordinate, label: stop.name),
+        )
+        .toList(growable: false),
+    includeAlternatives: state.stops.isEmpty,
+  );
+
+  Future<void> _run(RouteRequest request) async {
+    try {
+      final options = await ref
+          .read(routePlanningServiceProvider)
+          .planRoute(request);
+      if (options.isEmpty) {
+        state = state.copyWith(
+          isCalculating: false,
+          error: RoutePlanningError.noRouteFound,
+        );
+        return;
+      }
+      state = state.copyWith(
+        options: options,
+        selectedIndex: 0,
+        isCalculating: false,
+        clearError: true,
+      );
+    } on RoutePlanningException catch (exception) {
+      state = state.copyWith(isCalculating: false, error: exception.error);
+    } on Object {
+      state = state.copyWith(
+        isCalculating: false,
+        error: RoutePlanningError.serviceFailed,
+      );
+    }
+  }
+}

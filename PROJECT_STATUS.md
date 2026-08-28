@@ -2,6 +2,13 @@
 
 Stand: 28. August 2026
 
+**Version 1.1 („Routen-Update“, App-Version `1.1.0`) ist funktional
+eingefroren:** die Meilensteine M14, M15, M16 und M19 sind implementiert und
+auf Simulator und echtem iPhone manuell abgenommen. M13 (Release-Härtung für
+Version 1.0) und M17/M18 (automatischer Ladestopp-Vorschlag und adaptive
+Neuplanung, Version 1.2) stehen noch aus. Die Änderungshistorie steht in
+[`CHANGELOG.md`](CHANGELOG.md).
+
 ## Aktueller Zustand
 
 - Git-Repository ist auf dem Branch `main` initialisiert.
@@ -267,6 +274,11 @@ Stand: 28. August 2026
   - Die Filterseite übernimmt ihren sichtbaren Stand beim Verlassen über
     Zurück; „Abbruch“ stellt den Öffnungsstand und „Standard herstellen“ die
     Produktvorgaben wieder her, ohne die Seite zu schließen.
+  - Die Filterauswahl überlebt einen App-Neustart: sie wird als ein
+    JSON-Wert (`explorer_filters`) in der lokalen Einstellungsdatenbank
+    gespeichert, hinter dem Vertrag `ExplorerFiltersRepository` (ADR-0016).
+    `SqliteSettingsRepository` implementiert ihn zusätzlich; der transiente
+    Umkreisfilter „Entfernung zum aktuellen Standort“ wird nicht gespeichert.
 - Der Spezifikationskern für Version 1.0 ist erstellt und fachlich
   konsolidiert:
   - Produktvision und Scope,
@@ -304,6 +316,23 @@ Stand: 28. August 2026
     Direktkoordinaten ohne behaupteten Rückübergabestandard der Kartenanbieter.
   - ADR-0014: getrennter lokaler SQLite-Favoritenspeicher mit stabilen
     Stationsankern.
+  - ADR-0015: konservativer, strukturierter Filter für durchgehende
+    Zugänglichkeit.
+  - ADR-0016: lokale Einstellungen und Wahl der Navigations-App; Nachträge zur
+    persistenten Kartenfilter-Auswahl und zur Übergabe der geplanten Route an
+    eine Navigations-App (Version 1.1).
+  - ADR-0017: statische, atomare Ladebestandsupdates über ein Manifest.
+  - ADR-0018: keine Telemetrie in Version 1.0.
+  - ADR-0019: plattformneutraler `RoutePlanningService` mit MapKit-Adapter
+    (Version 1.1).
+  - ADR-0020: Energie- und Segmentmodell hinter austauschbaren Schnittstellen
+    `EnergyModel`, `ChargingModel`, `StopPlanner` (Version 1.1).
+  - ADR-0021: lokaler Fahrzeugprofil-Speicher im schema-versionierten
+    Einstellungsspeicher (Version 1.1).
+  - ADR-0022: Routenkorridor-Suche über Abtastung der dezimierten Polyline
+    ohne Vertragsänderung (Version 1.1).
+  - ADR-0023: Ladezustandsfärbung der Route über eingefärbte Polylinien­abschnitte
+    (Version 1.1, Umsetzung in M16).
 - Das Lizenz- und Datenquellen-Dossier ist die fortlaufende Basis für die
   finale Lizenzprüfung. Version 1.0 vermeidet bewusst eine Architektur, deren
   Veröffentlichung eine individuelle juristische Einzelfallprüfung voraussetzt.
@@ -334,22 +363,174 @@ Erreicht:
   erforderliche Ladepunktzahl und Mindestleistung werden ausschließlich aus
   eindeutig als 24/7 normalisierten Stationen gezählt.
 
-## Nächster Meilenstein
+## Offene Meilensteine
 
-M0 bis M12 sind implementiert. Als letzter verbindlicher Meilenstein für
-Version 1.0 folgt M13 – Release-Härtung und App-Store-Vorbereitung. Er umfasst
-insbesondere reale Performance- und Offlineabnahme, Zugänglichkeit,
-Lizenznachweise, die Entscheidung zur Manifest-Herkunftssignatur, Signierung,
-App-Store-Metadaten, TestFlight und eine finale Gerätematrix. TestFlight wurde
-bewusst noch nicht begonnen. Die Soll-Anforderung `FR-LINK-001` ist durch
-Schema und Lizenzregeln vorbereitet, besitzt aber noch keine kuratierten
-Produktlinks oder App-Darstellung; M13 muss Umsetzung oder begründete
-Verschiebung entscheiden.
+- **M13 – Release-Härtung für Version 1.0.** Reale Performance- und
+  Offlineabnahme, Zugänglichkeit, Lizenznachweise, Entscheidung zur
+  Manifest-Herkunftssignatur, Signierung, App-Store-Metadaten, TestFlight und
+  eine finale Gerätematrix. TestFlight wurde bewusst noch nicht begonnen. Die
+  Soll-Anforderung `FR-LINK-001` ist durch Schema und Lizenzregeln
+  vorbereitet, besitzt aber noch keine kuratierten Produktlinks oder
+  App-Darstellung; M13 muss Umsetzung oder begründete Verschiebung
+  entscheiden. Die Zugänglichkeits- und Performance-Abnahme der Routenplanung
+  (`NFR-ROUTE-PERF-001`) gehört zu dieser gemeinsamen Härtung.
+- **M17/M18 – Version 1.2.** Automatischer Ladestopp-Vorschlag mit Lademenge,
+  Ladezeit und Gesamtreisezeit (`FR-ROUTE-007/008`) sowie Alternativenauswahl,
+  adaptive Neuplanung und Sperren vorgelagerter Stopps (`FR-ROUTE-009/010`).
+  Die Verträge `ChargingModel` und `StopPlanner` (ADR-0020) und der
+  Abfahrt-Rückruf im `TripEnergySimulator` sind dafür bereits vorhanden.
 
-Die statusmarkierte Gesamtroadmap einschließlich der diskutierten späteren
-Routenplanung steht in `docs/specification/14_Roadmap.md`. Die technische
-Übergabe für eine kontextfreie Weiterentwicklung steht in
-`docs/AI_HANDOVER.md`.
+Die statusmarkierte Gesamtroadmap steht in
+`docs/specification/14_Roadmap.md`. Die technische Übergabe für eine
+kontextfreie Weiterentwicklung steht in `docs/AI_HANDOVER.md`.
+
+## Version 1.1 – Routen-Update (funktional eingefroren)
+
+Version 1.1 ergänzt Version 1.0 um eine Routenplanung mit einfacher
+Reichweitenschätzung. Die Ladestopp-Auswahl ist manuell, unterstützt durch die
+farbige Reichweitenanzeige. Die Verbrauchs-, Lade- und Stopp-Planungslogik
+liegt bewusst hinter austauschbaren Schnittstellen (`EnergyModel`,
+`ChargingModel`, `StopPlanner` gemäß ADR-0020), damit eine spätere
+„intelligente“ Vorhersage nachgerüstet werden kann.
+
+- **M14.0** abgeschlossen: verbindliches Kapitel
+  `docs/specification/17_Route_Planning.md` (`FR-ROUTE-001` bis `FR-ROUTE-011`,
+  `NFR-ROUTE-*`) und ADR-0019 bis ADR-0023.
+- **M14** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: kein Freeze mehr, das Vorschau-Split-Layout ist
+  stabil, wiederholtes Öffnen und Schließen der Routen- und Vorschauansicht ist
+  unauffällig:
+  - plattformneutraler `RoutePlanningService` in
+    `app/lib/features/route_planning/domain/` mit typisierten `RouteRequest`-
+    und `RouteOption`-Modellen und stabilen `RoutePlanningError`-Kategorien,
+  - `MkDirectionsRoutePlanningService` in `app/lib/platform/route/` ruft
+    natives `MKDirections` je Teilstrecke, mappt Netz-, Drossel- und
+    Nicht-gefunden-Fehler und dezimiert die Polyline (Douglas–Peucker,
+    Punktobergrenze) vor der Übergabe an Flutter,
+  - die Route wird nativ als `MKPolyline`-Overlay in der bestehenden
+    `MKMapView` gezeichnet und eingepasst (`showRoute`/`clearRoute`),
+  - gemäß ADR-0011 liegt **keine** Flutter-Fläche über der Karte. Start-/
+    Zieleingabe läuft auf einer opaken Vollbildroute; die Routenvorschau
+    (`RoutePreviewPage`) ist ein nicht überlappendes Split-Layout mit eigener
+    `MKMapView`-Instanz über einem statischen Auswahlpanel, sodass Route und
+    Alternativen gleichzeitig sichtbar sind. Ein erster Versuch mit einem
+    schmalen Zusammenfassungsbalken über der Karte fror die App auf dem Gerät
+    ein und wurde nach Internetrecherche als bekannte iOS-`UiKitView`-
+    Freeze-Klasse verworfen (siehe ADR-0019 Nachtrag),
+  - Start und Ziel als Ort, Adresse, Koordinate, aktueller Standort oder – aus
+    der Detailansicht heraus – als ausgewählter Ladepark,
+  - klare Offline-, Fehler- und Drosselungszustände mit Wiederholung,
+  - 16 neue automatisierte Tests (Service-Contract, Kartenkanal, Controller,
+    Eingabe- und Vorschauseite); DE/EN-Lokalisierung ergänzt.
+- **M15** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: kein Freeze; Korridorsuche, orange Korridormarker,
+  „Ladestop einfügen"/„entfernen" aus der Detailansicht sowie die blauen,
+  antippbaren Ladestopp-Marker auf Vorschau- und Hauptkarte funktionieren wie
+  spezifiziert:
+  - Korridorsuche gemäß ADR-0022: die dezimierte Route wird alle 20 km
+    abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit den aktiven
+    Filtern sequentiell im Charging-Isolate (Radius = halbe Korridorbreite,
+    Vorgabe 10 km; Breite seit der M16b-Nachbesserung je Fahrt einstellbar);
+    Treffer werden über `groupId` dedupliziert; Fortschritt und
+    500-Treffer-Grenze sind sichtbar,
+  - die Interaktion ist kartenbasiert (keine Liste): der Panel-Knopf
+    „Ladeparks entlang der Route" startet die Suche, die Treffer erscheinen als
+    orange Marker auf der Vorschaukarte. Ein Tippen öffnet die bestehende
+    Detailansicht mit dem Knopf „Ladestop einfügen"; danach ist wieder die
+    Karte mit dem Korridor sichtbar,
+  - übernommene Ladestopps werden als geordnete Wegpunkte an `MKDirections`
+    übergeben, Teilstrecken, Distanz und Fahrzeit werden neu berechnet; ein
+    fehlerhafter Neuberechnungsversuch nimmt den Stopp zurück,
+  - Ladestopps werden nativ als **blaue** nummerierte, antippbare Marker
+    gezeigt (`showRouteStops`) und bleiben sichtbar, solange die Route auf der
+    Karte liegt; ein Tippen öffnet die Detailansicht mit „Ladestop entfernen".
+    Korridormarker (`showRouteCorridor`) erscheinen nur in der Vorschau und
+    schließen die bereits gewählten Stopps aus; das Auswahlpanel der Vorschau
+    hat feste Höhe,
+  - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
+    Korridorsuche im Panel, Stopp-Operationen, „Ladestop einfügen"-Knopf);
+    DE/EN-Lokalisierung ergänzt.
+- **M16a** implementiert, automatisiert geprüft und manuell abgenommen: das
+  Fahrzeugprofil lässt sich in den Einstellungen anlegen, ändern und löschen,
+  überlebt einen App-Neustart und weist ungültige Eingaben ab:
+  - `VehicleProfile`-Domänenmodell und `VehicleProfileRepository`-Vertrag in
+    `features/route_planning/domain/` (nutzbare Kapazität, Verbrauch je 100 km,
+    Reserve- und Ziel-Ladezustand, Start-Ladezustand, maximale Ladeleistung,
+    kompatible Steckertypen),
+  - Ablage in der bestehenden schema-versionierten Einstellungsdatenbank gemäß
+    ADR-0021: Schemaversion 2, neue Tabelle `vehicle_profiles`, eine Zeile;
+    `SqliteSettingsRepository` implementiert zusätzlich `VehicleProfileRepository`;
+    Migrationstest für eine Version-1-Datenbank vorhanden,
+  - Editor in den Einstellungen (`VehicleProfilePage`) mit Zahlenfeldern und
+    Steckertyp-Auswahl, Speichern mit Validierung und „Profil löschen"; die
+    Einstellungsseite zeigt eine Kurzzusammenfassung,
+  - 6 neue automatisierte Tests (Persistenz, Migration, Controller, Editor);
+    DE/EN-Lokalisierung ergänzt.
+- **M16b** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: die farbige Ladezustandsdarstellung beginnt nach
+  jedem Ladestopp neu bei Grün, Start-Ladezustand und Ladeziel am Stopp sowie
+  die Korridorbreite sind je Fahrt einstellbar, und die Kartenfilter überleben
+  einen App-Neustart:
+  - Segmentmodell (`RouteSegment`/`RoutePath` mit optionalen, in 1.1 leeren
+    Attributen) und `buildRoutePath` aus der dezimierten Polyline,
+  - austauschbare `EnergyModel`-Schnittstelle mit `ConstantRateEnergyModel`
+    (Energie = km/100 × Verbrauch); `TripContext` als erweiterbarer Kontext,
+  - `TripEnergySimulator` erzeugt den geschätzten Ladezustandsverlauf je
+    Polylinienpunkt und den ersten Streckenkilometer unter der Reserve; an
+    jedem Ladestopp springt der Ladezustand auf das Ladeziel am Stopp
+    (eingestellter Wert, sonst feste Vorgabe 80 %, `kDefaultChargeTargetSocPercent`,
+    unabhängig vom Ziel-Ladezustand bei Ankunft); zusätzlich liefert er
+    `stopSocs` (Ankunft/Abfahrt je Stopp), `socAtKm` und
+    `chargeTargetSocPercent` (ADR-0020/ADR-0023, für M17 über einen Rückruf
+    austauschbar),
+  - `tripEnergyProfileProvider` verknüpft Route, Fahrzeugprofil,
+    Start-Ladezustand und Ladeziel am Stopp,
+  - farbige Route (ADR-0023): `showRoute` erhält optional eine ARGB-Liste je
+    Polylinienabschnitt; nativ wird je Abschnitt eine kurze `MKPolyline`
+    gezeichnet (grün → gelb → rot, unter der Reserve dunkelrot). Ohne
+    vollständiges Profil bleibt die Linie einfarbig,
+  - ein gesetzter Ladestopp bleibt bestehen, auch wenn die Neuberechnung der
+    Route über den Stopp fehlschlägt; die Schätzung projiziert ihn dann auf die
+    vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün beginnt,
+  - im Vorschaupanel drei gleich gestaltete `−`/Wert/`+`-Steller: Start-Ladezustand
+    und „Ladeziel am Stopp" (Sitzungszustand, Vorgaben aus Profil bzw. feste
+    80 %) sowie „Korridorbreite" über dem Korridor-Knopf (20–60 km in
+    10‑km‑Schritten, Vorgabe 20 km, halbe Breite = Abfrageradius); dazu eine
+    Textzeile mit dem Ladezustandsverlauf (Start · Stopp n: an/ab · Ziel) als
+    Diagnose, die Reserve-Warnung „Reichweite reicht nur bis km X" und eine
+    Fehlerzeile mit Wiederholung, wenn eine Neuberechnung fehlschlägt,
+  - die Korridor-Detailansicht zeigt den geschätzten Ladezustand bei Ankunft am
+    Ladepark und den Wert nach einem Ladestopp dort,
+  - die Vorschauseite gleicht die native Karte lifecycle-getrieben aus einem
+    `addPostFrameCallback` ab (Render-Schlüssel gegen Doppelarbeit), damit die
+    Färbung dem Einfügen eines Ladestopps auch dann folgt, wenn die Seite von
+    der Detailansicht verdeckt ist; `showRoute` bewegt die Karte nur bei der
+    ersten Darstellung,
+  - neue und erweiterte automatisierte Tests (Segmentmodell, EnergyModel,
+    Simulator inkl. Stopp-Trace/Ladeziel/`socAtKm`, Provider-Neuberechnung bei
+    Stopp, Stopp bleibt bei fehlgeschlagener Neuberechnung, Farbabbildung,
+    Kartenkanal, Vorschaupanel); DE/EN-Lokalisierung ergänzt.
+- **M19 – Routenübergabe an eine Navigations-App** implementiert und
+  automatisiert geprüft; manuelle Abnahme steht aus:
+  - `NavigationAdapter` erhält `openRoute(NavigationRoute)`; die Vorschau zeigt
+    „In Navigation öffnen“ als Hauptaktion (FR-ROUTE-011),
+  - Apple Maps bekommt die vollständige Kette (`MKMapItem.openMaps`); Google
+    Maps wird über das App-Schema `comgooglemaps://` geöffnet (der universelle
+    Web-Link landete auf dem Gerät im Browser samt App-Store-Umweg) und kennt
+    keine Zwischenziel-Kette, führt also zum nächsten Ladestopp – ein Hinweis
+    erklärt das (`NavigationHandoff`),
+  - die App-Auswahl (Präferenz, Auswahldialog, Apple-Fallback) ist in die
+    gemeinsame Hilfsfunktion `resolveNavigationAdapter` gezogen und wird von
+    Detailansicht und Routenvorschau genutzt (ADR-0016),
+  - neue Tests für beide Adapter (`openRoute`, Google „nächster Stopp“) und den
+    Vorschau-Knopf; DE/EN-Lokalisierung ergänzt.
+- **Verifikation des eingefrorenen Stands:** 72 Importertests und 115
+  Flutter-Tests; `dart format`, `flutter analyze`, Architekturprüfung,
+  `python3 tooling/check_markdown_links.py .`, `git diff --check` und der
+  iOS-Simulator-Build erfolgreich.
+- **M17 und M18** (automatischer Ladestopp-Vorschlag, adaptive Teil-Neuplanung
+  mit Sperren, `FR-ROUTE-007` bis `FR-ROUTE-010`) sind auf **Version 1.2**
+  verschoben und nicht Teil des eingefrorenen 1.1-Stands.
 
 ## Bekannte offene Entscheidungen
 
@@ -366,10 +547,21 @@ Für die spätere App:
 
 - Android-Kartenadapter und kontrollierte Kartenversorgung,
 - Anbieter und Betriebsmodell für ein mögliches späteres fachliches Backend,
-- Routenplanungsumfang nach der diskutierten Trennung in normale Route,
-  Ladeparks entlang der Route und automatische E-Auto-Optimierung,
 - ein möglicher späterer Wechsel der statischen Updateablage von GitHub zu
   einem Objektspeicher.
+
+Für die Routenplanung noch offen:
+
+- Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung (Version
+  1.2, M17),
+- Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001` (mit der
+  M13-Härtung).
+
+Für Version 1.1 festgelegt: Korridorbreite je Fahrt einstellbar (20–60 km,
+Vorgabe 20 km), 20 km Abtastabstand (ADR-0022); Fahrzeugprofil-Vorgaben und
+Wertebereiche (ADR-0021); Ladeziel am Stopp fest 80 %; Wegpunktübergabe je
+Ziel-App (Apple Maps vollständige Kette, Google Maps nächster Stopp,
+ADR-0016 Nachtrag).
 
 ## Bekannte Risiken
 
@@ -426,12 +618,15 @@ Kartenausschnitte und Umkreissuchen. Die hybride Auswahl zwischen R*Tree und
 Direktfilter benötigte im Prototyp 154–207 ms für den Berliner Ausschnitt,
 53 ms für 25 km um München und 443 ms für die Deutschlandansicht.
 
-Die Flutter-App wurde am 28. August 2026 mit `flutter gen-l10n`, `dart format`,
-`flutter analyze` und 55 Tests erfolgreich geprüft. Darin sind der
-M2-SQLite-Contract, die M3-Kartenkoordination sowie die M10-Verträge für lokale
-Einstellungen, Apple-/Google-Maps-Navigation und die M11-Manifest-,
-Installations- und Rollbackverträge sowie der M12-Datenschutz-Widgettest
-enthalten. Die automatisierte
+Die Flutter-App wurde mit `flutter gen-l10n`, `dart format`,
+`flutter analyze` und 82 Tests erfolgreich geprüft. Darin sind der
+M2-SQLite-Contract, die M3-Kartenkoordination, die M10-Verträge für lokale
+Einstellungen, Apple-/Google-Maps-Navigation, die M11-Manifest-,
+Installations- und Rollbackverträge, der M12-Datenschutz-Widgettest, die
+M14-Verträge für den `RoutePlanningService`, den nativen Routenkanal, den
+Routen-Controller und die Eingabe- und Vorschauseite sowie die
+M15-Korridorgeometrie, der Korridor-Controller, die Korridorsuche im Panel und
+die Stopp-Operationen enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
 App wurde mit dem vollständigen Deutschlandbestand auf einem iPhone-16-Simulator
@@ -441,3 +636,17 @@ Marker und native Cluster werden angezeigt. Der Debug-App-Build ist rund
 441.950.208 Byte und komprimiert 182.274.446 Byte.
 Der echte App-Wechsel zu Google Maps und der sprachliche Gesamteindruck bleiben
 auf einem iPhone manuell abzunehmen.
+
+Die M14-Routenplanung wurde am 28. August 2026 auf dem iPhone-16-Simulator und
+einem echten iPhone manuell abgenommen: Route berechnen, Vorschau mit Karte und
+Alternativpanel gleichzeitig, Umschalten zwischen Routen, „Auf Karte anzeigen“,
+erneutes Öffnen und „Route beenden“ liefen wiederholt ohne Freeze oder sonstige
+Auffälligkeiten. Der zuvor mit einem Flutter-Zusammenfassungsbalken über der
+Karte reproduzierte Einfrierer tritt mit dem nicht überlappenden Split-Layout
+nicht mehr auf.
+
+Die M15-Korridorfunktion wurde auf dem iPhone-16-Simulator und einem echten
+iPhone manuell abgenommen: Korridorsuche mit Fortschritt, orange Korridormarker,
+Detailansicht mit „Ladestop einfügen"/„entfernen", blaue nummerierte
+Ladestopp-Marker, Neuberechnung der Route beim Setzen und Entfernen von Stopps
+sowie die antippbaren blauen Marker auf der Hauptkarte liefen ohne Freeze.

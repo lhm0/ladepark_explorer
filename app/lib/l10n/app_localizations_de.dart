@@ -463,4 +463,250 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get diagnosticsPrivacyExplanation =>
       'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.';
+
+  @override
+  String get routePlanning => 'Route planen';
+
+  @override
+  String get routePlanningTitle => 'Routenplanung';
+
+  @override
+  String get routeOnlineHint =>
+      'Die Route wird online über Apple-Kartendienste berechnet.';
+
+  @override
+  String get routeStartLabel => 'Start';
+
+  @override
+  String get routeDestinationLabel => 'Ziel';
+
+  @override
+  String get routeEndpointHint => 'Ort, Adresse oder Koordinate';
+
+  @override
+  String get routeUseCurrentLocation =>
+      'Aktuellen Standort als Start verwenden';
+
+  @override
+  String get routeCalculate => 'Route berechnen';
+
+  @override
+  String get routeCalculating => 'Route wird berechnet …';
+
+  @override
+  String get routeStartNotFound => 'Der Start wurde nicht gefunden.';
+
+  @override
+  String get routeDestinationNotFound => 'Das Ziel wurde nicht gefunden.';
+
+  @override
+  String routeDurationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String routeDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String routeSummary(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String routeDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get routeOverviewTitle => 'Route';
+
+  @override
+  String get routeMapSemantics => 'Karte mit der geplanten Route';
+
+  @override
+  String get routeAlternativesHeading => 'Alternativen';
+
+  @override
+  String routeOptionLabel(int index) {
+    return 'Route $index';
+  }
+
+  @override
+  String get routeShowOnMap => 'Auf Karte anzeigen';
+
+  @override
+  String get routeNewRoute => 'Neue Route';
+
+  @override
+  String get routeClear => 'Route beenden';
+
+  @override
+  String get routeErrorOffline =>
+      'Ohne Internetverbindung kann keine Route berechnet werden.';
+
+  @override
+  String get routeErrorThrottled =>
+      'Der Kartendienst ist zurzeit ausgelastet. Bitte kurz warten und erneut versuchen.';
+
+  @override
+  String get routeErrorNotFound =>
+      'Für Start und Ziel wurde keine Route gefunden.';
+
+  @override
+  String get routeErrorInvalid => 'Start und Ziel müssen angegeben sein.';
+
+  @override
+  String get routeErrorFailed => 'Die Route konnte nicht berechnet werden.';
+
+  @override
+  String get routeRetry => 'Erneut versuchen';
+
+  @override
+  String get planRouteToHere => 'Route hierher planen';
+
+  @override
+  String get routeCorridorTitle => 'Ladeparks entlang der Route';
+
+  @override
+  String routeCorridorSearching(int done, int total) {
+    return '$done von $total Abschnitten geprüft';
+  }
+
+  @override
+  String get routeCorridorEmpty =>
+      'Auf dieser Route wurde kein passender Ladepark gefunden.';
+
+  @override
+  String get routeCorridorLimit =>
+      'Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.';
+
+  @override
+  String get routeCorridorFailed =>
+      'Einige Abschnitte konnten nicht geprüft werden.';
+
+  @override
+  String routeCorridorCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Ladeparks im Korridor',
+      one: '1 Ladepark im Korridor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routeInsertStop => 'Ladestop einfügen';
+
+  @override
+  String get routeRemoveStop => 'Ladestop entfernen';
+
+  @override
+  String get routeOpenInNavigation => 'In Navigation öffnen';
+
+  @override
+  String get routeNavigationTruncated =>
+      'Google Maps übernimmt keine Zwischenstopp-Kette. Es wird zum nächsten Ladestopp geführt; die weitere Route danach dort erneut öffnen.';
+
+  @override
+  String routeStopsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Ladestopps',
+      one: '1 Ladestopp',
+      zero: 'Keine Ladestopps',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get routeStartSocLabel => 'Start-Ladezustand';
+
+  @override
+  String get routeChargeTargetLabel => 'Ladeziel am Stopp';
+
+  @override
+  String get routeCorridorWidthLabel => 'Korridorbreite';
+
+  @override
+  String routeRangeDeficit(int km) {
+    return 'Reichweite reicht nur bis km $km';
+  }
+
+  @override
+  String routeSocBreakdownStart(int soc) {
+    return 'Start $soc %';
+  }
+
+  @override
+  String routeSocBreakdownStop(int index, int arrival, int departure) {
+    return 'Stopp $index: an ~$arrival % → ab $departure %';
+  }
+
+  @override
+  String routeSocBreakdownTarget(int soc) {
+    return 'Ziel ~$soc %';
+  }
+
+  @override
+  String routeSocAtArrival(int soc) {
+    return 'Ladezustand bei Ankunft: ~$soc %';
+  }
+
+  @override
+  String routeSocAfterStop(int soc) {
+    return 'Nach dem Ladestopp: $soc %';
+  }
+
+  @override
+  String get vehicleProfileTitle => 'Fahrzeugprofil';
+
+  @override
+  String get vehicleProfileExplanation =>
+      'Diese Angaben bleiben nur auf diesem Gerät und dienen der Reichweiten- und Ladeplanung.';
+
+  @override
+  String get vehicleProfileNotSet => 'Noch nicht angelegt';
+
+  @override
+  String vehicleProfileSummary(String battery, String consumption) {
+    return '$battery kWh · $consumption kWh/100 km';
+  }
+
+  @override
+  String get vehicleBatteryLabel => 'Nutzbare Batteriekapazität (kWh)';
+
+  @override
+  String get vehicleConsumptionLabel => 'Durchschnittsverbrauch (kWh/100 km)';
+
+  @override
+  String get vehicleMaxPowerLabel => 'Maximale Ladeleistung (kW)';
+
+  @override
+  String get vehicleReserveLabel => 'Reserve-Ladezustand (%)';
+
+  @override
+  String get vehicleTargetLabel => 'Ziel-Ladezustand bei Ankunft (%)';
+
+  @override
+  String get vehicleStartLabel => 'Start-Ladezustand (%)';
+
+  @override
+  String get vehicleConnectorsLabel => 'Kompatible Steckertypen';
+
+  @override
+  String get vehicleProfileSave => 'Speichern';
+
+  @override
+  String get vehicleProfileDelete => 'Profil löschen';
+
+  @override
+  String get vehicleProfileSaved => 'Fahrzeugprofil gespeichert.';
+
+  @override
+  String get vehicleProfileInvalid =>
+      'Bitte Batteriekapazität, Verbrauch und Ladeleistung als positive Zahlen und die Ladezustände in Prozent eingeben; die Reserve muss unter dem Ziel-Ladezustand liegen.';
 }

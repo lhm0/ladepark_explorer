@@ -1,6 +1,8 @@
 # Flutter-Architektur
 
-Status: M0 bis M12 implementiert; M13 Release-Härtung offen
+Status: M0 bis M12 implementiert; M13 Release-Härtung offen. Version 1.1
+(„Routen-Update“) ist mit M14, M15, M16 und M19 funktional eingefroren
+(App-Version `1.1.0`); M17 und M18 (Version 1.2) sind offen.
 
 Entschieden sind Flutter, Apple MapKit für die iPhone-Version 1.0, lokale
 SQLite-Datenhaltung und Repository Pattern. Fachlogik und Datenzugriff werden
@@ -34,7 +36,7 @@ lib/
 ├── data/dataset_update/ HTTP-Quelle und atomare Datensatzinstallation
 ├── data/favorites/      schreibbarer, app-lokaler SQLite-Adapter
 ├── data/park_info/      getrennter redaktioneller read-only Bestand
-├── data/settings/       versionierter lokaler Einstellungsspeicher
+├── data/settings/       versionierter lokaler Einstellungs- und Fahrzeugprofilspeicher
 ├── features/dataset_update/ Manifestvertrag und Updatezustand
 ├── features/explorer/
 │   ├── application/     Riverpod-Kartenstatus und Abfragekoordination
@@ -42,10 +44,12 @@ lib/
 │   └── presentation/    datengetriebene Kartenoberfläche
 ├── features/favorites/  Favoritenmodell, Zustand und Favoritenliste
 ├── features/park_info/  redaktionelle Informationen und Medienmodelle
+├── features/route_planning/ Routenmodelle, RoutePlanningService und Routenzustand (Version 1.1)
 ├── features/settings/   Sprache, Navigation, Updates und Datenschutz
 ├── platform/inbound/    eingehende Koordinaten und App-Link
 ├── platform/maps/       MapAdapter und Dart-MapKit-Kanal
 ├── platform/navigation/ plattformneutrale Apple-/Google-Maps-Adapter
+├── platform/route/      MKDirections-Routenadapter (Version 1.1)
 ├── platform/search/     native Apple-Ortssuche
 └── l10n/                DE-/EN-Lokalisierung
 ```
@@ -219,6 +223,93 @@ Die App enthält kein Analyse-, Werbe-, Tracking- oder automatisches
 Crash-Reporting-SDK. Ein kleiner Diagnosestatus gelangt nur durch eine
 ausdrückliche Aktion in die Zwischenablage und enthält keine Koordinaten,
 Suchbegriffe, Favoriten oder Gerätekennung.
+
+M14 beginnt das Routen-Update der Version 1.1 (Kapitel `17_Route_Planning.md`,
+ADR-0019). Der plattformneutrale `RoutePlanningService` in
+`features/route_planning/domain/` liefert typisierte `RouteOption`-Objekte mit
+Kennzahlen, Teilstrecken und einer dezimierten Polyline. Der
+`MkDirectionsRoutePlanningService` in `platform/route/` ruft je Teilstrecke
+natives `MKDirections`, klassifiziert Netz-, Drossel- und Nicht-gefunden-Fehler
+zu stabilen `RoutePlanningError`-Kategorien und reduziert die Geometrie per
+Douglas–Peucker vor der Übergabe an Flutter. Die ausgewählte Route wird nativ
+als `MKPolyline`-Overlay in der bestehenden `MKMapView` gezeichnet
+(`showRoute`/`clearRoute`). Gemäß ADR-0011 wird über der Karte keine
+Flutter-Fläche zur Routenanzeige komponiert. Start-/Zieleingabe läuft auf einer
+opaken, animationslosen Vollbildroute (`RoutePlanningPage`). Die Routenvorschau
+(`RoutePreviewPage`) ist ebenfalls eine opake Route, aber ein nicht
+überlappendes Split-Layout: eine eigene `MKMapView`-Instanz füllt in einem
+`Column` den Bereich über einem statischen Auswahlpanel, sodass Route und
+Alternativen gleichzeitig sichtbar sind, ohne dass eine Flutter-Ebene über dem
+Platform View liegt. Das Kartenwidget wird zwischengespeichert, und die
+Vorschaukarte verzichtet auf den `EagerGestureRecognizer`. Ein erster Versuch
+mit einem schmalen Zusammenfassungsbalken über der Hauptkarte reproduzierte den
+ADR-0011-Freeze auf dem Gerät und wurde nach Internetrecherche als bekannte
+iOS-`UiKitView`-Freeze-Klasse verworfen (ADR-0019 Nachtrag).
+
+M15 ergänzt die Korridorsuche (`features/route_planning/domain/route_corridor.dart`
+für die reine Geometrie, `application/corridor_providers.dart` für den
+`CorridorController`). Gemäß ADR-0022 tastet der Controller die dezimierte
+Route alle 20 km ab und ruft je Punkt `ExplorerMapController.findGroupsNear`
+mit 10 km Radius; die Abfragen laufen sequentiell im Charging-Isolate. Treffer
+werden über `groupId` dedupliziert. Die Interaktion ist kartenbasiert: der
+Panel-Knopf der `RoutePreviewPage` startet die Suche, die Treffer erscheinen
+als native orange Marker (`showRouteCorridor`) auf der Vorschaukarte. Ein Tippen
+meldet die `groupId` über den Kanal (`corridorParkSelected`); die Vorschau
+öffnet dann die bestehende Detailansicht mit dem Knopf „Ladestop einfügen".
+Übernommene Stopps liegen als geordnete `RouteStop`s im `RoutePlanningState`,
+werden `MKDirections` als Wegpunkte übergeben und nativ als blaue nummerierte
+Marker gezeigt (`showRouteStops`); sie bleiben sichtbar, solange die Route auf
+der Karte liegt. Korridormarker erscheinen nur in der Vorschau und schließen
+die bereits gewählten Stopps aus.
+
+M16a ergänzt das Fahrzeugprofil (`FR-ROUTE-005`, ADR-0021). `VehicleProfile`
+und der `VehicleProfileRepository`-Vertrag liegen in
+`features/route_planning/domain/`; die Ablage teilt sich die
+schema-versionierte Einstellungsdatenbank: die Schemaversion steigt auf 2, die
+neue Tabelle `vehicle_profiles` hält eine Zeile, und `SqliteSettingsRepository`
+implementiert zusätzlich `VehicleProfileRepository`. Editiert wird das Profil in
+den Einstellungen (`features/settings/presentation/vehicle_profile_page.dart`).
+
+M16b ergänzt die Reichweitenvorhersage (`FR-ROUTE-006`, ADR-0020/0023).
+`buildRoutePath` zerlegt die dezimierte Polyline in `RouteSegment`s mit in 1.1
+leeren Optionalattributen. Die austauschbare `EnergyModel`-Schnittstelle hat
+mit `ConstantRateEnergyModel` eine triviale Umsetzung. Der
+`TripEnergySimulator` läuft die Segmente ab, zieht je Segment den
+Verbrauchsanteil ab und hebt den Ladezustand an jedem Ladestopp auf das
+Ladeziel am Stopp – ein je Fahrt einstellbarer Wert mit fester Vorgabe 80 %
+(`kDefaultChargeTargetSocPercent`), unabhängig vom Ziel-Ladezustand bei
+Ankunft. Er meldet den ersten Kilometer unter der Reserve und liefert
+zusätzlich `stopSocs`, `socAtKm` und `chargeTargetSocPercent` für die
+Diagnoseanzeige. `tripEnergyProfileProvider` verknüpft Route, Profil, den
+Start-Ladezustand und das Ladeziel. Die Präsentation bildet den mittleren
+Ladezustand je Abschnitt über `socColourArgb` auf eine Farbe ab; `showRoute`
+nimmt optional eine ARGB-Liste je Abschnitt entgegen, die nativ als kurze
+`MKPolyline`-Abschnitte gezeichnet wird, sowie ein `fit`-Flag, das die Karte
+nur beim ersten Zeichnen bewegt. Ein gesetzter Ladestopp bleibt bestehen,
+auch wenn die Neuberechnung der Route über ihn fehlschlägt; die Schätzung
+projiziert ihn dann auf die vorhandene Geometrie, sodass die Färbung ab dem
+Stopp neu bei Grün beginnt. Die `RoutePreviewPage` gleicht die native Karte
+aus einem `addPostFrameCallback` mit Render-Schlüssel ab. Ohne vollständiges
+Profil bleibt die Route einfarbig.
+
+M19 ergänzt die Übergabe der geplanten Route an eine Navigations-App
+(`FR-ROUTE-011`, ADR-0016 Nachtrag). `NavigationAdapter.openRoute` nimmt eine
+`NavigationRoute` (Start, geordnete Ladestopps, Ziel) entgegen; Apple Maps
+erhält die vollständige Kette über `MKMapItem.openMaps`, Google Maps wird über
+`comgooglemaps://` zum nächsten Ladestopp geführt, da das App-Schema keine
+Wegpunktkette kennt. Die App-Auswahl (Präferenz, Auswahldialog,
+Apple-Fallback) liegt in der gemeinsamen `resolveNavigationAdapter` und wird
+von Detailansicht und `RoutePreviewPage` genutzt. Ein `NavigationHandoff`
+meldet, wenn nicht die ganze Kette übergeben werden konnte; die Vorschau
+erklärt das mit einem Hinweis.
+
+Unabhängig von der Routenplanung überlebt seit Version 1.1 die
+Kartenfilter-Auswahl einen App-Neustart (`FR-FILTER-001`, ADR-0016 Nachtrag).
+Der Vertrag `ExplorerFiltersRepository` liegt in `features/explorer/domain/`;
+`SqliteSettingsRepository` implementiert ihn zusätzlich und legt die Auswahl
+als einen JSON-Wert in der bestehenden `app_setting`-Tabelle ab. Der
+`ExplorerMapController` lädt sie beim Aufbau und schreibt sie bei jeder
+Filteränderung zurück; der transiente Umkreisfilter wird nicht gespeichert.
 
 ## Verifizierte iOS-Entwicklungsumgebung
 

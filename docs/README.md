@@ -14,6 +14,7 @@ Architektur und Implementierung. Neue Codex-Chats sollen hier beginnen.
 7. [Lizenz- und Datenquellen-Dossier](specification/15_License_Compliance.md)
 8. [Datenschutz und Diagnostik](specification/16_Privacy_and_Diagnostics.md)
 9. [Roadmap](specification/14_Roadmap.md)
+10. [Routenplanung – Version 1.1](specification/17_Route_Planning.md)
 
 Die übrigen Kapitel vertiefen Importer, Clustering, SQLite, Flutter, UI,
 zukünftige APIs, Tests, Deployment und Coding Guidelines.
@@ -52,6 +53,11 @@ Aktuelle Architekturentscheidungen:
 - [ADR-0016 – Lokale Einstellungen und Wahl der Navigations-App](adr/ADR-0016-Local-Settings-and-Navigation-Choice.md)
 - [ADR-0017 – Statische, atomare Ladebestandsupdates](adr/ADR-0017-Static-Dataset-Updates.md)
 - [ADR-0018 – Keine Telemetrie in Version 1.0](adr/ADR-0018-No-Telemetry-in-Version-1.md)
+- [ADR-0019 – Plattformneutraler Route-Planning-Service](adr/ADR-0019-Route-Planning-Service.md)
+- [ADR-0020 – Energie- und Segmentmodell hinter austauschbaren Schnittstellen](adr/ADR-0020-Energy-and-Segment-Model.md)
+- [ADR-0021 – Lokaler Fahrzeugprofil-Speicher](adr/ADR-0021-Vehicle-Profile-Store.md)
+- [ADR-0022 – Routenkorridor-Suche über Abtastung der Polyline](adr/ADR-0022-Route-Corridor-Search.md)
+- [ADR-0023 – Ladezustandsfärbung der Route](adr/ADR-0023-Route-State-Of-Charge-Colouring.md)
 
 ## Verbindlichkeit
 
