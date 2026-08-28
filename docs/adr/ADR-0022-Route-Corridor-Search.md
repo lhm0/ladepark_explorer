@@ -29,9 +29,10 @@ Flutter-Konsument, Fixture und Vertrag (`ADR-0007`).
   vorhandene Umkreisabfrage (`center`, `radiusKm`) mit den aktiven Filtern
   aus. Die Teilergebnisse werden über `groupId` dedupliziert.
 - Abtastabstand und Korridorradius sind konfigurierbar und dokumentiert. Mit
-  M15 festgelegt: 20 Kilometer Abtastabstand, 10 Kilometer Korridorradius
-  (`CorridorController.sampleSpacingKm` und `corridorRadiusKm`). Eine spätere
-  Anpassung nach Feldtests bleibt möglich.
+  M15 festgelegt: 20 Kilometer Abtastabstand
+  (`CorridorController.sampleSpacingKm`). Der Korridorradius folgt seit der
+  M16b-Nachbesserung einer je Fahrt einstellbaren Korridorbreite (siehe
+  Nachtrag).
 - Die Abfragen laufen sequentiell im bestehenden Charging-Isolate und halten
   den Latest-wins-Vertrag ein. Die Oberfläche zeigt einen Fortschritt, da die
   Korridorsuche länger dauern kann als eine einzelne Kartenabfrage.
@@ -80,3 +81,21 @@ Negativ beziehungsweise zu beachten:
   die spätere Isolate-Abfrage einzuführen.
 - Die Korridorbreite ist eine Näherung; Zufahrten und Fahrtrichtung werden
   nicht bewertet.
+
+## Nachtrag (M16b, Nachbesserung)
+
+Der Korridorradius ist nicht länger fest. Im Vorschaupanel steht über dem
+Knopf „Ladeparks entlang der Route" ein Steller im Stil der
+Ladezustand-Steller (`−`/Wert/`+`) für die **Korridorbreite**:
+
+- Wertebereich 20 bis 60 Kilometer, Schrittweite 10 Kilometer, Vorgabe
+  20 Kilometer (`CorridorController.minCorridorWidthKm`,
+  `maxCorridorWidthKm`, `defaultCorridorWidthKm`).
+- Der je Abtastpunkt abgefragte Umkreisradius ist die halbe Breite; bei der
+  Vorgabe 20 Kilometer bleibt es beim bisherigen Verhalten (10 Kilometer
+  Radius).
+- Die gewählte Breite liegt in `CorridorState.widthKm`, ist Sitzungsstand
+  (nicht persistiert) und überdauert ein `clear()`, damit eine neue Route die
+  Einstellung nicht zurücksetzt.
+- Vertrag, Schema und Fixture bleiben unverändert; nur der schon vorhandene
+  `radiusKm`-Parameter der Umkreisabfrage bekommt einen anderen Wert.

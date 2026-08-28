@@ -1085,8 +1085,14 @@ abstract class AppLocalizations {
   /// No description provided for @routeChargeTargetLabel.
   ///
   /// In de, this message translates to:
-  /// **'Ladeziel je Stopp'**
+  /// **'Ladeziel am Stopp'**
   String get routeChargeTargetLabel;
+
+  /// No description provided for @routeCorridorWidthLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Korridorbreite'**
+  String get routeCorridorWidthLabel;
 
   /// No description provided for @routeRangeDeficit.
   ///

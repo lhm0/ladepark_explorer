@@ -23,8 +23,9 @@ class VehicleProfile {
   /// Reserve state of charge kept in the plan, in percent.
   final int reserveSocPercent;
 
-  /// Desired state of charge on arrival, in percent. Also the assumed
-  /// departure state of charge after a stop until FR-ROUTE-008.
+  /// Desired state of charge on arrival at the destination, in percent. The
+  /// charge target at an intermediate stop is a separate per-trip setting and
+  /// defaults to 80 percent, not to this value.
   final int targetArrivalSocPercent;
 
   /// Default state of charge at the start of a trip, in percent. A trip may

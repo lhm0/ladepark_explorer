@@ -408,10 +408,11 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   antippbaren Ladestopp-Marker auf Vorschau- und Hauptkarte funktionieren wie
   spezifiziert:
   - Korridorsuche gemäß ADR-0022: die dezimierte Route wird alle 20 km
-    abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit Radius 10 km
-    und den aktiven Filtern sequentiell im Charging-Isolate; Treffer werden
-    über `groupId` dedupliziert; Fortschritt und 500-Treffer-Grenze sind
-    sichtbar,
+    abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit den aktiven
+    Filtern sequentiell im Charging-Isolate (Radius = halbe Korridorbreite,
+    Vorgabe 10 km; Breite seit der M16b-Nachbesserung je Fahrt einstellbar);
+    Treffer werden über `groupId` dedupliziert; Fortschritt und
+    500-Treffer-Grenze sind sichtbar,
   - die Interaktion ist kartenbasiert (keine Liste): der Panel-Knopf
     „Ladeparks entlang der Route" startet die Suche, die Treffer erscheinen als
     orange Marker auf der Vorschaukarte. Ein Tippen öffnet die bestehende
@@ -452,13 +453,14 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     (Energie = km/100 × Verbrauch); `TripContext` als erweiterbarer Kontext,
   - `TripEnergySimulator` erzeugt den geschätzten Ladezustandsverlauf je
     Polylinienpunkt und den ersten Streckenkilometer unter der Reserve; an
-    jedem Ladestopp springt der Ladezustand auf das Ladeziel (eingestellter
-    Wert, sonst Ziel-Ladezustand des Profils, Vorgabe 80 %); zusätzlich liefert
-    er `stopSocs` (Ankunft/Abfahrt je Stopp), `socAtKm` und
+    jedem Ladestopp springt der Ladezustand auf das Ladeziel am Stopp
+    (eingestellter Wert, sonst feste Vorgabe 80 %, `kDefaultChargeTargetSocPercent`,
+    unabhängig vom Ziel-Ladezustand bei Ankunft); zusätzlich liefert er
+    `stopSocs` (Ankunft/Abfahrt je Stopp), `socAtKm` und
     `chargeTargetSocPercent` (ADR-0020/ADR-0023, für M17 über einen Rückruf
     austauschbar),
   - `tripEnergyProfileProvider` verknüpft Route, Fahrzeugprofil,
-    Start-Ladezustand und Ladeziel je Stopp,
+    Start-Ladezustand und Ladeziel am Stopp,
   - farbige Route (ADR-0023): `showRoute` erhält optional eine ARGB-Liste je
     Polylinienabschnitt; nativ wird je Abschnitt eine kurze `MKPolyline`
     gezeichnet (grün → gelb → rot, unter der Reserve dunkelrot). Ohne
@@ -466,11 +468,13 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - ein gesetzter Ladestopp bleibt bestehen, auch wenn die Neuberechnung der
     Route über den Stopp fehlschlägt; die Schätzung projiziert ihn dann auf die
     vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün beginnt,
-  - im Vorschaupanel ein Steller für Start-Ladezustand und einer für „Ladeziel
-    je Stopp" (Vorgaben aus dem Profil, Sitzungszustand), eine Textzeile mit
-    dem Ladezustandsverlauf (Start · Stopp n: an/ab · Ziel) als Diagnose, die
-    Reserve-Warnung „Reichweite reicht nur bis km X" und eine Fehlerzeile mit
-    Wiederholung, wenn eine Neuberechnung fehlschlägt,
+  - im Vorschaupanel drei gleich gestaltete `−`/Wert/`+`-Steller: Start-Ladezustand
+    und „Ladeziel am Stopp" (Sitzungszustand, Vorgaben aus Profil bzw. feste
+    80 %) sowie „Korridorbreite" über dem Korridor-Knopf (20–60 km in
+    10‑km‑Schritten, Vorgabe 20 km, halbe Breite = Abfrageradius); dazu eine
+    Textzeile mit dem Ladezustandsverlauf (Start · Stopp n: an/ab · Ziel) als
+    Diagnose, die Reserve-Warnung „Reichweite reicht nur bis km X" und eine
+    Fehlerzeile mit Wiederholung, wenn eine Neuberechnung fehlschlägt,
   - die Korridor-Detailansicht zeigt den geschätzten Ladezustand bei Ankunft am
     Ladepark und den Wert nach einem Ladestopp dort,
   - die Vorschauseite gleicht die native Karte lifecycle-getrieben aus einem

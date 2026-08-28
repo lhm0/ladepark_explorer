@@ -27,8 +27,9 @@ bestehen.
 - Der `TripEnergySimulator` liefert je Stützpunkt der dezimierten Polyline
   einen geschätzten Ladezustand in Prozent. Zwischen zwei Ladestopps sinkt er
   gemäß `EnergyModel` monoton; an einem Ladestopp springt er auf den
-  Abfahrt-Ladezustand. In Version 1.1 ist der Abfahrtswert der Ziel-Ladezustand
-  des Fahrzeugprofils; ab `FR-ROUTE-008` stammt er aus dem `ChargingModel`.
+  Abfahrt-Ladezustand. In Version 1.1 ist der Abfahrtswert das je Fahrt
+  einstellbare Ladeziel am Stopp (feste Vorgabe 80 %); ab `FR-ROUTE-008` stammt
+  er aus dem `ChargingModel`.
 - Die App bildet jeden Polylinienabschnitt (zwei benachbarte Stützpunkte) über
   seinen mittleren Ladezustand auf eine Farbe ab. Die Verlaufsfunktion ist
   stückweise linear zwischen festen Stützfarben (Konstanten in
@@ -116,9 +117,11 @@ Korrektur:
   die vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün
   beginnt. Der Fehlschlag erscheint als wiederholbarer Hinweis im
   Vorschaupanel.
-- Der Abfahrt-Ladezustand nach einem Stopp ist als „Ladeziel je Stopp" für die
-  Fahrt einstellbar (Stepper neben dem Start-Ladezustand). Ohne Einstellung
-  gilt der Ziel-Ladezustand des Fahrzeugprofils (Vorgabe 80 %). Der
+- Der Abfahrt-Ladezustand nach einem Stopp ist als „Ladeziel am Stopp" für die
+  Fahrt einstellbar (Steller neben dem Start-Ladezustand). Ohne Einstellung
+  gilt die feste Vorgabe 80 % (`kDefaultChargeTargetSocPercent`), bewusst
+  unabhängig vom Ziel-Ladezustand bei Ankunft des Fahrzeugprofils: an einem
+  Zwischenstopp wird aufgeladen, nicht auf den Ankunftswunsch entladen. Der
   `TripEnergySimulator` nimmt den Wert als Parameter `chargeTargetSocPercent`
   entgegen und legt ihn auf `TripEnergyProfile.chargeTargetSocPercent` ab.
 - `TripEnergyProfile` liefert zusätzlich `stopSocs` (Ankunfts- und

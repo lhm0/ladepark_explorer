@@ -37,6 +37,6 @@ final tripEnergyProfileProvider = Provider<TripEnergyProfile?>((ref) {
     vehicle: profile,
     startSocPercent: startSoc,
     chargeTargetSocPercent:
-        planning.tripChargeTargetSocPercent ?? profile.targetArrivalSocPercent,
+        planning.tripChargeTargetSocPercent ?? kDefaultChargeTargetSocPercent,
   );
 });

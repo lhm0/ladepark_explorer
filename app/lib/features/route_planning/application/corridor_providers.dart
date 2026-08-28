@@ -14,6 +14,7 @@ class CorridorState {
     this.parks = const <ChargingGroupSummary>[],
     this.limitReached = false,
     this.failed = false,
+    this.widthKm = CorridorController.defaultCorridorWidthKm,
   });
 
   final bool isSearching;
@@ -21,6 +22,10 @@ class CorridorState {
   final int done;
   final int total;
   final List<ChargingGroupSummary> parks;
+
+  /// Total width of the corridor searched around the route, in kilometres
+  /// (FR-ROUTE-003). The radius queried around each sample point is half of it.
+  final int widthKm;
 
   /// A sample query hit the 500-result cap, so the corridor may be incomplete.
   final bool limitReached;
@@ -38,6 +43,7 @@ class CorridorState {
     List<ChargingGroupSummary>? parks,
     bool? limitReached,
     bool? failed,
+    int? widthKm,
   }) => CorridorState(
     isSearching: isSearching ?? this.isSearching,
     hasSearched: hasSearched ?? this.hasSearched,
@@ -46,6 +52,7 @@ class CorridorState {
     parks: parks ?? this.parks,
     limitReached: limitReached ?? this.limitReached,
     failed: failed ?? this.failed,
+    widthKm: widthKm ?? this.widthKm,
   );
 }
 
@@ -62,19 +69,38 @@ final class CorridorController extends Notifier<CorridorState> {
   /// Distance between sample points along the route. ADR-0022.
   static const double sampleSpacingKm = 20;
 
-  /// Half-width of the corridor searched around each sample point. ADR-0022.
-  static const double corridorRadiusKm = 10;
+  /// Default total corridor width searched around the route, in kilometres
+  /// (ADR-0022, adjustable per trip since the M16b follow-up).
+  static const int defaultCorridorWidthKm = 20;
+
+  /// Smallest and largest corridor width the user can pick, in kilometres.
+  static const int minCorridorWidthKm = 20;
+  static const int maxCorridorWidthKm = 60;
 
   int _run = 0;
 
+  /// Sets the corridor width in kilometres for the next search, clamped to the
+  /// supported range and rounded to the 10 km step.
+  void setWidthKm(int widthKm) {
+    final stepped = (widthKm / 10).round() * 10;
+    state = state.copyWith(
+      widthKm: stepped.clamp(minCorridorWidthKm, maxCorridorWidthKm),
+    );
+  }
+
   Future<void> search(List<GeoCoordinate> polyline) async {
     final run = ++_run;
+    final widthKm = state.widthKm;
     final samples = sampleAlongPolyline(polyline, spacingKm: sampleSpacingKm);
     if (samples.length < 2) {
-      state = const CorridorState(hasSearched: true);
+      state = CorridorState(hasSearched: true, widthKm: widthKm);
       return;
     }
-    state = CorridorState(isSearching: true, total: samples.length);
+    state = CorridorState(
+      isSearching: true,
+      total: samples.length,
+      widthKm: widthKm,
+    );
 
     final explorer = ref.read(explorerMapControllerProvider.notifier);
     final byId = <String, ChargingGroupSummary>{};
@@ -85,7 +111,7 @@ final class CorridorController extends Notifier<CorridorState> {
       try {
         final groups = await explorer.findGroupsNear(
           samples[index],
-          radiusKm: corridorRadiusKm,
+          radiusKm: widthKm / 2,
         );
         if (groups.length >= 500) limitReached = true;
         for (final group in groups) {
@@ -107,11 +133,13 @@ final class CorridorController extends Notifier<CorridorState> {
       parks: parks,
       limitReached: limitReached,
       failed: failed,
+      widthKm: widthKm,
     );
   }
 
   void clear() {
     _run++;
-    state = const CorridorState();
+    // Keep the chosen corridor width; it is a user preference for the session.
+    state = CorridorState(widthKm: state.widthKm);
   }
 }

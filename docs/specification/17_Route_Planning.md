@@ -113,7 +113,10 @@ nicht vor.
     UND-Verknüpfung bleiben unverändert.
   - Die gefundenen Ladeparks werden als Marker auf der Routenkarte gezeigt;
     andere Ladeparks werden dort nicht dargestellt.
-  - Die Korridorbreite ist begrenzt und dokumentiert.
+  - Die Korridorbreite ist begrenzt und dokumentiert. Sie ist je Fahrt
+    einstellbar (Steller im Vorschaupanel, Schrittweite 10 km, dokumentierter
+    Bereich, Vorgabe 20 km); der abgefragte Umkreisradius ist die halbe Breite.
+    Die Einstellung bleibt Sitzungsstand und wird nicht gespeichert.
   - Die Suche arbeitet auf dem lokalen Datensatz und benötigt außer der zuvor
     bezogenen Route keine Netzverbindung.
   - Die Auswahl eines Korridor-Markers öffnet die bestehende Detailansicht.
@@ -167,11 +170,11 @@ nicht vor.
 - Akzeptanz:
   - Die Vorhersage der Version 1.1 verwendet ausschließlich Streckenlänge,
     Fahrzeugverbrauch, Start-Ladezustand und das je Stopp angenommene Ladeziel.
-  - Der Start-Ladezustand und das Ladeziel je Stopp sind für die aktuelle Fahrt
-    einstellbar. Ohne Einstellung gelten die Werte des Fahrzeugprofils
-    (`FR-ROUTE-005`); die Vorgabe für das Ladeziel ist der Ziel-Ladezustand des
-    Profils (Standard 80 Prozent). Die Einstellung bleibt Sitzungsstand und wird
-    nicht gespeichert.
+  - Der Start-Ladezustand und das Ladeziel am Stopp sind für die aktuelle Fahrt
+    einstellbar. Ohne Einstellung gilt für den Start-Ladezustand der Wert des
+    Fahrzeugprofils (`FR-ROUTE-005`); das Ladeziel am Stopp hat die feste
+    Vorgabe 80 Prozent, unabhängig vom Ziel-Ladezustand bei Ankunft. Die
+    Einstellung bleibt Sitzungsstand und wird nicht gespeichert.
   - Beim Aufruf eines Korridor-Ladeparks zeigt die Detailansicht den
     geschätzten Ladezustand bei Ankunft an sowie den Wert nach einem Ladestopp
     dort, damit die Rücksetzung nachvollziehbar ist.
@@ -180,9 +183,8 @@ nicht vor.
     Reserve-Ladezustand entspricht (Vorgabe 10 Prozent). Die genauen
     Farbschwellen sind dokumentiert (`ADR-0023`).
   - An jedem Ladestopp beginnt die Färbung wieder bei Grün, ausgehend vom
-    angenommenen Abfahrt-Ladezustand (dem eingestellten Ladeziel, sonst dem
-    Ziel-Ladezustand des Fahrzeugprofils); ab `FR-ROUTE-008` stammt er aus dem
-    Ladeverfahren.
+    angenommenen Abfahrt-Ladezustand (dem Ladeziel am Stopp, Vorgabe
+    80 Prozent); ab `FR-ROUTE-008` stammt er aus dem Ladeverfahren.
   - Das Setzen eines Ladestopps lässt die Rücksetzung auch dann wirksam werden,
     wenn die Neuberechnung der Route über den Stopp fehlschlägt: der Stopp
     bleibt bestehen und wird für die Schätzung auf die vorhandene Route
@@ -386,8 +388,9 @@ funktionsfähig. Das Fernziel tauscht Implementierungen, nicht Aufrufer.
 Vor Umsetzung beziehungsweise Abnahme der betroffenen Anforderung werden
 festgelegt:
 
-- ~~Korridorbreite und Abtastabstand entlang der Route~~ – mit M15 festgelegt:
-  20 km Abtastabstand, 10 km Korridorradius (ADR-0022),
+- ~~Korridorbreite und Abtastabstand entlang der Route~~ – festgelegt:
+  20 km Abtastabstand (M15); Korridorbreite je Fahrt einstellbar, 20–60 km in
+  10‑km‑Schritten, Vorgabe 20 km (ADR-0022, M16b-Nachbesserung),
 - Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
 - Vorgabewerte des Fahrzeugprofils und zulässige Wertebereiche,
 - Standard-Reserve und Standard-Ziel-Ladezustand,

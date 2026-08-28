@@ -5,6 +5,7 @@ import 'package:ladepark_explorer/features/explorer/application/explorer_provide
 import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_bounds.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
+import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_leg.dart';
@@ -192,30 +193,52 @@ void main() {
     await pumpPreview(tester, container);
 
     expect(find.text('Start-Ladezustand'), findsOneWidget);
-    expect(find.text('Ladeziel je Stopp'), findsOneWidget);
+    expect(find.text('Ladeziel am Stopp'), findsOneWidget);
     expect(find.text('90 %'), findsOneWidget);
     expect(find.text('80 %'), findsOneWidget);
     expect(find.textContaining('Reichweite reicht nur bis'), findsOneWidget);
     expect(find.textContaining('Start 90 %'), findsOneWidget);
 
-    // The first stepper is the start SoC.
-    await tester.ensureVisible(find.byIcon(Icons.remove_circle_outline).first);
-    await tester.tap(find.byIcon(Icons.remove_circle_outline).first);
-    await tester.pumpAndSettle();
+    Future<void> tapStepper(String stepperKey, IconData icon) async {
+      final button = find.descendant(
+        of: find.byKey(ValueKey<String>(stepperKey)),
+        matching: find.byIcon(icon),
+      );
+      await tester.ensureVisible(button);
+      await tester.tap(button);
+      await tester.pumpAndSettle();
+    }
+
+    await tapStepper('stepper-start-soc', Icons.remove_circle_outline);
     expect(
       container.read(routePlanningControllerProvider).tripStartSocPercent,
       85,
     );
 
-    // The second stepper is the per-stop charge target.
-    await tester.ensureVisible(find.byIcon(Icons.add_circle_outline).last);
-    await tester.tap(find.byIcon(Icons.add_circle_outline).last);
-    await tester.pumpAndSettle();
+    await tapStepper('stepper-charge-target', Icons.add_circle_outline);
     expect(
       container
           .read(routePlanningControllerProvider)
           .tripChargeTargetSocPercent,
       85,
     );
+  });
+
+  testWidgets('adjusts the corridor width in 10 km steps', (tester) async {
+    final container = await containerWithRoute(<RouteOption>[option(585)]);
+    await pumpPreview(tester, container);
+
+    expect(find.text('Korridorbreite'), findsOneWidget);
+    expect(find.text('20 km'), findsOneWidget);
+
+    final plus = find.descendant(
+      of: find.byKey(const ValueKey<String>('stepper-corridor-width')),
+      matching: find.byIcon(Icons.add_circle_outline),
+    );
+    await tester.ensureVisible(plus);
+    await tester.tap(plus);
+    await tester.pumpAndSettle();
+
+    expect(container.read(corridorControllerProvider).widthKm, 30);
   });
 }

@@ -3,6 +3,12 @@ import 'package:ladepark_explorer/features/route_planning/domain/models/route_se
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/vehicle_profile.dart';
 
+/// Default state of charge the plan assumes the car is charged to at a stop,
+/// in percent (FR-ROUTE-006). Deliberately independent of the profile's
+/// arrival target: at an intermediate stop you charge back up, not down to the
+/// value you want on arrival at the destination.
+const int kDefaultChargeTargetSocPercent = 80;
+
 /// Estimated state of charge at one charging stop: the value on arrival and the
 /// value the simulation assumes on departure (FR-ROUTE-006).
 class StopSoc {
@@ -90,7 +96,7 @@ final class TripEnergySimulator {
     departureSocPercent,
   }) {
     final chargeTarget =
-        chargeTargetSocPercent ?? vehicle.targetArrivalSocPercent;
+        chargeTargetSocPercent ?? kDefaultChargeTargetSocPercent;
     final departure =
         departureSocPercent ?? (stop, arrival) => chargeTarget.toDouble();
     final orderedStops = <RouteStop>[...stops]

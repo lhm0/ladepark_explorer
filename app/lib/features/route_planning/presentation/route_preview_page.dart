@@ -227,7 +227,7 @@ class _RouteSelectorPanel extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 252,
+          height: 288,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Column(
@@ -312,6 +312,22 @@ class _RouteSelectorPanel extends ConsumerWidget {
                           ),
                         const SizedBox(height: 4),
                       ],
+                      _ValueStepper(
+                        key: const ValueKey('stepper-corridor-width'),
+                        icon: Icons.swap_horiz,
+                        label: strings.routeCorridorWidthLabel,
+                        value: corridor.widthKm,
+                        unit: 'km',
+                        step: 10,
+                        min: CorridorController.minCorridorWidthKm,
+                        max: CorridorController.maxCorridorWidthKm,
+                        onChanged: corridor.isSearching
+                            ? null
+                            : (value) => ref
+                                  .read(corridorControllerProvider.notifier)
+                                  .setWidthKm(value),
+                      ),
+                      const SizedBox(height: 4),
                       OutlinedButton.icon(
                         onPressed: corridor.isSearching
                             ? null
@@ -381,19 +397,25 @@ class _EnergyStatus extends ConsumerWidget {
     final startSoc =
         state.tripStartSocPercent ?? profile.defaultStartSocPercent;
     final chargeTarget =
-        state.tripChargeTargetSocPercent ?? profile.targetArrivalSocPercent;
+        state.tripChargeTargetSocPercent ?? kDefaultChargeTargetSocPercent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        _SocStepper(
+        _ValueStepper(
+          key: const ValueKey('stepper-start-soc'),
+          icon: Icons.battery_charging_full_outlined,
           label: strings.routeStartSocLabel,
           value: startSoc,
+          unit: '%',
           onChanged: (value) => notifier.setTripStartSoc(value),
         ),
-        _SocStepper(
+        _ValueStepper(
+          key: const ValueKey('stepper-charge-target'),
+          icon: Icons.battery_charging_full_outlined,
           label: strings.routeChargeTargetLabel,
           value: chargeTarget,
+          unit: '%',
           onChanged: (value) => notifier.setTripChargeTargetSoc(value),
         ),
         if (energy != null) ...[
@@ -441,35 +463,53 @@ class _EnergyStatus extends ConsumerWidget {
   }
 }
 
-class _SocStepper extends StatelessWidget {
-  const _SocStepper({
+/// A compact "− value + " row shared by the start-SoC, charge-target and
+/// corridor-width controls.
+class _ValueStepper extends StatelessWidget {
+  const _ValueStepper({
+    required this.icon,
     required this.label,
     required this.value,
+    required this.unit,
     required this.onChanged,
+    this.step = 5,
+    this.min = 0,
+    this.max = 100,
+    super.key,
   });
 
+  final IconData icon;
   final String label;
   final int value;
-  final ValueChanged<int> onChanged;
+  final String unit;
+  final ValueChanged<int>? onChanged;
+  final int step;
+  final int min;
+  final int max;
 
   @override
   Widget build(BuildContext context) {
+    final changed = onChanged;
     return Row(
       children: [
-        const Icon(Icons.battery_charging_full_outlined, size: 18),
+        Icon(icon, size: 18),
         const SizedBox(width: 6),
         Expanded(
           child: Text(label, style: Theme.of(context).textTheme.bodySmall),
         ),
         IconButton(
           visualDensity: VisualDensity.compact,
-          onPressed: () => onChanged((value - 5).clamp(0, 100)),
+          onPressed: changed == null || value <= min
+              ? null
+              : () => changed((value - step).clamp(min, max)),
           icon: const Icon(Icons.remove_circle_outline),
         ),
-        Text('$value %'),
+        Text('$value $unit'),
         IconButton(
           visualDensity: VisualDensity.compact,
-          onPressed: () => onChanged((value + 5).clamp(0, 100)),
+          onPressed: changed == null || value >= max
+              ? null
+              : () => changed((value + step).clamp(min, max)),
           icon: const Icon(Icons.add_circle_outline),
         ),
       ],

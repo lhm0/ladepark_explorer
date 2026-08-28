@@ -85,4 +85,45 @@ void main() {
     expect(state.parks, isEmpty);
     expect(state.hasSearched, isTrue);
   });
+
+  test('corridor width steps by 10 km and is clamped to the range', () async {
+    final repo = FakeChargingRepository(
+      findGroupsHandler: (_) async => const <ChargingGroupSummary>[],
+    );
+    final container = await containerWith(repo);
+    final controller = container.read(corridorControllerProvider.notifier);
+
+    expect(container.read(corridorControllerProvider).widthKm, 20);
+
+    controller.setWidthKm(34);
+    expect(container.read(corridorControllerProvider).widthKm, 30);
+
+    controller.setWidthKm(1000);
+    expect(container.read(corridorControllerProvider).widthKm, 60);
+
+    controller.setWidthKm(0);
+    expect(container.read(corridorControllerProvider).widthKm, 20);
+  });
+
+  test('the width sets the query radius and outlives a clear', () async {
+    final repo = FakeChargingRepository(
+      findGroupsHandler: (_) async => const <ChargingGroupSummary>[],
+    );
+    final container = await containerWith(repo);
+    final controller = container.read(corridorControllerProvider.notifier);
+
+    controller.setWidthKm(60);
+    await controller.search(polyline);
+    // The radius queried around each sample is half the corridor width.
+    expect(repo.queries.first.radiusKm, 30);
+
+    controller.clear();
+    // The chosen width is a session preference and outlives a clear.
+    expect(container.read(corridorControllerProvider).widthKm, 60);
+
+    controller.setWidthKm(20);
+    repo.queries.clear();
+    await controller.search(polyline);
+    expect(repo.queries.first.radiusKm, 10);
+  });
 }

@@ -613,7 +613,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeStartSocLabel => 'Start state of charge';
 
   @override
-  String get routeChargeTargetLabel => 'Charge target per stop';
+  String get routeChargeTargetLabel => 'Charge target at stop';
+
+  @override
+  String get routeCorridorWidthLabel => 'Corridor width';
 
   @override
   String routeRangeDeficit(int km) {
