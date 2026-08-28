@@ -7,10 +7,11 @@ und die verbindliche Projektdokumentation werden getrennt gepflegt.
 ## Einstieg
 
 1. [Projektstatus](PROJECT_STATUS.md)
-2. [Dokumentationsübersicht](docs/README.md)
-3. [Produktvision](docs/specification/01_ProjectVision.md)
-4. [Anforderungen](docs/specification/02_Requirements.md)
-5. [Arbeitsanweisungen für Codex](AGENTS.md)
+2. [Technische Übergabe für die Weiterentwicklung](docs/AI_HANDOVER.md)
+3. [Dokumentationsübersicht](docs/README.md)
+4. [Produktvision](docs/specification/01_ProjectVision.md)
+5. [Anforderungen](docs/specification/02_Requirements.md)
+6. [Arbeitsanweisungen für Codex](AGENTS.md)
 
 ## Repository-Struktur
 

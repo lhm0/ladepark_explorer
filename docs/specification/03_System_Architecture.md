@@ -82,9 +82,10 @@ Ladeparks.
 
 ### 3.3 Statische Distribution
 
-Ein statischer Objektspeicher stellt Manifest und versionierte
-Datensatzdateien bereit. Cloudflare R2 ist derzeit die bevorzugte, aber noch
-nicht endgültig bestätigte Lösung.
+Öffentliche GitHub Releases stellen derzeit Manifest und unveränderliche,
+versionierte Datensatzdateien bereit. HTTP-Quelle und Manifestvertrag kapseln
+diesen Anbieter; ein späterer Wechsel zu einem Objektspeicher wie Cloudflare R2
+oder S3 erfordert deshalb keine Änderung der fachlichen Update-Logik.
 
 Die Distribution enthält keine fachliche API, Benutzerverwaltung oder
 serverseitige Suche.
@@ -228,7 +229,7 @@ nicht als fachliches Anwendungsbackend.
 - Android-Kartenadapter und dessen Kartenversorgung,
 - Geocodinganbieter,
 - eine mögliche spätere Neubewertung von Telemetrie und Crash-Reporting,
-- endgültiger Objektspeicher und Domainstruktur,
+- möglicher späterer Objektspeicher und Domainstruktur anstelle von GitHub,
 - endgültiger Signierungs- und App-Store-Prozess.
 
 Offene Entscheidungen werden vor Implementierung der betroffenen Komponente

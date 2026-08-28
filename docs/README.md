@@ -6,13 +6,14 @@ Architektur und Implementierung. Neue Codex-Chats sollen hier beginnen.
 ## Einstieg
 
 1. [Projektstatus](../PROJECT_STATUS.md)
-2. [Projektvision](specification/01_ProjectVision.md)
-3. [Anforderungen](specification/02_Requirements.md)
-4. [Systemarchitektur](specification/03_System_Architecture.md)
-5. [Domänenmodell und Glossar](specification/04_Data_Model.md)
-6. [Lizenz- und Datenquellen-Dossier](specification/15_License_Compliance.md)
-7. [Datenschutz und Diagnostik](specification/16_Privacy_and_Diagnostics.md)
-8. [Roadmap](specification/14_Roadmap.md)
+2. [Technische Übergabe für die Weiterentwicklung](AI_HANDOVER.md)
+3. [Projektvision](specification/01_ProjectVision.md)
+4. [Anforderungen](specification/02_Requirements.md)
+5. [Systemarchitektur](specification/03_System_Architecture.md)
+6. [Domänenmodell und Glossar](specification/04_Data_Model.md)
+7. [Lizenz- und Datenquellen-Dossier](specification/15_License_Compliance.md)
+8. [Datenschutz und Diagnostik](specification/16_Privacy_and_Diagnostics.md)
+9. [Roadmap](specification/14_Roadmap.md)
 
 Die übrigen Kapitel vertiefen Importer, Clustering, SQLite, Flutter, UI,
 zukünftige APIs, Tests, Deployment und Coding Guidelines.

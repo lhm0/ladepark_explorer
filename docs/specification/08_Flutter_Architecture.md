@@ -1,6 +1,6 @@
 # Flutter-Architektur
 
-Status: M10 Navigation, Sprache und Einstellungen implementiert
+Status: M0 bis M12 implementiert; M13 Release-Härtung offen
 
 Entschieden sind Flutter, Apple MapKit für die iPhone-Version 1.0, lokale
 SQLite-Datenhaltung und Repository Pattern. Fachlogik und Datenzugriff werden
@@ -19,8 +19,8 @@ gegen dieselbe kleine SQLite-Fixture in Python und Flutter aus und vergleichen
 Gruppen-IDs, Reihenfolge und Grenzfälle.
 
 Wurf A umfasst Karte, reale Abstandsgruppen im sichtbaren Ausschnitt,
-Marker-Auswahl, vollständig deckende Detailseite und Übergabe an Apple Maps.
-Internationalisierung wird strukturell vorbereitet.
+Marker-Auswahl, vollständig deckende Detailseite und Übergabe an Apple Maps
+oder Google Maps. Deutsch und Englisch sind implementiert.
 
 ## Implementierter Gerüststand
 
@@ -31,16 +31,22 @@ iOS 14 und Android API 24 sind als Plattformuntergrenzen konfiguriert.
 lib/
 ├── app/                 App-Komposition und Theme
 ├── data/charging/       read-only SQLite-Adapter und Datenbank-Isolate
+├── data/dataset_update/ HTTP-Quelle und atomare Datensatzinstallation
 ├── data/favorites/      schreibbarer, app-lokaler SQLite-Adapter
+├── data/park_info/      getrennter redaktioneller read-only Bestand
 ├── data/settings/       versionierter lokaler Einstellungsspeicher
+├── features/dataset_update/ Manifestvertrag und Updatezustand
 ├── features/explorer/
 │   ├── application/     Riverpod-Kartenstatus und Abfragekoordination
 │   ├── domain/          Query, Gruppenobjekte und ChargingRepository
 │   └── presentation/    datengetriebene Kartenoberfläche
 ├── features/favorites/  Favoritenmodell, Zustand und Favoritenliste
-├── features/settings/   Sprache und bevorzugte Navigations-App
+├── features/park_info/  redaktionelle Informationen und Medienmodelle
+├── features/settings/   Sprache, Navigation, Updates und Datenschutz
+├── platform/inbound/    eingehende Koordinaten und App-Link
 ├── platform/maps/       MapAdapter und Dart-MapKit-Kanal
 ├── platform/navigation/ plattformneutrale Apple-/Google-Maps-Adapter
+├── platform/search/     native Apple-Ortssuche
 └── l10n/                DE-/EN-Lokalisierung
 ```
 
@@ -160,9 +166,8 @@ Platform-Channel-Adapter gemäß ADR-0013.
 
 ADR-0008 entscheidet direkten `sqlite3`-Zugriff in einem langlebigen
 Hintergrund-Isolate und Riverpod ohne Codegenerierung. ADR-0009 entscheidet
-einen app-lokalen UIKit Platform View mit `MKMapView`. Der Updateablauf wird vor
-seiner Implementierung weiter konkretisiert; der separate Benutzerspeicher ist
-mit ADR-0014 entschieden.
+einen app-lokalen UIKit Platform View mit `MKMapView`. Der separate
+Benutzerspeicher ist mit ADR-0014 entschieden.
 
 M7 ergänzt einen getrennten, schreibbaren SQLite-Benutzerspeicher im
 Application-Support-Verzeichnis. Ein Favorit referenziert die stabile
@@ -201,6 +206,20 @@ mit dem normalisierten Status `always_open` stammen. Die Abfrage bleibt im
 langlebigen Charging-Isolate und benötigt keine Laufzeitinterpretation von
 Öffnungszeiten-Texten.
 
+M11 ergänzt den statischen Updatepfad aus ADR-0017. Ein kleiner HTTPS-Adapter
+lädt das Manifest des neuesten GitHub Releases. Erst nach Bestätigung streamt
+die App das gzip-Artefakt in einen temporären Bestand. Komprimierte und
+unkomprimierte Größe und SHA-256, SQLite-Integrität, Schema und Metadaten werden
+vor einer atomaren `active.json`-Umschaltung geprüft. Aktueller und vorheriger
+Downloadbestand bleiben erhalten; Favoriten, Einstellungen und redaktionelle
+Informationen werden nicht ersetzt.
+
+M12 ergänzt gemäß ADR-0018 eine zweisprachige Datenschutz- und Diagnoseseite.
+Die App enthält kein Analyse-, Werbe-, Tracking- oder automatisches
+Crash-Reporting-SDK. Ein kleiner Diagnosestatus gelangt nur durch eine
+ausdrückliche Aktion in die Zwischenablage und enthält keine Koordinaten,
+Suchbegriffe, Favoriten oder Gerätekennung.
+
 ## Verifizierte iOS-Entwicklungsumgebung
 
 - macOS 15.0,
@@ -210,6 +229,8 @@ langlebigen Charging-Isolate und benötigt keine Laufzeitinterpretation von
 - erfolgreicher Simulator-Build mit nativen `sqlite3`-Hooks,
 - erfolgreicher Start auf einem simulierten iPhone 16.
 
-Der lokale Ablauf ist in `app/README.md` dokumentiert. GitHub Actions enthält
-zusätzlich einen geplanten iOS-Simulator-Build auf einem macOS-Runner; dieser
-Workflow wurde noch nicht auf GitHub ausgeführt.
+Der lokale Ablauf ist in `app/README.md` dokumentiert. Der verbleibende
+Release- und Abnahmeumfang steht in `14_Roadmap.md`; die kontextfreie
+Architekturübergabe in `../AI_HANDOVER.md`. Der öffentliche GitHub-Actions-
+Workflow einschließlich iOS-Simulator-Build lief bis einschließlich Commit
+`fb49f22` erfolgreich.

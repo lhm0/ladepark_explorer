@@ -183,8 +183,9 @@ Stand: 28. August 2026
   - versionierte Abfrageparameter und erwartete Gruppen-IDs,
   - gemeinsame Verwendung durch Python- und Flutter-Tests.
 - Ein GitHub-Actions-Workflow für Importer-, Flutter-, Contract-, Architektur-,
-  Dokumentations- und iOS-Simulator-Buildprüfungen ist konfiguriert. Der
-  Workflow ist lokal abgebildet, aber noch nicht auf GitHub ausgeführt.
+  Dokumentations- und iOS-Simulator-Buildprüfungen ist konfiguriert. Alle fünf
+  öffentlichen Workflowläufe bis einschließlich Commit `fb49f22` wurden auf
+  GitHub erfolgreich abgeschlossen.
 - Der App-Implementierungsmeilenstein M2 ist abgeschlossen. Die sechs neuen
   Adaptertests verwenden dieselbe Schema-v2-Fixture wie Python und prüfen
   Contract-Ergebnisse, kombinierte Filter, Details, Read-only-Verhalten und
@@ -335,43 +336,22 @@ Erreicht:
 
 ## Nächster Meilenstein
 
-Die offenen App-Meilensteine werden in dieser Reihenfolge bearbeitet:
+M0 bis M12 sind implementiert. Als letzter verbindlicher Meilenstein für
+Version 1.0 folgt M13 – Release-Härtung und App-Store-Vorbereitung. Er umfasst
+insbesondere reale Performance- und Offlineabnahme, Zugänglichkeit,
+Lizenznachweise, die Entscheidung zur Manifest-Herkunftssignatur, Signierung,
+App-Store-Metadaten, TestFlight und eine finale Gerätematrix. TestFlight wurde
+bewusst noch nicht begonnen. Die Soll-Anforderung `FR-LINK-001` ist durch
+Schema und Lizenzregeln vorbereitet, besitzt aber noch keine kuratierten
+Produktlinks oder App-Darstellung; M13 muss Umsetzung oder begründete
+Verschiebung entscheiden.
 
-- M8: der erste Produktbestand ist erzeugt und manuell abgenommen. Emstek,
-  Hilden und Kamen enthalten
-  zusammen 15 Infrastrukturzustände und sechs eigene, auf 1600 × 1200 Pixel
-  optimierte Bilder ohne EXIF-/GPS-Daten. Schema-v1-Build, stabile
-  Stationsreferenzen, Review-/Hashprüfung, Contract-Fixture und
-  Detaildarstellung sind implementiert. Offen bleibt ein automatisierter
-  Bilddarstellungstest als Härtungsaufgabe,
-- M9: redaktioneller Infrastrukturfilter, konsolidierte Umkreisbegrenzung und
-  strukturierter 24/7-Filter sind implementiert,
-- M10 ist implementiert: Deutsch, Englisch und Systemsprache sind unabhängig
-  wählbar; eine nicht unterstützte Systemsprache fällt auf Deutsch zurück.
-  Sprach- und Navigationswahl liegen in einer eigenständig versionierten
-  lokalen SQLite-Datenbank. Apple Maps, Google Maps (wenn installiert) und
-  „jedes Mal fragen“ sind auswählbar; fehlt Google Maps später, wird Apple Maps
-  als verständliche Alternative angeboten,
-- M11 ist implementiert: ein deterministisches gzip-Releasepaket mit
-  versioniertem Manifest, öffentliche GitHub-Release-URLs, automatische
-  konfigurierbare Manifestprüfung, bestätigter Download mit Fortschritt,
-  komprimierte und unkomprimierte SHA-256-Prüfung, SQLite-Integritäts- und
-  Metadatenprüfung sowie atomare Aktivierung mit Rollbackbestand. Der erste
-  Produktbestand `2026.07.0` ist als Release `dataset-2026.07.0` veröffentlicht;
-  Manifest und 182.274.446 Byte großes Archiv wurden am 28. August 2026 über
-  die öffentlichen Download-URLs vollständig zurückgelesen und gegen die
-  erwartete SHA-256-Prüfsumme verifiziert,
-- M12 ist implementiert: Version 1.0 enthält gemäß ADR-0018 kein Analyse-,
-  Telemetrie-, Werbe- oder Crash-Reporting-SDK. Eine zweisprachige
-  Datenschutzseite erklärt lokale Daten und bewusste Netzwerkzugriffe. Der
-  datensparsame Diagnosestatus enthält keine Koordinaten, Suchbegriffe,
-  Favoriten oder Gerätekennung und gelangt nur nach ausdrücklicher Aktion in
-  die Zwischenablage,
-- M13: Release-Härtung und App-Store-Vorbereitung.
+Die statusmarkierte Gesamtroadmap einschließlich der diskutierten späteren
+Routenplanung steht in `docs/specification/14_Roadmap.md`. Die technische
+Übergabe für eine kontextfreie Weiterentwicklung steht in
+`docs/AI_HANDOVER.md`.
 
 ## Bekannte offene Entscheidungen
-
-Vor oder während M2:
 
 - mögliche spätere Ergänzung des dateibasierten Adapters um einen
   Bundesnetzagentur-Webservice,
@@ -385,8 +365,11 @@ Vor oder während M2:
 Für die spätere App:
 
 - Android-Kartenadapter und kontrollierte Kartenversorgung,
-- Telemetrieanbieter und zulässige Ereignisse,
-- Objektspeicher für Datensatzupdates.
+- Anbieter und Betriebsmodell für ein mögliches späteres fachliches Backend,
+- Routenplanungsumfang nach der diskutierten Trennung in normale Route,
+  Ladeparks entlang der Route und automatische E-Auto-Optimierung,
+- ein möglicher späterer Wechsel der statischen Updateablage von GitHub zu
+  einem Objektspeicher.
 
 ## Bekannte Risiken
 
@@ -396,8 +379,10 @@ Für die spätere App:
 - Quellschema und neue Bundesnetzagentur-Webserviceschnittstelle können sich
   ändern.
 - Fehlende EVSE-IDs schwächen die Identitätsstabilität einzelner Ladepunkte.
-- Performance und Ergebnisgrößen der fünf Gruppierungsstufen müssen mit dem
-  ersten Deutschlandimport geprüft werden.
+- App-Performance, Speicherbedarf und Zugänglichkeit müssen in M13 auf der
+  endgültigen Gerätematrix mit dem Produktbestand geprüft werden.
+- SHA-256 im selben Manifest schützt die Integrität eines Datensatzdownloads,
+  aber ohne zusätzliche Signatur nicht dessen kryptografische Herkunft.
 
 ## Verifizierbarer Build
 
@@ -442,15 +427,17 @@ Direktfilter benötigte im Prototyp 154–207 ms für den Berliner Ausschnitt,
 53 ms für 25 km um München und 443 ms für die Deutschlandansicht.
 
 Die Flutter-App wurde am 28. August 2026 mit `flutter gen-l10n`, `dart format`,
-`flutter analyze` und 54 Tests erfolgreich geprüft. Darin sind der
+`flutter analyze` und 55 Tests erfolgreich geprüft. Darin sind der
 M2-SQLite-Contract, die M3-Kartenkoordination sowie die M10-Verträge für lokale
 Einstellungen, Apple-/Google-Maps-Navigation und die M11-Manifest-,
-Installations- und Rollbackverträge enthalten. Die automatisierte
+Installations- und Rollbackverträge sowie der M12-Datenschutz-Widgettest
+enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
-App wurde mit dem 386-MB-Deutschlandbestand auf einem iPhone-16-Simulator
+App wurde mit dem vollständigen Deutschlandbestand auf einem iPhone-16-Simulator
 gestartet und visuell geprüft: Deutschlandkarte, Status `500+ Ladeparks`, reale
 Marker und native Cluster werden angezeigt. Der Debug-App-Build ist rund
-537 MB groß.
+537 MB groß. Das aktuell veröffentlichte SQLite-Artefakt besitzt unkomprimiert
+441.950.208 Byte und komprimiert 182.274.446 Byte.
 Der echte App-Wechsel zu Google Maps und der sprachliche Gesamteindruck bleiben
 auf einem iPhone manuell abzunehmen.

@@ -11,10 +11,11 @@ dauerhaftes fachliches Backend und keine Community-Funktionen.
 Vor Änderungen in dieser Reihenfolge lesen:
 
 1. `PROJECT_STATUS.md`
-2. `docs/README.md`
-3. `docs/specification/01_ProjectVision.md`
-4. die für die Aufgabe relevanten Spezifikationskapitel
-5. relevante ADRs unter `docs/adr/`
+2. `docs/AI_HANDOVER.md`
+3. `docs/README.md`
+4. `docs/specification/01_ProjectVision.md`
+5. die für die Aufgabe relevanten Spezifikationskapitel
+6. relevante ADRs unter `docs/adr/`
 
 Anschließend den tatsächlichen Repository-Zustand prüfen. Dokumentierte Pläne
 dürfen nicht mit bereits implementiertem Verhalten verwechselt werden.

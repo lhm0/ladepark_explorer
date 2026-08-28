@@ -4,6 +4,10 @@ Status: Angenommen
 
 Datum: 23. August 2026
 
+Fortschreibung: Schema 2 verwendet denselben Entscheidungsmechanismus unter
+`contracts/charging_dataset/v2/`; Version 1 bleibt als historischer Vertrag
+erhalten.
+
 ## Kontext
 
 Das Repository enthält eine Python-Datenpipeline und eine Flutter-App. Mit
@@ -19,9 +23,9 @@ implizit durch eine Python-Implementierung definiert sein.
 ## Entscheidung
 
 - App, Importer, Verträge und Dokumentation bleiben in einem Monorepo.
-- `contracts/charging_dataset/v1/` enthält den ausführbaren Vertrag für Schema
-  Version 1: eine kleine reproduzierbare SQLite-Fixture, Abfragen und erwartete
-  Ergebnisse.
+- `contracts/charging_dataset/vN/` enthält je unterstützter Schemaversion den
+  ausführbaren Vertrag: eine kleine reproduzierbare SQLite-Fixture, Abfragen
+  und erwartete Ergebnisse. Aktuell ist Version 2.
 - Python- und Flutter-Tests verwenden dieselben Contract-Artefakte.
 - Der Importer trennt CLI, Pipeline-Orchestrierung, fachliche Verarbeitung und
   Charging-SQLite-Zugriff. Bestehende öffentliche Python-Importpfade dürfen
@@ -43,7 +47,7 @@ Flutter presentation -> application/domain <- data and platform adapters
 
 Importer CLI -> pipeline -> domain/source processing -> artifact adapters
 
-Python producer -> contracts/charging_dataset/v1 <- Dart consumer
+Python producer -> contracts/charging_dataset/vN <- Dart consumer
 ```
 
 Domänen- und Anwendungscode importieren keine UI-, SQLite- oder
