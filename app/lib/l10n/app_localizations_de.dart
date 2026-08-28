@@ -611,4 +611,53 @@ class AppLocalizationsDe extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get vehicleProfileTitle => 'Fahrzeugprofil';
+
+  @override
+  String get vehicleProfileExplanation =>
+      'Diese Angaben bleiben nur auf diesem Gerät und dienen der Reichweiten- und Ladeplanung.';
+
+  @override
+  String get vehicleProfileNotSet => 'Noch nicht angelegt';
+
+  @override
+  String vehicleProfileSummary(String battery, String consumption) {
+    return '$battery kWh · $consumption kWh/100 km';
+  }
+
+  @override
+  String get vehicleBatteryLabel => 'Nutzbare Batteriekapazität (kWh)';
+
+  @override
+  String get vehicleConsumptionLabel => 'Durchschnittsverbrauch (kWh/100 km)';
+
+  @override
+  String get vehicleMaxPowerLabel => 'Maximale Ladeleistung (kW)';
+
+  @override
+  String get vehicleReserveLabel => 'Reserve-Ladezustand (%)';
+
+  @override
+  String get vehicleTargetLabel => 'Ziel-Ladezustand bei Ankunft (%)';
+
+  @override
+  String get vehicleStartLabel => 'Start-Ladezustand (%)';
+
+  @override
+  String get vehicleConnectorsLabel => 'Kompatible Steckertypen';
+
+  @override
+  String get vehicleProfileSave => 'Speichern';
+
+  @override
+  String get vehicleProfileDelete => 'Profil löschen';
+
+  @override
+  String get vehicleProfileSaved => 'Fahrzeugprofil gespeichert.';
+
+  @override
+  String get vehicleProfileInvalid =>
+      'Bitte Batteriekapazität, Verbrauch und Ladeleistung als positive Zahlen und die Ladezustände in Prozent eingeben; die Reserve muss unter dem Ziel-Ladezustand liegen.';
 }

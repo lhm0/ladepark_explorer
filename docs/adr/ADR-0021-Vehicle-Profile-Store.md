@@ -68,3 +68,15 @@ schreibbaren Favoritenspeicher (`ADR-0014`).
 - Der Einstellungsspeicher wächst um einen fachlich eigenständigen Bereich;
   die Settings-Repository-Umsetzung muss die neue Tabelle sauber von den
   Schlüssel-Wert-Einstellungen trennen.
+
+## Umsetzung (M16a)
+
+Die Einstellungsdatenbank steigt auf Schemaversion 2. Die Migration legt die
+Tabelle `vehicle_profiles` an (`id`, nutzbare Kapazität, Verbrauch je 100 km,
+maximale Ladeleistung, Reserve-, Ziel- und Start-Ladezustand in Prozent,
+`|`-getrennte Steckertyp-Slugs). Version 1.1 nutzt eine feste `id`
+(`'default'`). `SqliteSettingsRepository` implementiert `SettingsRepository` und
+`VehicleProfileRepository` über dieselbe Verbindung; die Methoden heißen
+`loadVehicleProfile`, `saveVehicleProfile` und `clearVehicleProfile`, um nicht
+mit den Schlüssel-Wert-Methoden zu kollidieren. Ein Test öffnet eine
+Version-1-Datenbank und prüft die Migration.

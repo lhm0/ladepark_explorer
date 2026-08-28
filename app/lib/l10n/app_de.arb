@@ -188,5 +188,21 @@
   "routeInsertStop": "Ladestop einfügen",
   "routeRemoveStop": "Ladestop entfernen",
   "routeStopsCount": "{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}",
-  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}}
+  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}},
+  "vehicleProfileTitle": "Fahrzeugprofil",
+  "vehicleProfileExplanation": "Diese Angaben bleiben nur auf diesem Gerät und dienen der Reichweiten- und Ladeplanung.",
+  "vehicleProfileNotSet": "Noch nicht angelegt",
+  "vehicleProfileSummary": "{battery} kWh · {consumption} kWh/100 km",
+  "@vehicleProfileSummary": {"placeholders": {"battery": {"type": "String"}, "consumption": {"type": "String"}}},
+  "vehicleBatteryLabel": "Nutzbare Batteriekapazität (kWh)",
+  "vehicleConsumptionLabel": "Durchschnittsverbrauch (kWh/100 km)",
+  "vehicleMaxPowerLabel": "Maximale Ladeleistung (kW)",
+  "vehicleReserveLabel": "Reserve-Ladezustand (%)",
+  "vehicleTargetLabel": "Ziel-Ladezustand bei Ankunft (%)",
+  "vehicleStartLabel": "Start-Ladezustand (%)",
+  "vehicleConnectorsLabel": "Kompatible Steckertypen",
+  "vehicleProfileSave": "Speichern",
+  "vehicleProfileDelete": "Profil löschen",
+  "vehicleProfileSaved": "Fahrzeugprofil gespeichert.",
+  "vehicleProfileInvalid": "Bitte Batteriekapazität, Verbrauch und Ladeleistung als positive Zahlen und die Ladezustände in Prozent eingeben; die Reserve muss unter dem Ziel-Ladezustand liegen."
 }

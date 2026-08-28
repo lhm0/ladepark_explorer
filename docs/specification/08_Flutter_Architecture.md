@@ -35,7 +35,7 @@ lib/
 ├── data/dataset_update/ HTTP-Quelle und atomare Datensatzinstallation
 ├── data/favorites/      schreibbarer, app-lokaler SQLite-Adapter
 ├── data/park_info/      getrennter redaktioneller read-only Bestand
-├── data/settings/       versionierter lokaler Einstellungsspeicher
+├── data/settings/       versionierter lokaler Einstellungs- und Fahrzeugprofilspeicher
 ├── features/dataset_update/ Manifestvertrag und Updatezustand
 ├── features/explorer/
 │   ├── application/     Riverpod-Kartenstatus und Abfragekoordination
@@ -260,6 +260,14 @@ werden `MKDirections` als Wegpunkte übergeben und nativ als blaue nummerierte
 Marker gezeigt (`showRouteStops`); sie bleiben sichtbar, solange die Route auf
 der Karte liegt. Korridormarker erscheinen nur in der Vorschau und schließen
 die bereits gewählten Stopps aus.
+
+M16a ergänzt das Fahrzeugprofil (`FR-ROUTE-005`, ADR-0021). `VehicleProfile`
+und der `VehicleProfileRepository`-Vertrag liegen in
+`features/route_planning/domain/`; die Ablage teilt sich die
+schema-versionierte Einstellungsdatenbank: die Schemaversion steigt auf 2, die
+neue Tabelle `vehicle_profiles` hält eine Zeile, und `SqliteSettingsRepository`
+implementiert zusätzlich `VehicleProfileRepository`. Editiert wird das Profil in
+den Einstellungen (`features/settings/presentation/vehicle_profile_page.dart`).
 
 ## Verifizierte iOS-Entwicklungsumgebung
 

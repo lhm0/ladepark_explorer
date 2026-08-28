@@ -188,5 +188,21 @@
   "routeInsertStop": "Insert charging stop",
   "routeRemoveStop": "Remove charging stop",
   "routeStopsCount": "{count, plural, =0{No charging stops} =1{1 charging stop} other{{count} charging stops}}",
-  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}}
+  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}},
+  "vehicleProfileTitle": "Vehicle profile",
+  "vehicleProfileExplanation": "These values stay on this device only and are used for the range and charging estimation.",
+  "vehicleProfileNotSet": "Not set up yet",
+  "vehicleProfileSummary": "{battery} kWh · {consumption} kWh/100 km",
+  "@vehicleProfileSummary": {"placeholders": {"battery": {"type": "String"}, "consumption": {"type": "String"}}},
+  "vehicleBatteryLabel": "Usable battery capacity (kWh)",
+  "vehicleConsumptionLabel": "Average consumption (kWh/100 km)",
+  "vehicleMaxPowerLabel": "Maximum charging power (kW)",
+  "vehicleReserveLabel": "Reserve state of charge (%)",
+  "vehicleTargetLabel": "Target state of charge on arrival (%)",
+  "vehicleStartLabel": "Start state of charge (%)",
+  "vehicleConnectorsLabel": "Compatible connector types",
+  "vehicleProfileSave": "Save",
+  "vehicleProfileDelete": "Delete profile",
+  "vehicleProfileSaved": "Vehicle profile saved.",
+  "vehicleProfileInvalid": "Enter battery capacity, consumption and charging power as positive numbers and the states of charge as percentages; the reserve must be below the target state of charge."
 }

@@ -34,8 +34,9 @@ bestehen.
   stückweise linear zwischen festen Stützfarben:
   - `>= 60 %` Grün,
   - `35 %` Gelb,
-  - `<= Reserve` (Vorgabe 10 %) Rot,
-  - Werte unterhalb der Reserve bleiben Rot.
+  - `Reserve` (Vorgabe 10 %) Rot,
+  - unterhalb der Reserve ein klar unterscheidbares Dunkelrot, damit ein
+    kritischer Ladezustand sofort auffällt.
   Die genauen Prozentwerte und RGB-Werte werden vor der M16-Abnahme in einer
   gemeinsamen, testbaren Konstante festgelegt.
 - Die eingefärbten Abschnitte werden über den bestehenden Kartenkanal

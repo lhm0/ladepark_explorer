@@ -429,7 +429,21 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
     Korridorsuche im Panel, Stopp-Operationen, „Ladestop einfügen"-Knopf);
     DE/EN-Lokalisierung ergänzt.
-- **M16 bis M19** sind noch nicht implementiert.
+- **M16a** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+  - `VehicleProfile`-Domänenmodell und `VehicleProfileRepository`-Vertrag in
+    `features/route_planning/domain/` (nutzbare Kapazität, Verbrauch je 100 km,
+    Reserve- und Ziel-Ladezustand, Start-Ladezustand, maximale Ladeleistung,
+    kompatible Steckertypen),
+  - Ablage in der bestehenden schema-versionierten Einstellungsdatenbank gemäß
+    ADR-0021: Schemaversion 2, neue Tabelle `vehicle_profiles`, eine Zeile;
+    `SqliteSettingsRepository` implementiert zusätzlich `VehicleProfileRepository`;
+    Migrationstest für eine Version-1-Datenbank vorhanden,
+  - Editor in den Einstellungen (`VehicleProfilePage`) mit Zahlenfeldern und
+    Steckertyp-Auswahl, Speichern mit Validierung und „Profil löschen"; die
+    Einstellungsseite zeigt eine Kurzzusammenfassung,
+  - 6 neue automatisierte Tests (Persistenz, Migration, Controller, Editor);
+    DE/EN-Lokalisierung ergänzt.
+- **M16b, M17 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen
 

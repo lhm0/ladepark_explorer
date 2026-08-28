@@ -605,4 +605,53 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get vehicleProfileTitle => 'Vehicle profile';
+
+  @override
+  String get vehicleProfileExplanation =>
+      'These values stay on this device only and are used for the range and charging estimation.';
+
+  @override
+  String get vehicleProfileNotSet => 'Not set up yet';
+
+  @override
+  String vehicleProfileSummary(String battery, String consumption) {
+    return '$battery kWh · $consumption kWh/100 km';
+  }
+
+  @override
+  String get vehicleBatteryLabel => 'Usable battery capacity (kWh)';
+
+  @override
+  String get vehicleConsumptionLabel => 'Average consumption (kWh/100 km)';
+
+  @override
+  String get vehicleMaxPowerLabel => 'Maximum charging power (kW)';
+
+  @override
+  String get vehicleReserveLabel => 'Reserve state of charge (%)';
+
+  @override
+  String get vehicleTargetLabel => 'Target state of charge on arrival (%)';
+
+  @override
+  String get vehicleStartLabel => 'Start state of charge (%)';
+
+  @override
+  String get vehicleConnectorsLabel => 'Compatible connector types';
+
+  @override
+  String get vehicleProfileSave => 'Save';
+
+  @override
+  String get vehicleProfileDelete => 'Delete profile';
+
+  @override
+  String get vehicleProfileSaved => 'Vehicle profile saved.';
+
+  @override
+  String get vehicleProfileInvalid =>
+      'Enter battery capacity, consumption and charging power as positive numbers and the states of charge as percentages; the reserve must be below the target state of charge.';
 }

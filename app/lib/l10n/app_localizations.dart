@@ -1069,6 +1069,96 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}'**
   String routeStopsCount(int count);
+
+  /// No description provided for @vehicleProfileTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugprofil'**
+  String get vehicleProfileTitle;
+
+  /// No description provided for @vehicleProfileExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Angaben bleiben nur auf diesem Gerät und dienen der Reichweiten- und Ladeplanung.'**
+  String get vehicleProfileExplanation;
+
+  /// No description provided for @vehicleProfileNotSet.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht angelegt'**
+  String get vehicleProfileNotSet;
+
+  /// No description provided for @vehicleProfileSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'{battery} kWh · {consumption} kWh/100 km'**
+  String vehicleProfileSummary(String battery, String consumption);
+
+  /// No description provided for @vehicleBatteryLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Nutzbare Batteriekapazität (kWh)'**
+  String get vehicleBatteryLabel;
+
+  /// No description provided for @vehicleConsumptionLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Durchschnittsverbrauch (kWh/100 km)'**
+  String get vehicleConsumptionLabel;
+
+  /// No description provided for @vehicleMaxPowerLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Maximale Ladeleistung (kW)'**
+  String get vehicleMaxPowerLabel;
+
+  /// No description provided for @vehicleReserveLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Reserve-Ladezustand (%)'**
+  String get vehicleReserveLabel;
+
+  /// No description provided for @vehicleTargetLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel-Ladezustand bei Ankunft (%)'**
+  String get vehicleTargetLabel;
+
+  /// No description provided for @vehicleStartLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start-Ladezustand (%)'**
+  String get vehicleStartLabel;
+
+  /// No description provided for @vehicleConnectorsLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Kompatible Steckertypen'**
+  String get vehicleConnectorsLabel;
+
+  /// No description provided for @vehicleProfileSave.
+  ///
+  /// In de, this message translates to:
+  /// **'Speichern'**
+  String get vehicleProfileSave;
+
+  /// No description provided for @vehicleProfileDelete.
+  ///
+  /// In de, this message translates to:
+  /// **'Profil löschen'**
+  String get vehicleProfileDelete;
+
+  /// No description provided for @vehicleProfileSaved.
+  ///
+  /// In de, this message translates to:
+  /// **'Fahrzeugprofil gespeichert.'**
+  String get vehicleProfileSaved;
+
+  /// No description provided for @vehicleProfileInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Bitte Batteriekapazität, Verbrauch und Ladeleistung als positive Zahlen und die Ladezustände in Prozent eingeben; die Reserve muss unter dem Ziel-Ladezustand liegen.'**
+  String get vehicleProfileInvalid;
 }
 
 class _AppLocalizationsDelegate
