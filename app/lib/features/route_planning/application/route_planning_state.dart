@@ -16,6 +16,7 @@ class RoutePlanningState {
     this.destination,
     this.stops = const <RouteStop>[],
     this.tripStartSocPercent,
+    this.tripChargeTargetSocPercent,
   });
 
   final List<RouteOption> options;
@@ -34,6 +35,11 @@ class RoutePlanningState {
   /// State of charge at the start of this trip, in percent. Null means "use the
   /// vehicle profile default". Session state, not persisted.
   final int? tripStartSocPercent;
+
+  /// State of charge the plan assumes the car leaves each charging stop with,
+  /// in percent. Null means "use the vehicle profile target". Session state,
+  /// not persisted.
+  final int? tripChargeTargetSocPercent;
 
   bool get hasRoute => options.isNotEmpty;
 
@@ -57,6 +63,8 @@ class RoutePlanningState {
     List<RouteStop>? stops,
     int? tripStartSocPercent,
     bool clearTripStartSoc = false,
+    int? tripChargeTargetSocPercent,
+    bool clearTripChargeTargetSoc = false,
   }) => RoutePlanningState(
     options: options ?? this.options,
     selectedIndex: selectedIndex ?? this.selectedIndex,
@@ -68,5 +76,8 @@ class RoutePlanningState {
     tripStartSocPercent: clearTripStartSoc
         ? null
         : (tripStartSocPercent ?? this.tripStartSocPercent),
+    tripChargeTargetSocPercent: clearTripChargeTargetSoc
+        ? null
+        : (tripChargeTargetSocPercent ?? this.tripChargeTargetSocPercent),
   );
 }

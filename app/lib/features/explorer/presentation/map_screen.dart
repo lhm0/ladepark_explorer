@@ -21,6 +21,7 @@ import 'package:ladepark_explorer/features/route_planning/application/route_plan
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_corridor.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_planning_page.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
@@ -871,7 +872,10 @@ class GroupDetailSheet extends ConsumerWidget {
               ),
             ),
           ],
-          if (showChargingStopAction) _ChargingStopButton(detail: detail),
+          if (showChargingStopAction) ...[
+            _ChargingStopSocInfo(detail: detail),
+            _ChargingStopButton(detail: detail),
+          ],
         ],
       ),
     );
@@ -960,6 +964,53 @@ class GroupDetailSheet extends ConsumerWidget {
         ).showSnackBar(SnackBar(content: Text(strings.navigationUnavailable)));
       }
     }
+  }
+}
+
+/// Shows the estimated state of charge on arrival at this park and the value
+/// the plan assumes after charging here, so the reset is visible (FR-ROUTE-006).
+class _ChargingStopSocInfo extends ConsumerWidget {
+  const _ChargingStopSocInfo({required this.detail});
+
+  final ChargingGroupDetail detail;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final energy = ref.watch(tripEnergyProfileProvider);
+    final planning = ref.watch(routePlanningControllerProvider);
+    final option = planning.selectedOption;
+    if (energy == null || option == null || option.polyline.length < 2) {
+      return const SizedBox.shrink();
+    }
+    final km = positionAlongPolylineKm(
+      option.polyline,
+      GeoCoordinate(latitude: detail.latitude, longitude: detail.longitude),
+    );
+    final arrival = energy.socAtKm(km).round();
+    final plannedStop = planning.containsStop(detail.groupId)
+        ? energy.stopSocs
+              .where((s) => s.groupId == detail.groupId)
+              .map((s) => s.departureSocPercent.round())
+              .firstOrNull
+        : null;
+    final afterStop = plannedStop ?? energy.chargeTargetSocPercent;
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            strings.routeSocAtArrival(arrival),
+            style: Theme.of(context).textTheme.bodyMedium,
+          ),
+          Text(
+            strings.routeSocAfterStop(afterStop),
+            style: Theme.of(context).textTheme.bodySmall,
+          ),
+        ],
+      ),
+    );
   }
 }
 

@@ -9,6 +9,7 @@ import 'package:ladepark_explorer/features/route_planning/application/route_plan
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
@@ -226,7 +227,7 @@ class _RouteSelectorPanel extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 220,
+          height: 252,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Column(
@@ -376,41 +377,33 @@ class _EnergyStatus extends ConsumerWidget {
       return const SizedBox.shrink();
     }
     final energy = ref.watch(tripEnergyProfileProvider);
+    final notifier = ref.read(routePlanningControllerProvider.notifier);
     final startSoc =
         state.tripStartSocPercent ?? profile.defaultStartSocPercent;
-
-    void setStartSoc(int delta) {
-      ref
-          .read(routePlanningControllerProvider.notifier)
-          .setTripStartSoc((startSoc + delta).clamp(0, 100));
-    }
+    final chargeTarget =
+        state.tripChargeTargetSocPercent ?? profile.targetArrivalSocPercent;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        Row(
-          children: [
-            const Icon(Icons.battery_charging_full_outlined, size: 18),
-            const SizedBox(width: 6),
-            Expanded(
-              child: Text(
-                strings.routeStartSocLabel,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-            ),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              onPressed: () => setStartSoc(-5),
-              icon: const Icon(Icons.remove_circle_outline),
-            ),
-            Text('$startSoc %'),
-            IconButton(
-              visualDensity: VisualDensity.compact,
-              onPressed: () => setStartSoc(5),
-              icon: const Icon(Icons.add_circle_outline),
-            ),
-          ],
+        _SocStepper(
+          label: strings.routeStartSocLabel,
+          value: startSoc,
+          onChanged: (value) => notifier.setTripStartSoc(value),
         ),
+        _SocStepper(
+          label: strings.routeChargeTargetLabel,
+          value: chargeTarget,
+          onChanged: (value) => notifier.setTripChargeTargetSoc(value),
+        ),
+        if (energy != null) ...[
+          const SizedBox(height: 2),
+          Text(
+            _socBreakdown(strings, energy, startSoc),
+            style: Theme.of(context).textTheme.bodySmall,
+            textAlign: TextAlign.center,
+          ),
+        ],
         if (energy?.deficitKm case final deficitKm?)
           Text(
             strings.routeRangeDeficit(deficitKm.round()),
@@ -419,6 +412,66 @@ class _EnergyStatus extends ConsumerWidget {
             ),
             textAlign: TextAlign.center,
           ),
+      ],
+    );
+  }
+
+  /// A compact, human-readable trace of the estimated state of charge so a
+  /// tester can see the value reset at every stop (FR-ROUTE-006).
+  String _socBreakdown(
+    AppLocalizations strings,
+    TripEnergyProfile energy,
+    int startSoc,
+  ) {
+    final parts = <String>[strings.routeSocBreakdownStart(startSoc)];
+    for (var i = 0; i < energy.stopSocs.length; i++) {
+      final stop = energy.stopSocs[i];
+      parts.add(
+        strings.routeSocBreakdownStop(
+          i + 1,
+          stop.arrivalSocPercent.round(),
+          stop.departureSocPercent.round(),
+        ),
+      );
+    }
+    parts.add(
+      strings.routeSocBreakdownTarget(energy.socPercentByPoint.last.round()),
+    );
+    return parts.join('  ·  ');
+  }
+}
+
+class _SocStepper extends StatelessWidget {
+  const _SocStepper({
+    required this.label,
+    required this.value,
+    required this.onChanged,
+  });
+
+  final String label;
+  final int value;
+  final ValueChanged<int> onChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        const Icon(Icons.battery_charging_full_outlined, size: 18),
+        const SizedBox(width: 6),
+        Expanded(
+          child: Text(label, style: Theme.of(context).textTheme.bodySmall),
+        ),
+        IconButton(
+          visualDensity: VisualDensity.compact,
+          onPressed: () => onChanged((value - 5).clamp(0, 100)),
+          icon: const Icon(Icons.remove_circle_outline),
+        ),
+        Text('$value %'),
+        IconButton(
+          visualDensity: VisualDensity.compact,
+          onPressed: () => onChanged((value + 5).clamp(0, 100)),
+          icon: const Icon(Icons.add_circle_outline),
+        ),
       ],
     );
   }

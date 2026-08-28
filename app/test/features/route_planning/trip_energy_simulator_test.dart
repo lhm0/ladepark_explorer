@@ -76,5 +76,44 @@ void main() {
     expect(profile.socPercentByPoint[3], closeTo(55, 0.001));
     expect(profile.socPercentByPoint.last, closeTo(30, 0.001));
     expect(profile.reachesReserve, isTrue);
+
+    // The stop trace exposes the reset for the UI diagnostics.
+    expect(profile.stopSocs, hasLength(1));
+    expect(profile.stopSocs.single.arrivalSocPercent, closeTo(50, 0.001));
+    expect(profile.stopSocs.single.departureSocPercent, closeTo(80, 0.001));
+    expect(profile.chargeTargetSocPercent, 80);
+  });
+
+  test('an explicit charge target replaces the profile target at a stop', () {
+    final profile = simulator.simulate(
+      path: path,
+      stops: <RouteStop>[
+        RouteStop(
+          groupId: 'mid',
+          coordinate: const GeoCoordinate(latitude: 50, longitude: 13),
+          positionKm: 200,
+        ),
+      ],
+      vehicle: vehicle,
+      startSocPercent: 100,
+      chargeTargetSocPercent: 60,
+    );
+    // 100 -> 75 -> 50, stop -> 60, -> 35 -> 10.
+    expect(profile.stopSocs.single.departureSocPercent, closeTo(60, 0.001));
+    expect(profile.socPercentByPoint[3], closeTo(35, 0.001));
+    expect(profile.chargeTargetSocPercent, 60);
+  });
+
+  test('socAtKm interpolates the charge between polyline points', () {
+    final profile = simulator.simulate(
+      path: path,
+      stops: const <RouteStop>[],
+      vehicle: vehicle,
+      startSocPercent: 100,
+    );
+    // 100 at km 0, 75 at km 100 -> 87.5 at km 50.
+    expect(profile.socAtKm(50), closeTo(87.5, 0.001));
+    expect(profile.socAtKm(0), 100);
+    expect(profile.socAtKm(1000), closeTo(0, 0.001));
   });
 }

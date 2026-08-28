@@ -452,25 +452,36 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     (Energie = km/100 × Verbrauch); `TripContext` als erweiterbarer Kontext,
   - `TripEnergySimulator` erzeugt den geschätzten Ladezustandsverlauf je
     Polylinienpunkt und den ersten Streckenkilometer unter der Reserve; an
-    jedem Ladestopp springt der Ladezustand auf den Ziel-Ladezustand des
-    Profils (ADR-0020, für M17 über einen Rückruf austauschbar),
-  - `tripEnergyProfileProvider` verknüpft Route, Fahrzeugprofil und
-    Start-Ladezustand,
+    jedem Ladestopp springt der Ladezustand auf das Ladeziel (eingestellter
+    Wert, sonst Ziel-Ladezustand des Profils, Vorgabe 80 %); zusätzlich liefert
+    er `stopSocs` (Ankunft/Abfahrt je Stopp), `socAtKm` und
+    `chargeTargetSocPercent` (ADR-0020/ADR-0023, für M17 über einen Rückruf
+    austauschbar),
+  - `tripEnergyProfileProvider` verknüpft Route, Fahrzeugprofil,
+    Start-Ladezustand und Ladeziel je Stopp,
   - farbige Route (ADR-0023): `showRoute` erhält optional eine ARGB-Liste je
     Polylinienabschnitt; nativ wird je Abschnitt eine kurze `MKPolyline`
     gezeichnet (grün → gelb → rot, unter der Reserve dunkelrot). Ohne
     vollständiges Profil bleibt die Linie einfarbig,
-  - im Vorschaupanel ein Start-Ladezustand-Steller (Vorgabe aus dem Profil,
-    Sitzungszustand), die Reserve-Warnung „Reichweite reicht nur bis km X" und
-    eine Fehlerzeile mit Wiederholung, wenn eine Neuberechnung fehlschlägt,
+  - ein gesetzter Ladestopp bleibt bestehen, auch wenn die Neuberechnung der
+    Route über den Stopp fehlschlägt; die Schätzung projiziert ihn dann auf die
+    vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün beginnt,
+  - im Vorschaupanel ein Steller für Start-Ladezustand und einer für „Ladeziel
+    je Stopp" (Vorgaben aus dem Profil, Sitzungszustand), eine Textzeile mit
+    dem Ladezustandsverlauf (Start · Stopp n: an/ab · Ziel) als Diagnose, die
+    Reserve-Warnung „Reichweite reicht nur bis km X" und eine Fehlerzeile mit
+    Wiederholung, wenn eine Neuberechnung fehlschlägt,
+  - die Korridor-Detailansicht zeigt den geschätzten Ladezustand bei Ankunft am
+    Ladepark und den Wert nach einem Ladestopp dort,
   - die Vorschauseite gleicht die native Karte lifecycle-getrieben aus einem
     `addPostFrameCallback` ab (Render-Schlüssel gegen Doppelarbeit), damit die
     Färbung dem Einfügen eines Ladestopps auch dann folgt, wenn die Seite von
     der Detailansicht verdeckt ist; `showRoute` bewegt die Karte nur bei der
     ersten Darstellung,
-  - 13 neue automatisierte Tests (Segmentmodell, EnergyModel, Simulator,
-    Provider-Neuberechnung bei Stopp, Farbabbildung, Kartenkanal,
-    Vorschaupanel); DE/EN-Lokalisierung ergänzt.
+  - neue und erweiterte automatisierte Tests (Segmentmodell, EnergyModel,
+    Simulator inkl. Stopp-Trace/Ladeziel/`socAtKm`, Provider-Neuberechnung bei
+    Stopp, Stopp bleibt bei fehlgeschlagener Neuberechnung, Farbabbildung,
+    Kartenkanal, Vorschaupanel); DE/EN-Lokalisierung ergänzt.
 - **M17 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen

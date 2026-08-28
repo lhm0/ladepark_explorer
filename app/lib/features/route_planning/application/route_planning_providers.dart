@@ -35,6 +35,7 @@ final class RoutePlanningController extends Notifier<RoutePlanningState> {
       destination: request.destination,
       stops: const <RouteStop>[],
       clearTripStartSoc: true,
+      clearTripChargeTargetSoc: true,
     );
     ref.read(corridorControllerProvider.notifier).clear();
     await _run(request);
@@ -46,6 +47,16 @@ final class RoutePlanningController extends Notifier<RoutePlanningState> {
     state = state.copyWith(
       tripStartSocPercent: percent,
       clearTripStartSoc: percent == null,
+    );
+  }
+
+  /// Sets the state of charge the plan assumes on departure from every charging
+  /// stop for this trip, or null to fall back to the vehicle profile target
+  /// (FR-ROUTE-006).
+  void setTripChargeTargetSoc(int? percent) {
+    state = state.copyWith(
+      tripChargeTargetSocPercent: percent,
+      clearTripChargeTargetSoc: percent == null,
     );
   }
 
@@ -68,14 +79,14 @@ final class RoutePlanningController extends Notifier<RoutePlanningState> {
       positionKm: positionAlongPolylineKm(polyline, coordinate),
       name: name,
     );
-    final previousStops = state.stops;
-    final stops = <RouteStop>[...previousStops, stop]
+    final stops = <RouteStop>[...state.stops, stop]
       ..sort((a, b) => a.positionKm.compareTo(b.positionKm));
     state = state.copyWith(stops: stops, isCalculating: true, clearError: true);
+    // The stop stays even if the re-route through it fails: the range estimate
+    // then projects it onto the existing geometry, so the colouring still
+    // restarts from the stop (FR-ROUTE-006). The failed re-route surfaces as a
+    // retryable notice in the preview panel.
     await _run(_currentRequest());
-    if (state.error != null) {
-      state = state.copyWith(stops: previousStops);
-    }
   }
 
   Future<void> removeStop(String groupId) async {

@@ -91,6 +91,21 @@ void main() {
         after.socPercentByPoint[4],
         greaterThan(before.socPercentByPoint[4] + 20),
       );
+      // The stop trace shows the reset to the profile target by default.
+      expect(after.stopSocs, hasLength(1));
+      expect(after.stopSocs.single.departureSocPercent, closeTo(80, 0.001));
+      expect(after.chargeTargetSocPercent, 80);
+
+      // A per-trip charge target overrides the profile target.
+      container
+          .read(routePlanningControllerProvider.notifier)
+          .setTripChargeTargetSoc(60);
+      final retargeted = container.read(tripEnergyProfileProvider)!;
+      expect(retargeted.chargeTargetSocPercent, 60);
+      expect(
+        retargeted.stopSocs.single.departureSocPercent,
+        closeTo(60, 0.001),
+      );
     },
   );
 }

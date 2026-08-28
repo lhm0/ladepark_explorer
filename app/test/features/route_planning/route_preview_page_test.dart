@@ -192,13 +192,29 @@ void main() {
     await pumpPreview(tester, container);
 
     expect(find.text('Start-Ladezustand'), findsOneWidget);
+    expect(find.text('Ladeziel je Stopp'), findsOneWidget);
     expect(find.text('90 %'), findsOneWidget);
+    expect(find.text('80 %'), findsOneWidget);
     expect(find.textContaining('Reichweite reicht nur bis'), findsOneWidget);
+    expect(find.textContaining('Start 90 %'), findsOneWidget);
 
-    await tester.tap(find.byIcon(Icons.remove_circle_outline));
+    // The first stepper is the start SoC.
+    await tester.ensureVisible(find.byIcon(Icons.remove_circle_outline).first);
+    await tester.tap(find.byIcon(Icons.remove_circle_outline).first);
     await tester.pumpAndSettle();
     expect(
       container.read(routePlanningControllerProvider).tripStartSocPercent,
+      85,
+    );
+
+    // The second stepper is the per-stop charge target.
+    await tester.ensureVisible(find.byIcon(Icons.add_circle_outline).last);
+    await tester.tap(find.byIcon(Icons.add_circle_outline).last);
+    await tester.pumpAndSettle();
+    expect(
+      container
+          .read(routePlanningControllerProvider)
+          .tripChargeTargetSocPercent,
       85,
     );
   });

@@ -193,7 +193,30 @@ void main() {
     expect(service.requests.last.includeAlternatives, isTrue);
   });
 
-  test('a failed recompute rolls back the added stop', () async {
+  test(
+    'a failed recompute keeps the added stop and reports the error',
+    () async {
+      final service = FakeRoutePlanningService(
+        options: <RouteOption>[option(585)],
+      );
+      final container = containerWith(service);
+      final controller = container.read(
+        routePlanningControllerProvider.notifier,
+      );
+
+      await controller.planRoute(request());
+      service.error = RoutePlanningError.offline;
+      await controller.addStop(groupId: 'a', coordinate: nearStart);
+
+      // The stop stays so the range estimate can restart the colouring from it;
+      // the failed re-route is surfaced for a retry (FR-ROUTE-006).
+      final state = container.read(routePlanningControllerProvider);
+      expect(state.stops.map((s) => s.groupId), <String>['a']);
+      expect(state.error, RoutePlanningError.offline);
+    },
+  );
+
+  test('a per-stop charge target overrides the profile target', () async {
     final service = FakeRoutePlanningService(
       options: <RouteOption>[option(585)],
     );
@@ -201,11 +224,20 @@ void main() {
     final controller = container.read(routePlanningControllerProvider.notifier);
 
     await controller.planRoute(request());
-    service.error = RoutePlanningError.offline;
-    await controller.addStop(groupId: 'a', coordinate: nearStart);
+    controller.setTripChargeTargetSoc(70);
+    expect(
+      container
+          .read(routePlanningControllerProvider)
+          .tripChargeTargetSocPercent,
+      70,
+    );
 
-    final state = container.read(routePlanningControllerProvider);
-    expect(state.stops, isEmpty);
-    expect(state.error, RoutePlanningError.offline);
+    controller.setTripChargeTargetSoc(null);
+    expect(
+      container
+          .read(routePlanningControllerProvider)
+          .tripChargeTargetSocPercent,
+      isNull,
+    );
   });
 }

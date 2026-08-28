@@ -619,8 +619,36 @@ class AppLocalizationsDe extends AppLocalizations {
   String get routeStartSocLabel => 'Start-Ladezustand';
 
   @override
+  String get routeChargeTargetLabel => 'Ladeziel je Stopp';
+
+  @override
   String routeRangeDeficit(int km) {
     return 'Reichweite reicht nur bis km $km';
+  }
+
+  @override
+  String routeSocBreakdownStart(int soc) {
+    return 'Start $soc %';
+  }
+
+  @override
+  String routeSocBreakdownStop(int index, int arrival, int departure) {
+    return 'Stopp $index: an ~$arrival % → ab $departure %';
+  }
+
+  @override
+  String routeSocBreakdownTarget(int soc) {
+    return 'Ziel ~$soc %';
+  }
+
+  @override
+  String routeSocAtArrival(int soc) {
+    return 'Ladezustand bei Ankunft: ~$soc %';
+  }
+
+  @override
+  String routeSocAfterStop(int soc) {
+    return 'Nach dem Ladestopp: $soc %';
   }
 
   @override

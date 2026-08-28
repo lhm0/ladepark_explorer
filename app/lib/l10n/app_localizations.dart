@@ -1082,11 +1082,47 @@ abstract class AppLocalizations {
   /// **'Start-Ladezustand'**
   String get routeStartSocLabel;
 
+  /// No description provided for @routeChargeTargetLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeziel je Stopp'**
+  String get routeChargeTargetLabel;
+
   /// No description provided for @routeRangeDeficit.
   ///
   /// In de, this message translates to:
   /// **'Reichweite reicht nur bis km {km}'**
   String routeRangeDeficit(int km);
+
+  /// No description provided for @routeSocBreakdownStart.
+  ///
+  /// In de, this message translates to:
+  /// **'Start {soc} %'**
+  String routeSocBreakdownStart(int soc);
+
+  /// No description provided for @routeSocBreakdownStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Stopp {index}: an ~{arrival} % → ab {departure} %'**
+  String routeSocBreakdownStop(int index, int arrival, int departure);
+
+  /// No description provided for @routeSocBreakdownTarget.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel ~{soc} %'**
+  String routeSocBreakdownTarget(int soc);
+
+  /// No description provided for @routeSocAtArrival.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladezustand bei Ankunft: ~{soc} %'**
+  String routeSocAtArrival(int soc);
+
+  /// No description provided for @routeSocAfterStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Nach dem Ladestopp: {soc} %'**
+  String routeSocAfterStop(int soc);
 
   /// No description provided for @vehicleProfileTitle.
   ///

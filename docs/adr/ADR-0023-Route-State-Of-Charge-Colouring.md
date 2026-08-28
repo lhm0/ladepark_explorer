@@ -99,6 +99,34 @@ Negativ beziehungsweise zu beachten:
   M16-Zugänglichkeitsprüfung; die Reserve-Stelle wird zusätzlich nicht nur
   über Farbe markiert.
 
+## Nachtrag (M16b, Nachbesserung)
+
+Auf dem Gerät blieb die Färbung nach dem Einfügen eines Ladestopps unverändert.
+Ursache war nicht die Simulation, sondern die Zustandsführung: das Einfügen löst
+eine Neuberechnung der Route über den neuen Wegpunkt aus, und schlug diese fehl
+(häufiger als die erste A‑nach‑B‑Route, weil sie abschnittsweise über eine
+beliebige Ladepark-Koordinate führt), wurde der Stopp stillschweigend wieder aus
+dem Zustand entfernt. Der Zustand war dann Byte für Byte der Zustand ohne Stopp,
+also auch die Farbabschnitte.
+
+Korrektur:
+
+- Ein gesetzter Ladestopp bleibt bestehen, auch wenn die Neuberechnung
+  fehlschlägt. Die Schätzung projiziert ihn über `positionAlongPolylineKm` auf
+  die vorhandene Geometrie, sodass die Färbung ab dem Stopp neu bei Grün
+  beginnt. Der Fehlschlag erscheint als wiederholbarer Hinweis im
+  Vorschaupanel.
+- Der Abfahrt-Ladezustand nach einem Stopp ist als „Ladeziel je Stopp" für die
+  Fahrt einstellbar (Stepper neben dem Start-Ladezustand). Ohne Einstellung
+  gilt der Ziel-Ladezustand des Fahrzeugprofils (Vorgabe 80 %). Der
+  `TripEnergySimulator` nimmt den Wert als Parameter `chargeTargetSocPercent`
+  entgegen und legt ihn auf `TripEnergyProfile.chargeTargetSocPercent` ab.
+- `TripEnergyProfile` liefert zusätzlich `stopSocs` (Ankunfts- und
+  Abfahrtswert je Stopp) und `socAtKm(km)`. Das Vorschaupanel zeigt daraus
+  eine Textzeile „Start … · Stopp n: an … / ab … · Ziel …"; die
+  Korridor-Detailansicht zeigt den Ankunftswert am Ladepark und den Wert nach
+  einem Stopp dort. Beides dient der Nachvollziehbarkeit der Rücksetzung.
+
 ## Referenzen
 
 - [`ADR-0019 – Plattformneutraler Route-Planning-Service`](ADR-0019-Route-Planning-Service.md)

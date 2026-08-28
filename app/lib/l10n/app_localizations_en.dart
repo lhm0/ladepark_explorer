@@ -613,8 +613,36 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeStartSocLabel => 'Start state of charge';
 
   @override
+  String get routeChargeTargetLabel => 'Charge target per stop';
+
+  @override
   String routeRangeDeficit(int km) {
     return 'Range only reaches km $km';
+  }
+
+  @override
+  String routeSocBreakdownStart(int soc) {
+    return 'Start $soc%';
+  }
+
+  @override
+  String routeSocBreakdownStop(int index, int arrival, int departure) {
+    return 'Stop $index: arrive ~$arrival% → leave $departure%';
+  }
+
+  @override
+  String routeSocBreakdownTarget(int soc) {
+    return 'Arrival ~$soc%';
+  }
+
+  @override
+  String routeSocAtArrival(int soc) {
+    return 'State of charge on arrival: ~$soc%';
+  }
+
+  @override
+  String routeSocAfterStop(int soc) {
+    return 'After the charging stop: $soc%';
   }
 
   @override

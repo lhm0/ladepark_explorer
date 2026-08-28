@@ -166,15 +166,27 @@ nicht vor.
   Ladezustandsverlauf und weist auf nicht erreichbare Abschnitte hin.
 - Akzeptanz:
   - Die Vorhersage der Version 1.1 verwendet ausschließlich Streckenlänge,
-    Fahrzeugverbrauch und Start-Ladezustand.
+    Fahrzeugverbrauch, Start-Ladezustand und das je Stopp angenommene Ladeziel.
+  - Der Start-Ladezustand und das Ladeziel je Stopp sind für die aktuelle Fahrt
+    einstellbar. Ohne Einstellung gelten die Werte des Fahrzeugprofils
+    (`FR-ROUTE-005`); die Vorgabe für das Ladeziel ist der Ziel-Ladezustand des
+    Profils (Standard 80 Prozent). Die Einstellung bleibt Sitzungsstand und wird
+    nicht gespeichert.
+  - Beim Aufruf eines Korridor-Ladeparks zeigt die Detailansicht den
+    geschätzten Ladezustand bei Ankunft an sowie den Wert nach einem Ladestopp
+    dort, damit die Rücksetzung nachvollziehbar ist.
   - Der geschätzte Ladezustand wird als Färbung der Routenlinie auf der Karte
     sichtbar gemacht: ein Verlauf von Grün über Gelb nach Rot, wobei Rot dem
     Reserve-Ladezustand entspricht (Vorgabe 10 Prozent). Die genauen
     Farbschwellen sind dokumentiert (`ADR-0023`).
   - An jedem Ladestopp beginnt die Färbung wieder bei Grün, ausgehend vom
-    angenommenen Abfahrt-Ladezustand. In Version 1.1 ist dieser der
-    Ziel-Ladezustand des Fahrzeugprofils; ab `FR-ROUTE-008` stammt er aus dem
+    angenommenen Abfahrt-Ladezustand (dem eingestellten Ladeziel, sonst dem
+    Ziel-Ladezustand des Fahrzeugprofils); ab `FR-ROUTE-008` stammt er aus dem
     Ladeverfahren.
+  - Das Setzen eines Ladestopps lässt die Rücksetzung auch dann wirksam werden,
+    wenn die Neuberechnung der Route über den Stopp fehlschlägt: der Stopp
+    bleibt bestehen und wird für die Schätzung auf die vorhandene Route
+    projiziert; der Fehlschlag wird als wiederholbarer Hinweis dargestellt.
   - Unterschreitet der geschätzte Ladezustand ohne Ladestopp die Reserve, wird
     die Stelle zusätzlich als Warnung markiert.
   - Ohne vollständiges Fahrzeugprofil bleibt die Routenlinie einfarbig; die
