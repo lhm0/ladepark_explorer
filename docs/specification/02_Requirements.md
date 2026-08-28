@@ -428,6 +428,12 @@ Ladevorgänge, Zahlungen, Community-Inhalte, Benutzerkonten, Cloud-Synchronisati
 oder eine eigene Navigation. Entsprechende Vorbereitungen dürfen den
 Funktionsumfang nicht faktisch vorziehen.
 
+Die Routenplanung mit einfacher Reichweiten- und Ladeplanung ist nicht
+Bestandteil von Version 1.0. Sie ist als Planungshilfe – nicht als
+Turn-by-Turn-Navigation – für **Version 1.1** in
+[`17_Route_Planning.md`](17_Route_Planning.md) mit den Anforderungen
+`FR-ROUTE-*` und `NFR-ROUTE-*` gesondert spezifiziert.
+
 ## 11. Noch zu konkretisierende Werte
 
 Vor Umsetzung beziehungsweise Abnahme der betroffenen Anforderung werden
