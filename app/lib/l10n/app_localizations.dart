@@ -1070,6 +1070,18 @@ abstract class AppLocalizations {
   /// **'{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}'**
   String routeStopsCount(int count);
 
+  /// No description provided for @routeStartSocLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start-Ladezustand'**
+  String get routeStartSocLabel;
+
+  /// No description provided for @routeRangeDeficit.
+  ///
+  /// In de, this message translates to:
+  /// **'Reichweite reicht nur bis km {km}'**
+  String routeRangeDeficit(int km);
+
   /// No description provided for @vehicleProfileTitle.
   ///
   /// In de, this message translates to:

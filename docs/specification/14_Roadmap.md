@@ -91,8 +91,8 @@ vollständigen Nachweisen in App Store Connect vorliegt.
 ## 4. Version 1.1 – Routen-Update
 
 Status: M14.0, M14, M15 und M16a (Fahrzeugprofil) implementiert und manuell
-abgenommen; der Rest von M16 sowie M17 bis M19 geplant. Verbindlich
-spezifiziert in
+abgenommen; M16b (Ladezustandssimulation und farbige Route) implementiert;
+M17 bis M19 geplant. Verbindlich spezifiziert in
 [`17_Route_Planning.md`](17_Route_Planning.md) mit den Anforderungen
 `FR-ROUTE-001` bis `FR-ROUTE-011` und `NFR-ROUTE-*`; Architektur entschieden
 in ADR-0019 bis ADR-0023.

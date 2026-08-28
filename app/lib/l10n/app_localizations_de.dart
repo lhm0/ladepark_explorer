@@ -613,6 +613,14 @@ class AppLocalizationsDe extends AppLocalizations {
   }
 
   @override
+  String get routeStartSocLabel => 'Start-Ladezustand';
+
+  @override
+  String routeRangeDeficit(int km) {
+    return 'Reichweite reicht nur bis km $km';
+  }
+
+  @override
   String get vehicleProfileTitle => 'Fahrzeugprofil';
 
   @override

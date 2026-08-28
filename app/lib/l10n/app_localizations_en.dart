@@ -607,6 +607,14 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get routeStartSocLabel => 'Start state of charge';
+
+  @override
+  String routeRangeDeficit(int km) {
+    return 'Range only reaches km $km';
+  }
+
+  @override
   String get vehicleProfileTitle => 'Vehicle profile';
 
   @override

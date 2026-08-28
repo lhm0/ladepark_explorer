@@ -116,7 +116,43 @@ void main() {
         <String, Object?>{'latitude': 48.14, 'longitude': 11.58},
       ],
     );
+    expect(
+      (calls.first.arguments as Map<Object?, Object?>).containsKey(
+        'segmentColors',
+      ),
+      isFalse,
+    );
     expect(calls.last.method, 'clearRoute');
+  });
+
+  test('forwards state-of-charge segment colours for FR-ROUTE-006', () async {
+    const channel = MethodChannel('de.ladeparkexplorer/map/21');
+    final calls = <MethodCall>[];
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(channel, (call) async {
+          calls.add(call);
+          return null;
+        });
+    final adapter = MapKitAdapter(21);
+    addTearDown(() async {
+      await adapter.dispose();
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, null);
+    });
+
+    await adapter.showRoute(
+      const <GeoCoordinate>[
+        GeoCoordinate(latitude: 52.52, longitude: 13.40),
+        GeoCoordinate(latitude: 50.0, longitude: 12.5),
+        GeoCoordinate(latitude: 48.14, longitude: 11.58),
+      ],
+      segmentColorsArgb: const <int>[0xFF2E7D32, 0xFFD32F2F],
+    );
+
+    expect(
+      (calls.single.arguments as Map<Object?, Object?>)['segmentColors'],
+      <int>[0xFF2E7D32, 0xFFD32F2F],
+    );
   });
 }
 

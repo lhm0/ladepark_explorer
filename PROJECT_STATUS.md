@@ -445,7 +445,26 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     Einstellungsseite zeigt eine Kurzzusammenfassung,
   - 6 neue automatisierte Tests (Persistenz, Migration, Controller, Editor);
     DE/EN-Lokalisierung ergänzt.
-- **M16b, M17 bis M19** sind noch nicht implementiert.
+- **M16b** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+  - Segmentmodell (`RouteSegment`/`RoutePath` mit optionalen, in 1.1 leeren
+    Attributen) und `buildRoutePath` aus der dezimierten Polyline,
+  - austauschbare `EnergyModel`-Schnittstelle mit `ConstantRateEnergyModel`
+    (Energie = km/100 × Verbrauch); `TripContext` als erweiterbarer Kontext,
+  - `TripEnergySimulator` erzeugt den geschätzten Ladezustandsverlauf je
+    Polylinienpunkt und den ersten Streckenkilometer unter der Reserve; an
+    jedem Ladestopp springt der Ladezustand auf den Ziel-Ladezustand des
+    Profils (ADR-0020, für M17 über einen Rückruf austauschbar),
+  - `tripEnergyProfileProvider` verknüpft Route, Fahrzeugprofil und
+    Start-Ladezustand,
+  - farbige Route (ADR-0023): `showRoute` erhält optional eine ARGB-Liste je
+    Polylinienabschnitt; nativ wird je Abschnitt eine kurze `MKPolyline`
+    gezeichnet (grün → gelb → rot, unter der Reserve dunkelrot). Ohne
+    vollständiges Profil bleibt die Linie einfarbig,
+  - im Vorschaupanel ein Start-Ladezustand-Steller (Vorgabe aus dem Profil,
+    Sitzungszustand) und die Reserve-Warnung „Reichweite reicht nur bis km X",
+  - 12 neue automatisierte Tests (Segmentmodell, EnergyModel, Simulator,
+    Farbabbildung, Kartenkanal, Vorschaupanel); DE/EN-Lokalisierung ergänzt.
+- **M17 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen
 

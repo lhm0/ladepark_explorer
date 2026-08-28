@@ -79,6 +79,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   private var pendingLocationResult: FlutterResult?
   private var pendingRadiusKm = 25.0
   private var routeOverlay: MKPolyline?
+  private var routeSegmentOverlays: [(polyline: MKPolyline, colour: UIColor)] = []
   private var routeStopAnnotations: [RouteStopAnnotation] = []
   private var corridorAnnotations: [CorridorParkAnnotation] = []
 
@@ -238,7 +239,12 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
         result(FlutterError(code: "invalid_route", message: nil, details: nil))
         return
       }
-      showRoute(rawPoints.compactMap(routeCoordinate(from:)))
+      showRoute(
+        rawPoints.compactMap(routeCoordinate(from:)),
+        segmentColors: (values["segmentColors"] as? [Any])?.compactMap {
+          ($0 as? NSNumber)?.int64Value
+        }
+      )
       result(nil)
     case "showRouteStops":
       guard
@@ -301,24 +307,59 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     mapView.addAnnotations(corridorAnnotations)
   }
 
-  private func showRoute(_ coordinates: [CLLocationCoordinate2D]) {
-    clearRoute()
+  private func showRoute(
+    _ coordinates: [CLLocationCoordinate2D],
+    segmentColors: [Int64]?
+  ) {
+    clearRouteOverlays()
     guard coordinates.count >= 2 else { return }
-    let overlay = MKPolyline(coordinates: coordinates, count: coordinates.count)
-    routeOverlay = overlay
-    mapView.addOverlay(overlay, level: .aboveRoads)
+
+    if let segmentColors, segmentColors.count == coordinates.count - 1 {
+      for index in 0..<(coordinates.count - 1) {
+        var pair = [coordinates[index], coordinates[index + 1]]
+        let polyline = MKPolyline(coordinates: &pair, count: 2)
+        routeSegmentOverlays.append((polyline, colour(fromArgb: segmentColors[index])))
+        mapView.addOverlay(polyline, level: .aboveRoads)
+      }
+    } else {
+      let overlay = MKPolyline(coordinates: coordinates, count: coordinates.count)
+      routeOverlay = overlay
+      mapView.addOverlay(overlay, level: .aboveRoads)
+    }
+
+    var boundingCoordinates = coordinates
+    let boundingPolyline = MKPolyline(
+      coordinates: &boundingCoordinates,
+      count: boundingCoordinates.count
+    )
     mapView.setVisibleMapRect(
-      overlay.boundingMapRect,
+      boundingPolyline.boundingMapRect,
       edgePadding: UIEdgeInsets(top: 72, left: 48, bottom: 160, right: 48),
       animated: true
     )
   }
 
-  private func clearRoute() {
+  private func colour(fromArgb argb: Int64) -> UIColor {
+    let alpha = CGFloat((argb >> 24) & 0xFF) / 255.0
+    let red = CGFloat((argb >> 16) & 0xFF) / 255.0
+    let green = CGFloat((argb >> 8) & 0xFF) / 255.0
+    let blue = CGFloat(argb & 0xFF) / 255.0
+    return UIColor(red: red, green: green, blue: blue, alpha: alpha)
+  }
+
+  private func clearRouteOverlays() {
     if let overlay = routeOverlay {
       mapView.removeOverlay(overlay)
       routeOverlay = nil
     }
+    if !routeSegmentOverlays.isEmpty {
+      mapView.removeOverlays(routeSegmentOverlays.map { $0.polyline })
+      routeSegmentOverlays = []
+    }
+  }
+
+  private func clearRoute() {
+    clearRouteOverlays()
     if !routeStopAnnotations.isEmpty {
       mapView.removeAnnotations(routeStopAnnotations)
       routeStopAnnotations = []
@@ -345,7 +386,9 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       return MKOverlayRenderer(overlay: overlay)
     }
     let renderer = MKPolylineRenderer(polyline: polyline)
-    renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.85)
+    let segmentColour = routeSegmentOverlays.first { $0.polyline === polyline }?.colour
+    renderer.strokeColor =
+      segmentColour ?? UIColor.systemBlue.withAlphaComponent(0.85)
     renderer.lineWidth = 5
     renderer.lineJoin = .round
     renderer.lineCap = .round

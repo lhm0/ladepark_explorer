@@ -16,4 +16,11 @@ class RouteStop {
   final GeoCoordinate coordinate;
   final double positionKm;
   final String? name;
+
+  RouteStop copyWith({double? positionKm}) => RouteStop(
+    groupId: groupId,
+    coordinate: coordinate,
+    positionKm: positionKm ?? this.positionKm,
+    name: name,
+  );
 }

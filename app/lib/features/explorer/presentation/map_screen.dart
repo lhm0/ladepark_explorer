@@ -16,12 +16,15 @@ import 'package:ladepark_explorer/features/favorites/application/favorite_provid
 import 'package:ladepark_explorer/features/favorites/presentation/favorites_page.dart';
 import 'package:ladepark_explorer/features/park_info/application/park_information_providers.dart';
 import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
+import 'package:ladepark_explorer/features/route_planning/application/energy_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_planning_page.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:ladepark_explorer/features/settings/presentation/settings_page.dart';
@@ -105,12 +108,13 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       }
       final routeChanged = !identical(option, previous?.selectedOption);
       final stopsChanged = !identical(next.stops, previous?.stops);
-      if (routeChanged) {
-        unawaited(_mapAdapter?.showRoute(option.polyline));
-      }
       if (routeChanged || stopsChanged) {
+        _drawRoute();
         unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
       }
+    });
+    ref.listen<TripEnergyProfile?>(tripEnergyProfileProvider, (previous, next) {
+      _drawRoute();
     });
     return Scaffold(
       appBar: AppBar(
@@ -283,6 +287,31 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       .map((stop) => (id: stop.groupId, coordinate: stop.coordinate))
       .toList(growable: false);
 
+  List<int>? _routeSegmentColours() {
+    final energy = ref.read(tripEnergyProfileProvider);
+    if (energy == null || energy.socPercentByPoint.length < 2) return null;
+    final soc = energy.socPercentByPoint;
+    return <int>[
+      for (var i = 0; i < soc.length - 1; i++)
+        socColourArgb(
+          (soc[i] + soc[i + 1]) / 2,
+          reservePercent: energy.reservePercent,
+        ),
+    ];
+  }
+
+  void _drawRoute() {
+    final adapter = _mapAdapter;
+    final option = ref.read(routePlanningControllerProvider).selectedOption;
+    if (adapter == null || option == null) return;
+    unawaited(
+      adapter.showRoute(
+        option.polyline,
+        segmentColorsArgb: _routeSegmentColours(),
+      ),
+    );
+  }
+
   Future<void> _openCorridorParkDetail(String groupId) {
     final detailFuture = ref
         .read(explorerMapControllerProvider.notifier)
@@ -440,7 +469,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final routePlanning = ref.read(routePlanningControllerProvider);
     final routeOption = routePlanning.selectedOption;
     if (routeOption != null) {
-      unawaited(adapter.showRoute(routeOption.polyline));
+      unawaited(
+        adapter.showRoute(
+          routeOption.polyline,
+          segmentColorsArgb: _routeSegmentColours(),
+        ),
+      );
       unawaited(adapter.showRouteStops(_stopMarkers(routePlanning.stops)));
     }
     final pendingExternalLocation = _pendingExternalLocation;

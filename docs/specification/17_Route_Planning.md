@@ -379,8 +379,10 @@ festgelegt:
 - Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
 - Vorgabewerte des Fahrzeugprofils und zulässige Wertebereiche,
 - Standard-Reserve und Standard-Ziel-Ladezustand,
-- Farbschwellen und Verlaufsfunktion der Ladezustandsfärbung sowie Breite und
-  Deckkraft eines optionalen Farbsaums entlang der Route (`ADR-0023`),
+- ~~Farbschwellen und Verlaufsfunktion der Ladezustandsfärbung~~ – mit M16
+  festgelegt: Grün ab 60 %, Gelb bei 35 %, Rot bei der Reserve, Dunkelrot
+  darunter (`ADR-0023`); Breite und Deckkraft eines optionalen Farbsaums
+  entlang der Route bleiben offen,
 - Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
 - Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App.
 

@@ -4,10 +4,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
 import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/energy_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/maps/map_adapter.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
@@ -80,9 +84,34 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
     final state = ref.read(routePlanningControllerProvider);
     final option = state.selectedOption;
     if (option == null) return;
-    await adapter.showRoute(option.polyline);
+    await adapter.showRoute(
+      option.polyline,
+      segmentColorsArgb: _segmentColours(),
+    );
     await adapter.showRouteStops(_stopMarkers(state.stops));
     await adapter.showRouteCorridor(_corridorParks());
+  }
+
+  void _drawRoute() {
+    final adapter = _mapAdapter;
+    final option = ref.read(routePlanningControllerProvider).selectedOption;
+    if (adapter == null || option == null) return;
+    unawaited(
+      adapter.showRoute(option.polyline, segmentColorsArgb: _segmentColours()),
+    );
+  }
+
+  List<int>? _segmentColours() {
+    final energy = ref.read(tripEnergyProfileProvider);
+    if (energy == null || energy.socPercentByPoint.length < 2) return null;
+    final soc = energy.socPercentByPoint;
+    return <int>[
+      for (var i = 0; i < soc.length - 1; i++)
+        socColourArgb(
+          (soc[i] + soc[i + 1]) / 2,
+          reservePercent: energy.reservePercent,
+        ),
+    ];
   }
 
   List<RouteStopMarker> _stopMarkers(List<RouteStop> stops) => stops
@@ -124,10 +153,8 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       if (option == null) return;
       final routeChanged = !identical(option, previous?.selectedOption);
       final stopsChanged = !identical(next.stops, previous?.stops);
-      if (routeChanged) {
-        unawaited(_mapAdapter?.showRoute(option.polyline));
-      }
       if (routeChanged || stopsChanged) {
+        _drawRoute();
         unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
         unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
       }
@@ -136,6 +163,9 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       if (!identical(next.parks, previous?.parks)) {
         unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
       }
+    });
+    ref.listen<TripEnergyProfile?>(tripEnergyProfileProvider, (previous, next) {
+      _drawRoute();
     });
 
     _mapView ??= Semantics(
@@ -275,6 +305,7 @@ class _RouteSelectorPanel extends ConsumerWidget {
                         style: Theme.of(context).textTheme.bodySmall,
                         textAlign: TextAlign.center,
                       ),
+                      _EnergyStatus(state: state),
                     ],
                   ),
                 ),
@@ -307,6 +338,67 @@ class _RouteSelectorPanel extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _EnergyStatus extends ConsumerWidget {
+  const _EnergyStatus({required this.state});
+
+  final RoutePlanningState state;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final profile = ref.watch(vehicleProfileControllerProvider).value;
+    if (profile == null || !profile.isComplete) {
+      return const SizedBox.shrink();
+    }
+    final energy = ref.watch(tripEnergyProfileProvider);
+    final startSoc =
+        state.tripStartSocPercent ?? profile.defaultStartSocPercent;
+
+    void setStartSoc(int delta) {
+      ref
+          .read(routePlanningControllerProvider.notifier)
+          .setTripStartSoc((startSoc + delta).clamp(0, 100));
+    }
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Row(
+          children: [
+            const Icon(Icons.battery_charging_full_outlined, size: 18),
+            const SizedBox(width: 6),
+            Expanded(
+              child: Text(
+                strings.routeStartSocLabel,
+                style: Theme.of(context).textTheme.bodySmall,
+              ),
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              onPressed: () => setStartSoc(-5),
+              icon: const Icon(Icons.remove_circle_outline),
+            ),
+            Text('$startSoc %'),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              onPressed: () => setStartSoc(5),
+              icon: const Icon(Icons.add_circle_outline),
+            ),
+          ],
+        ),
+        if (energy?.deficitKm case final deficitKm?)
+          Text(
+            strings.routeRangeDeficit(deficitKm.round()),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(context).colorScheme.error,
+            ),
+            textAlign: TextAlign.center,
+          ),
+      ],
     );
   }
 }

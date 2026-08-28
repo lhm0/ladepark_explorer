@@ -269,6 +269,20 @@ neue Tabelle `vehicle_profiles` hält eine Zeile, und `SqliteSettingsRepository`
 implementiert zusätzlich `VehicleProfileRepository`. Editiert wird das Profil in
 den Einstellungen (`features/settings/presentation/vehicle_profile_page.dart`).
 
+M16b ergänzt die Reichweitenvorhersage (`FR-ROUTE-006`, ADR-0020/0023).
+`buildRoutePath` zerlegt die dezimierte Polyline in `RouteSegment`s mit in 1.1
+leeren Optionalattributen. Die austauschbare `EnergyModel`-Schnittstelle hat
+mit `ConstantRateEnergyModel` eine triviale Umsetzung. Der
+`TripEnergySimulator` läuft die Segmente ab, zieht je Segment den
+Verbrauchsanteil ab und hebt den Ladezustand an jedem Ladestopp auf den
+Ziel-Ladezustand des Profils; er meldet den ersten Kilometer unter der
+Reserve. `tripEnergyProfileProvider` verknüpft Route, Profil und den je Fahrt
+einstellbaren Start-Ladezustand. Die Präsentation bildet den mittleren
+Ladezustand je Abschnitt über `socColourArgb` auf eine Farbe ab; `showRoute`
+nimmt optional eine ARGB-Liste je Abschnitt entgegen, die nativ als kurze
+`MKPolyline`-Abschnitte gezeichnet wird. Ohne vollständiges Profil bleibt die
+Route einfarbig.
+
 ## Verifizierte iOS-Entwicklungsumgebung
 
 - macOS 15.0,

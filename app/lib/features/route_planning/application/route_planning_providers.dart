@@ -34,9 +34,19 @@ final class RoutePlanningController extends Notifier<RoutePlanningState> {
       origin: request.origin,
       destination: request.destination,
       stops: const <RouteStop>[],
+      clearTripStartSoc: true,
     );
     ref.read(corridorControllerProvider.notifier).clear();
     await _run(request);
+  }
+
+  /// Sets the start state of charge for this trip, or null to fall back to the
+  /// vehicle profile default (FR-ROUTE-005, FR-ROUTE-006).
+  void setTripStartSoc(int? percent) {
+    state = state.copyWith(
+      tripStartSocPercent: percent,
+      clearTripStartSoc: percent == null,
+    );
   }
 
   Future<void> retry() async {

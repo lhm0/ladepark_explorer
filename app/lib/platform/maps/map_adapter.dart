@@ -29,7 +29,14 @@ abstract interface class MapAdapter {
 
   /// Draws [polyline] as a native route overlay and fits it into view
   /// (FR-ROUTE-001, ADR-0019). Replaces any previously shown route.
-  Future<void> showRoute(List<GeoCoordinate> polyline);
+  ///
+  /// When [segmentColorsArgb] is given it holds one ARGB colour per polyline
+  /// segment (`polyline.length - 1` entries) for the state-of-charge colouring
+  /// (FR-ROUTE-006, ADR-0023); otherwise the route is drawn in one colour.
+  Future<void> showRoute(
+    List<GeoCoordinate> polyline, {
+    List<int>? segmentColorsArgb,
+  });
 
   /// Marks the chosen charging stops along the route (FR-ROUTE-004) as blue
   /// numbered, tappable markers, in the given order. Replaces any previously

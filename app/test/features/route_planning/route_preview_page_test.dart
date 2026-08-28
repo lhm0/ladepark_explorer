@@ -6,15 +6,18 @@ import 'package:ladepark_explorer/features/explorer/domain/models/charging_group
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_bounds.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_leg.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_option.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/vehicle_profile.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 
 import '../../support/fake_charging_repository.dart';
 import '../../support/fake_route_planning_service.dart';
+import '../../support/fake_vehicle_profile_repository.dart';
 
 // UI regression for FR-ROUTE-001 and the ADR-0011 constraint: route map and the
 // alternative selector are non-overlapping siblings, not a Flutter overlay.
@@ -163,5 +166,40 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(find.text('1 Ladepark im Korridor'), findsOneWidget);
+  });
+
+  testWidgets('shows the start-SoC control and range warning', (tester) async {
+    const profile = VehicleProfile(
+      usableBatteryKwh: 40,
+      consumptionKwhPer100Km: 20,
+      maxChargePowerKw: 100,
+    );
+    final container = ProviderContainer(
+      overrides: [
+        routePlanningServiceProvider.overrideWithValue(
+          FakeRoutePlanningService(options: <RouteOption>[option(585)]),
+        ),
+        vehicleProfileRepositoryProvider.overrideWith(
+          (ref) async => FakeVehicleProfileRepository(profile),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(vehicleProfileControllerProvider.future);
+    await container
+        .read(routePlanningControllerProvider.notifier)
+        .planRoute(request);
+    await pumpPreview(tester, container);
+
+    expect(find.text('Start-Ladezustand'), findsOneWidget);
+    expect(find.text('90 %'), findsOneWidget);
+    expect(find.textContaining('Reichweite reicht nur bis'), findsOneWidget);
+
+    await tester.tap(find.byIcon(Icons.remove_circle_outline));
+    await tester.pumpAndSettle();
+    expect(
+      container.read(routePlanningControllerProvider).tripStartSocPercent,
+      85,
+    );
   });
 }

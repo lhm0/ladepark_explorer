@@ -173,7 +173,10 @@ final class MapKitAdapter implements MapAdapter {
   }
 
   @override
-  Future<void> showRoute(List<GeoCoordinate> polyline) async {
+  Future<void> showRoute(
+    List<GeoCoordinate> polyline, {
+    List<int>? segmentColorsArgb,
+  }) async {
     if (_disposed) {
       return;
     }
@@ -186,6 +189,7 @@ final class MapKitAdapter implements MapAdapter {
             },
           )
           .toList(growable: false),
+      'segmentColors': ?segmentColorsArgb,
     });
   }
 

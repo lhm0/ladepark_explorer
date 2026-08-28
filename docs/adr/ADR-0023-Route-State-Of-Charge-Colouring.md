@@ -31,14 +31,14 @@ bestehen.
   des Fahrzeugprofils; ab `FR-ROUTE-008` stammt er aus dem `ChargingModel`.
 - Die App bildet jeden Polylinienabschnitt (zwei benachbarte Stützpunkte) über
   seinen mittleren Ladezustand auf eine Farbe ab. Die Verlaufsfunktion ist
-  stückweise linear zwischen festen Stützfarben:
-  - `>= 60 %` Grün,
-  - `35 %` Gelb,
-  - `Reserve` (Vorgabe 10 %) Rot,
-  - unterhalb der Reserve ein klar unterscheidbares Dunkelrot, damit ein
-    kritischer Ladezustand sofort auffällt.
-  Die genauen Prozentwerte und RGB-Werte werden vor der M16-Abnahme in einer
-  gemeinsamen, testbaren Konstante festgelegt.
+  stückweise linear zwischen festen Stützfarben (Konstanten in
+  `route_soc_colour.dart`, mit Tests):
+  - `>= 60 %` Grün (`#2E7D32`),
+  - `35 %` Gelb (`#F9A825`), linear zwischen Grün und Gelb im Bereich 60–35 %,
+  - `Reserve` (Vorgabe 10 %) Rot (`#D32F2F`), linear zwischen Gelb und Rot im
+    Bereich 35 % bis Reserve,
+  - unterhalb der Reserve Dunkelrot (`#7F0000`), damit ein kritischer
+    Ladezustand sofort auffällt.
 - Die eingefärbten Abschnitte werden über den bestehenden Kartenkanal
   übergeben: `showRoute` erhält zusätzlich zur Polyline optional eine geordnete
   Liste von ARGB-Farbwerten, einen je Abschnitt (also `Punktzahl − 1`
