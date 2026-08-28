@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:ladepark_explorer/features/explorer/application/explorer_providers.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_bounds.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
@@ -11,6 +13,7 @@ import 'package:ladepark_explorer/features/route_planning/domain/models/route_wa
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 
+import '../../support/fake_charging_repository.dart';
 import '../../support/fake_route_planning_service.dart';
 
 // UI regression for FR-ROUTE-001 and the ADR-0011 constraint: route map and the
@@ -75,7 +78,8 @@ void main() {
                 onPressed: () => Navigator.push<RoutePreviewResult>(
                   context,
                   MaterialPageRoute<RoutePreviewResult>(
-                    builder: (_) => RoutePreviewPage(onOpenDetail: (_) {}),
+                    builder: (_) =>
+                        RoutePreviewPage(onOpenDetail: (_) async {}),
                   ),
                 ),
                 child: const Text('open'),
@@ -124,5 +128,40 @@ void main() {
 
     expect(container.read(routePlanningControllerProvider).hasRoute, isFalse);
     expect(find.text('Auf Karte anzeigen'), findsNothing);
+  });
+
+  testWidgets('runs the corridor search and reports the count', (tester) async {
+    final park = ChargingGroupSummary(
+      groupId: 'corridor-1',
+      latitude: 50.2,
+      longitude: 12.4,
+      stationCount: 1,
+      evseCount: 10,
+      hpcEvseCount: 6,
+      maxPowerKw: 300,
+      city: 'Mitte',
+    );
+    final container = ProviderContainer(
+      overrides: [
+        routePlanningServiceProvider.overrideWithValue(
+          FakeRoutePlanningService(options: <RouteOption>[option(585)]),
+        ),
+        chargingRepositoryProvider.overrideWith(
+          (ref) async =>
+              FakeChargingRepository(groups: <ChargingGroupSummary>[park]),
+        ),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(explorerMapControllerProvider.future);
+    await container
+        .read(routePlanningControllerProvider.notifier)
+        .planRoute(request);
+    await pumpPreview(tester, container);
+
+    await tester.tap(find.text('Ladeparks entlang der Route'));
+    await tester.pumpAndSettle();
+
+    expect(find.text('1 Ladepark im Korridor'), findsOneWidget);
   });
 }

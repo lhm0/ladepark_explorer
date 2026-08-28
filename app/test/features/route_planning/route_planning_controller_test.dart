@@ -5,7 +5,6 @@ import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_option.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
-import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_planning_exception.dart';
 
@@ -151,13 +150,13 @@ void main() {
     expect(state.origin, isNull);
   });
 
-  RouteStop stop(String id, double positionKm) => RouteStop(
-    groupId: id,
-    coordinate: GeoCoordinate(latitude: 50 + positionKm / 100, longitude: 10),
-    positionKm: positionKm,
-  );
+  // The option polyline runs from (52.52, 13.40) to (48.14, 11.58), so a
+  // coordinate near the start gets position 0 and one near the end the full
+  // length.
+  const nearStart = GeoCoordinate(latitude: 52.4, longitude: 13.3);
+  const nearEnd = GeoCoordinate(latitude: 48.3, longitude: 11.7);
 
-  test('adds a stop as an ordered waypoint and recomputes the route', () async {
+  test('adds stops as ordered waypoints and recomputes the route', () async {
     final service = FakeRoutePlanningService(
       options: <RouteOption>[option(585), option(602)],
     );
@@ -166,8 +165,8 @@ void main() {
 
     await controller.planRoute(request());
     service.options = <RouteOption>[option(610)];
-    await controller.addStop(stop('b', 300));
-    await controller.addStop(stop('a', 120));
+    await controller.addStop(groupId: 'b', coordinate: nearEnd);
+    await controller.addStop(groupId: 'a', coordinate: nearStart);
 
     final state = container.read(routePlanningControllerProvider);
     expect(state.stops.map((s) => s.groupId), <String>['a', 'b']);
@@ -185,7 +184,7 @@ void main() {
     final controller = container.read(routePlanningControllerProvider.notifier);
 
     await controller.planRoute(request());
-    await controller.addStop(stop('a', 120));
+    await controller.addStop(groupId: 'a', coordinate: nearStart);
     await controller.removeStop('a');
 
     final state = container.read(routePlanningControllerProvider);
@@ -203,7 +202,7 @@ void main() {
 
     await controller.planRoute(request());
     service.error = RoutePlanningError.offline;
-    await controller.addStop(stop('a', 120));
+    await controller.addStop(groupId: 'a', coordinate: nearStart);
 
     final state = container.read(routePlanningControllerProvider);
     expect(state.stops, isEmpty);

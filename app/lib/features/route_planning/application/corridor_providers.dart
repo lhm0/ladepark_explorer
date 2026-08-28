@@ -1,7 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ladepark_explorer/features/explorer/application/explorer_providers.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
-import 'package:ladepark_explorer/features/route_planning/domain/models/corridor_park.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_corridor.dart';
 
 /// Progress and result of the route corridor search (FR-ROUTE-003).
@@ -11,7 +11,7 @@ class CorridorState {
     this.hasSearched = false,
     this.done = 0,
     this.total = 0,
-    this.parks = const <CorridorPark>[],
+    this.parks = const <ChargingGroupSummary>[],
     this.limitReached = false,
     this.failed = false,
   });
@@ -20,7 +20,7 @@ class CorridorState {
   final bool hasSearched;
   final int done;
   final int total;
-  final List<CorridorPark> parks;
+  final List<ChargingGroupSummary> parks;
 
   /// A sample query hit the 500-result cap, so the corridor may be incomplete.
   final bool limitReached;
@@ -35,7 +35,7 @@ class CorridorState {
     bool? hasSearched,
     int? done,
     int? total,
-    List<CorridorPark>? parks,
+    List<ChargingGroupSummary>? parks,
     bool? limitReached,
     bool? failed,
   }) => CorridorState(
@@ -77,7 +77,7 @@ final class CorridorController extends Notifier<CorridorState> {
     state = CorridorState(isSearching: true, total: samples.length);
 
     final explorer = ref.read(explorerMapControllerProvider.notifier);
-    final byId = <String, CorridorPark>{};
+    final byId = <String, ChargingGroupSummary>{};
     var limitReached = false;
     var failed = false;
 
@@ -89,16 +89,7 @@ final class CorridorController extends Notifier<CorridorState> {
         );
         if (groups.length >= 500) limitReached = true;
         for (final group in groups) {
-          if (byId.containsKey(group.groupId)) continue;
-          final point = GeoCoordinate(
-            latitude: group.latitude,
-            longitude: group.longitude,
-          );
-          byId[group.groupId] = CorridorPark(
-            group: group,
-            positionKm: positionAlongPolylineKm(polyline, point),
-            detourKm: estimateDetourKm(polyline, point),
-          );
+          byId.putIfAbsent(group.groupId, () => group);
         }
       } on Object {
         failed = true;
@@ -108,7 +99,7 @@ final class CorridorController extends Notifier<CorridorState> {
     }
 
     final parks = byId.values.toList()
-      ..sort((a, b) => a.positionKm.compareTo(b.positionKm));
+      ..sort((a, b) => a.groupId.compareTo(b.groupId));
     state = CorridorState(
       hasSearched: true,
       done: samples.length,

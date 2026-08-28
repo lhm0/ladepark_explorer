@@ -584,23 +584,21 @@ class AppLocalizationsDe extends AppLocalizations {
       'Einige Abschnitte konnten nicht geprüft werden.';
 
   @override
-  String get routeCorridorRetry => 'Erneut suchen';
-
-  @override
-  String routeCorridorPosition(int km) {
-    return 'bei km $km';
+  String routeCorridorCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Ladeparks im Korridor',
+      one: '1 Ladepark im Korridor',
+    );
+    return '$_temp0';
   }
 
   @override
-  String routeCorridorDetour(int km) {
-    return 'Umweg +$km km';
-  }
+  String get routeInsertStop => 'Ladestop einfügen';
 
   @override
-  String get routeAddStop => 'Als Ladestopp';
-
-  @override
-  String get routeRemoveStop => 'Ladestopp entfernen';
+  String get routeRemoveStop => 'Ladestop entfernen';
 
   @override
   String routeStopsCount(int count) {

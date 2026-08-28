@@ -404,19 +404,24 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - Korridorsuche gemäß ADR-0022: die dezimierte Route wird alle 20 km
     abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit Radius 10 km
     und den aktiven Filtern sequentiell im Charging-Isolate; Treffer werden
-    über `groupId` dedupliziert, mit Streckenposition und geschätztem Umweg
-    versehen und nach Position sortiert; Fortschritt und 500-Treffer-Grenze
-    sind sichtbar,
-  - `RouteCorridorPage` (opake Route) listet die Korridor-Ladeparks; ein Tippen
-    öffnet die bestehende Detailansicht, ein Schalter übernimmt den Ladepark
-    als Ladestopp beziehungsweise entfernt ihn,
-  - Ladestopps werden als geordnete Wegpunkte an `MKDirections` übergeben, die
-    Teilstrecken, Distanz und Fahrzeit werden neu berechnet; ein fehlerhafter
-    Neuberechnungsversuch nimmt den Stopp zurück,
-  - Ladestopps werden nativ als nummerierte grüne Marker in der Karte gezeigt
-    (`showRouteStops`), das Auswahlpanel der Vorschau hat feste Höhe,
+    über `groupId` dedupliziert; Fortschritt und 500-Treffer-Grenze sind
+    sichtbar,
+  - die Interaktion ist kartenbasiert (keine Liste): der Panel-Knopf
+    „Ladeparks entlang der Route" startet die Suche, die Treffer erscheinen als
+    orange Marker auf der Vorschaukarte. Ein Tippen öffnet die bestehende
+    Detailansicht mit dem Knopf „Ladestop einfügen"; danach ist wieder die
+    Karte mit dem Korridor sichtbar,
+  - übernommene Ladestopps werden als geordnete Wegpunkte an `MKDirections`
+    übergeben, Teilstrecken, Distanz und Fahrzeit werden neu berechnet; ein
+    fehlerhafter Neuberechnungsversuch nimmt den Stopp zurück,
+  - Ladestopps werden nativ als **blaue** nummerierte Marker gezeigt
+    (`showRouteStops`) und bleiben sichtbar, solange die Route auf der Karte
+    liegt; Korridormarker (`showRouteCorridor`) erscheinen nur in der Vorschau
+    und schließen die bereits gewählten Stopps aus; das Auswahlpanel der
+    Vorschau hat feste Höhe,
   - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
-    Korridorseite, Stopp-Operationen); DE/EN-Lokalisierung ergänzt.
+    Korridorsuche im Panel, Stopp-Operationen, „Ladestop einfügen"-Knopf);
+    DE/EN-Lokalisierung ergänzt.
 - **M16 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen

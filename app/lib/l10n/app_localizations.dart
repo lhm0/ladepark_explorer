@@ -1046,34 +1046,22 @@ abstract class AppLocalizations {
   /// **'Einige Abschnitte konnten nicht geprüft werden.'**
   String get routeCorridorFailed;
 
-  /// No description provided for @routeCorridorRetry.
+  /// No description provided for @routeCorridorCount.
   ///
   /// In de, this message translates to:
-  /// **'Erneut suchen'**
-  String get routeCorridorRetry;
+  /// **'{count, plural, =1{1 Ladepark im Korridor} other{{count} Ladeparks im Korridor}}'**
+  String routeCorridorCount(int count);
 
-  /// No description provided for @routeCorridorPosition.
+  /// No description provided for @routeInsertStop.
   ///
   /// In de, this message translates to:
-  /// **'bei km {km}'**
-  String routeCorridorPosition(int km);
-
-  /// No description provided for @routeCorridorDetour.
-  ///
-  /// In de, this message translates to:
-  /// **'Umweg +{km} km'**
-  String routeCorridorDetour(int km);
-
-  /// No description provided for @routeAddStop.
-  ///
-  /// In de, this message translates to:
-  /// **'Als Ladestopp'**
-  String get routeAddStop;
+  /// **'Ladestop einfügen'**
+  String get routeInsertStop;
 
   /// No description provided for @routeRemoveStop.
   ///
   /// In de, this message translates to:
-  /// **'Ladestopp entfernen'**
+  /// **'Ladestop entfernen'**
   String get routeRemoveStop;
 
   /// No description provided for @routeStopsCount.

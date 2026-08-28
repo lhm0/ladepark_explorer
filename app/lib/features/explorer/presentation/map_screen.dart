@@ -275,12 +275,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
         pageBuilder: (context, animation, secondaryAnimation) =>
-            RoutePreviewPage(onOpenDetail: _openGroupDetailRoute),
+            RoutePreviewPage(onOpenDetail: _openCorridorParkDetail),
       ),
     );
   }
 
-  Future<void> _openGroupDetailRoute(String groupId) {
+  Future<void> _openCorridorParkDetail(String groupId) {
     final detailFuture = ref
         .read(explorerMapControllerProvider.notifier)
         .loadGroupDetail(groupId);
@@ -290,7 +290,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
         pageBuilder: (context, animation, secondaryAnimation) =>
-            GroupDetailPage(future: detailFuture),
+            GroupDetailPage(future: detailFuture, showChargingStopAction: true),
       ),
     );
   }
@@ -619,6 +619,7 @@ class GroupDetailPage extends StatefulWidget {
     required this.future,
     this.enableFavoriteAction = true,
     this.onPlanRoute,
+    this.showChargingStopAction = false,
     super.key,
   });
 
@@ -627,6 +628,10 @@ class GroupDetailPage extends StatefulWidget {
 
   /// When set, the detail sheet offers to plan a route to this park.
   final void Function(ChargingGroupDetail detail)? onPlanRoute;
+
+  /// When true, the detail sheet offers to add or remove this park as a
+  /// charging stop on the active route (FR-ROUTE-004).
+  final bool showChargingStopAction;
 
   @override
   State<GroupDetailPage> createState() => _GroupDetailPageState();
@@ -654,6 +659,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             scrollController: _scrollController,
             enableFavoriteAction: widget.enableFavoriteAction,
             onPlanRoute: widget.onPlanRoute,
+            showChargingStopAction: widget.showChargingStopAction,
           );
         },
       ),
@@ -704,6 +710,7 @@ class GroupDetailSheet extends ConsumerWidget {
     required this.scrollController,
     this.enableFavoriteAction = true,
     this.onPlanRoute,
+    this.showChargingStopAction = false,
     super.key,
   });
 
@@ -711,6 +718,7 @@ class GroupDetailSheet extends ConsumerWidget {
   final ScrollController scrollController;
   final bool enableFavoriteAction;
   final void Function(ChargingGroupDetail detail)? onPlanRoute;
+  final bool showChargingStopAction;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -826,6 +834,7 @@ class GroupDetailSheet extends ConsumerWidget {
               ),
             ),
           ],
+          if (showChargingStopAction) _ChargingStopButton(detail: detail),
         ],
       ),
     );
@@ -914,6 +923,59 @@ class GroupDetailSheet extends ConsumerWidget {
         ).showSnackBar(SnackBar(content: Text(strings.navigationUnavailable)));
       }
     }
+  }
+}
+
+/// Adds or removes this park as a charging stop on the active route
+/// (FR-ROUTE-004) and returns to the map.
+class _ChargingStopButton extends ConsumerWidget {
+  const _ChargingStopButton({required this.detail});
+
+  final ChargingGroupDetail detail;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    final planning = ref.watch(routePlanningControllerProvider);
+    final isStop = planning.containsStop(detail.groupId);
+    return Padding(
+      padding: const EdgeInsets.only(top: 12),
+      child: SizedBox(
+        width: double.infinity,
+        child: FilledButton.icon(
+          onPressed: planning.isCalculating || !planning.canRecalculate
+              ? null
+              : () {
+                  final notifier = ref.read(
+                    routePlanningControllerProvider.notifier,
+                  );
+                  if (isStop) {
+                    unawaited(notifier.removeStop(detail.groupId));
+                  } else {
+                    unawaited(
+                      notifier.addStop(
+                        groupId: detail.groupId,
+                        coordinate: GeoCoordinate(
+                          latitude: detail.latitude,
+                          longitude: detail.longitude,
+                        ),
+                        name: detail.name ?? detail.city,
+                      ),
+                    );
+                  }
+                  Navigator.of(context).pop();
+                },
+          icon: Icon(
+            isStop
+                ? Icons.wrong_location_outlined
+                : Icons.add_location_alt_outlined,
+          ),
+          label: Text(
+            isStop ? strings.routeRemoveStop : strings.routeInsertStop,
+          ),
+        ),
+      ),
+    );
   }
 }
 

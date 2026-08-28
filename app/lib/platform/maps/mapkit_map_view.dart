@@ -65,12 +65,17 @@ final class MapKitAdapter implements MapAdapter {
   final MethodChannel _channel;
   final StreamController<GeoBounds> _bounds = StreamController.broadcast();
   final StreamController<String> _selections = StreamController.broadcast();
+  final StreamController<String> _corridorSelections =
+      StreamController.broadcast();
   List<ChargingGroupSummary>? _pendingMarkerGroups;
   Future<void>? _markerDrain;
   bool _disposed = false;
 
   @override
   Stream<String> get selectedGroupIds => _selections.stream;
+
+  @override
+  Stream<String> get selectedCorridorParkIds => _corridorSelections.stream;
 
   @override
   Stream<GeoBounds> get visibleBounds => _bounds.stream;
@@ -197,6 +202,24 @@ final class MapKitAdapter implements MapAdapter {
   }
 
   @override
+  Future<void> showRouteCorridor(List<ChargingGroupSummary> parks) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRouteCorridor', <String, Object?>{
+      'parks': parks
+          .map(
+            (park) => <String, Object?>{
+              'latitude': park.latitude,
+              'longitude': park.longitude,
+              'groupId': park.groupId,
+            },
+          )
+          .toList(growable: false),
+    });
+  }
+
+  @override
   Future<void> clearRoute() async {
     if (!_disposed) {
       await _channel.invokeMethod<void>('clearRoute');
@@ -216,6 +239,8 @@ final class MapKitAdapter implements MapAdapter {
       );
     } else if (call.method == 'groupSelected' && arguments is String) {
       _selections.add(arguments);
+    } else if (call.method == 'corridorParkSelected' && arguments is String) {
+      _corridorSelections.add(arguments);
     }
     return null;
   }
@@ -231,6 +256,7 @@ final class MapKitAdapter implements MapAdapter {
     _channel.setMethodCallHandler(null);
     await _bounds.close();
     await _selections.close();
+    await _corridorSelections.close();
   }
 }
 

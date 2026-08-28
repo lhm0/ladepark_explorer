@@ -250,11 +250,16 @@ für die reine Geometrie, `application/corridor_providers.dart` für den
 `CorridorController`). Gemäß ADR-0022 tastet der Controller die dezimierte
 Route alle 20 km ab und ruft je Punkt `ExplorerMapController.findGroupsNear`
 mit 10 km Radius; die Abfragen laufen sequentiell im Charging-Isolate. Treffer
-werden über `groupId` dedupliziert, mit Streckenposition und geschätztem Umweg
-versehen und sortiert. Die opake `RouteCorridorPage` listet sie; ein Schalter
-übernimmt einen Ladepark als Ladestopp. Ladestopps liegen als geordnete
-`RouteStop`s im `RoutePlanningState`, werden `MKDirections` als Wegpunkte
-übergeben und nativ als nummerierte grüne Marker gezeigt (`showRouteStops`).
+werden über `groupId` dedupliziert. Die Interaktion ist kartenbasiert: der
+Panel-Knopf der `RoutePreviewPage` startet die Suche, die Treffer erscheinen
+als native orange Marker (`showRouteCorridor`) auf der Vorschaukarte. Ein Tippen
+meldet die `groupId` über den Kanal (`corridorParkSelected`); die Vorschau
+öffnet dann die bestehende Detailansicht mit dem Knopf „Ladestop einfügen".
+Übernommene Stopps liegen als geordnete `RouteStop`s im `RoutePlanningState`,
+werden `MKDirections` als Wegpunkte übergeben und nativ als blaue nummerierte
+Marker gezeigt (`showRouteStops`); sie bleiben sichtbar, solange die Route auf
+der Karte liegt. Korridormarker erscheinen nur in der Vorschau und schließen
+die bereits gewählten Stopps aus.
 
 ## Verifizierte iOS-Entwicklungsumgebung
 

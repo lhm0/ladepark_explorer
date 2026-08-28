@@ -2,11 +2,12 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
+import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
-import 'package:ladepark_explorer/features/route_planning/presentation/route_corridor_page.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
@@ -18,13 +19,17 @@ enum RoutePreviewResult { newRoute }
 ///
 /// Per ADR-0011 no Flutter surface is composited over the native map. The map
 /// and the selector are non-overlapping siblings in a [Column]: the map fills a
-/// fixed remaining space above a panel of constant height that is never
-/// inserted, removed or resized. The map widget instance is cached so panel
-/// updates do not rebuild the platform view (ADR-0019 Nachtrag, flutter#62717).
+/// fixed remaining space above a panel of constant height. The corridor parks
+/// and the chosen stops are drawn as native markers on this screen's own map;
+/// tapping a corridor marker opens the park detail with an "insert stop"
+/// action. The map widget instance is cached so panel updates do not rebuild
+/// the platform view (ADR-0019 Nachtrag, flutter#62717).
 class RoutePreviewPage extends ConsumerStatefulWidget {
   const RoutePreviewPage({required this.onOpenDetail, super.key});
 
-  final void Function(String groupId) onOpenDetail;
+  /// Opens the park detail (with the "insert stop" action) for a corridor
+  /// marker the user tapped.
+  final Future<void> Function(String groupId) onOpenDetail;
 
   @override
   ConsumerState<RoutePreviewPage> createState() => _RoutePreviewPageState();
@@ -32,10 +37,12 @@ class RoutePreviewPage extends ConsumerStatefulWidget {
 
 class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
   MapKitAdapter? _mapAdapter;
+  StreamSubscription<String>? _corridorTapSubscription;
   Widget? _mapView;
 
   @override
   void dispose() {
+    unawaited(_corridorTapSubscription?.cancel());
     unawaited(_mapAdapter?.dispose());
     super.dispose();
   }
@@ -46,33 +53,54 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
 
   Future<void> _attachAdapter(MapKitAdapter adapter) async {
     final previous = _mapAdapter;
+    final previousSubscription = _corridorTapSubscription;
     _mapAdapter = adapter;
+    _corridorTapSubscription = adapter.selectedCorridorParkIds.listen(
+      widget.onOpenDetail,
+    );
+    await previousSubscription?.cancel();
     await previous?.dispose();
     if (!mounted) {
       await adapter.dispose();
       _mapAdapter = null;
       return;
     }
+    await _redraw(adapter);
+  }
+
+  Future<void> _redraw(MapKitAdapter adapter) async {
     final state = ref.read(routePlanningControllerProvider);
     final option = state.selectedOption;
-    if (option != null) {
-      await adapter.showRoute(option.polyline);
-      await adapter.showRouteStops(_stopCoordinates(state.stops));
-    }
+    if (option == null) return;
+    await adapter.showRoute(option.polyline);
+    await adapter.showRouteStops(_stopCoordinates(state.stops));
+    await adapter.showRouteCorridor(_corridorParks());
   }
 
   List<GeoCoordinate> _stopCoordinates(List<RouteStop> stops) =>
       stops.map((stop) => stop.coordinate).toList(growable: false);
 
-  Future<void> _openCorridor() => Navigator.of(context).push<void>(
-    PageRouteBuilder<void>(
-      opaque: true,
-      transitionDuration: Duration.zero,
-      reverseTransitionDuration: Duration.zero,
-      pageBuilder: (context, animation, secondaryAnimation) =>
-          RouteCorridorPage(onOpenDetail: widget.onOpenDetail),
-    ),
-  );
+  List<ChargingGroupSummary> _corridorParks() {
+    final stopIds = ref
+        .read(routePlanningControllerProvider)
+        .stops
+        .map((stop) => stop.groupId)
+        .toSet();
+    return ref
+        .read(corridorControllerProvider)
+        .parks
+        .where((park) => !stopIds.contains(park.groupId))
+        .toList(growable: false);
+  }
+
+  void _searchCorridor() {
+    final option = ref.read(routePlanningControllerProvider).selectedOption;
+    if (option != null) {
+      unawaited(
+        ref.read(corridorControllerProvider.notifier).search(option.polyline),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,6 +120,12 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       }
       if (routeChanged || stopsChanged) {
         unawaited(_mapAdapter?.showRouteStops(_stopCoordinates(next.stops)));
+        unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
+      }
+    });
+    ref.listen<CorridorState>(corridorControllerProvider, (previous, next) {
+      if (!identical(next.parks, previous?.parks)) {
+        unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
       }
     });
 
@@ -116,7 +150,7 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
                   onSelect: ref
                       .read(routePlanningControllerProvider.notifier)
                       .selectAlternative,
-                  onSearchCorridor: _openCorridor,
+                  onSearchCorridor: _searchCorridor,
                   onShowOnMap: () => Navigator.of(context).pop(),
                   onNewRoute: () =>
                       Navigator.of(context).pop(RoutePreviewResult.newRoute),
@@ -131,7 +165,7 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
   }
 }
 
-class _RouteSelectorPanel extends StatelessWidget {
+class _RouteSelectorPanel extends ConsumerWidget {
   const _RouteSelectorPanel({
     required this.state,
     required this.onSelect,
@@ -149,9 +183,10 @@ class _RouteSelectorPanel extends StatelessWidget {
   final VoidCallback onClear;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final strings = AppLocalizations.of(context);
     final option = state.selectedOption!;
+    final corridor = ref.watch(corridorControllerProvider);
     return Material(
       elevation: 8,
       child: SafeArea(
@@ -217,11 +252,15 @@ class _RouteSelectorPanel extends StatelessWidget {
                         const SizedBox(height: 4),
                       ],
                       OutlinedButton.icon(
-                        onPressed: onSearchCorridor,
+                        onPressed: corridor.isSearching
+                            ? null
+                            : onSearchCorridor,
                         icon: const Icon(Icons.ev_station_outlined),
                         label: Text(strings.routeCorridorTitle),
                       ),
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 6),
+                      _CorridorStatus(corridor: corridor),
+                      const SizedBox(height: 2),
                       Text(
                         strings.routeStopsCount(state.stops.length),
                         style: Theme.of(context).textTheme.bodySmall,
@@ -259,6 +298,56 @@ class _RouteSelectorPanel extends StatelessWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+class _CorridorStatus extends StatelessWidget {
+  const _CorridorStatus({required this.corridor});
+
+  final CorridorState corridor;
+
+  @override
+  Widget build(BuildContext context) {
+    final strings = AppLocalizations.of(context);
+    final style = Theme.of(context).textTheme.bodySmall;
+    if (corridor.isSearching) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          LinearProgressIndicator(value: corridor.progress),
+          const SizedBox(height: 4),
+          Text(
+            strings.routeCorridorSearching(corridor.done, corridor.total),
+            style: style,
+            textAlign: TextAlign.center,
+          ),
+        ],
+      );
+    }
+    if (!corridor.hasSearched) {
+      return const SizedBox.shrink();
+    }
+    final message = corridor.parks.isEmpty
+        ? strings.routeCorridorEmpty
+        : strings.routeCorridorCount(corridor.parks.length);
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(message, style: style, textAlign: TextAlign.center),
+        if (corridor.limitReached)
+          Text(
+            strings.routeCorridorLimit,
+            style: style?.copyWith(color: Theme.of(context).colorScheme.error),
+            textAlign: TextAlign.center,
+          ),
+        if (corridor.failed)
+          Text(
+            strings.routeCorridorFailed,
+            style: style?.copyWith(color: Theme.of(context).colorScheme.error),
+            textAlign: TextAlign.center,
+          ),
+      ],
     );
   }
 }

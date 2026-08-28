@@ -35,10 +35,10 @@ Flutter-Konsument, Fixture und Vertrag (`ADR-0007`).
 - Die Abfragen laufen sequentiell im bestehenden Charging-Isolate und halten
   den Latest-wins-Vertrag ein. Die Oberfläche zeigt einen Fortschritt, da die
   Korridorsuche länger dauern kann als eine einzelne Kartenabfrage.
-- Für jeden Treffer berechnet die App lokal die Position entlang der Route
-  (Streckenkilometer des nächsten Polylinienpunkts) und einen geschätzten
-  Umweg (zusätzliche Distanz gegenüber dem Weiterfahren auf der Route). Dafür
-  ist keine zusätzliche Netzabfrage nötig.
+- Die Treffer werden als Marker auf der Routenkarte gezeigt (keine Liste). Für
+  einen als Ladestopp übernommenen Ladepark berechnet die App lokal die
+  Position entlang der Route (Streckenkilometer des nächsten Polylinienpunkts),
+  um die Wegpunkte zu ordnen. Dafür ist keine zusätzliche Netzabfrage nötig.
 - Überschreitet die Gesamttrefferzahl die 500-Ergebnis-Grenze einer
   Teilabfrage, wird sichtbar begrenzt statt stillschweigend unvollständig
   dargestellt.

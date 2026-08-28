@@ -62,17 +62,6 @@ double positionAlongPolylineKm(
   return cumulative;
 }
 
-/// Rough there-and-back detour for leaving the route to reach [point]:
-/// twice the distance to the nearest polyline vertex.
-double estimateDetourKm(List<GeoCoordinate> polyline, GeoCoordinate point) {
-  var bestDistance = double.infinity;
-  for (final vertex in polyline) {
-    final distance = haversineKm(vertex, point);
-    if (distance < bestDistance) bestDistance = distance;
-  }
-  return bestDistance.isFinite ? bestDistance * 2 : 0;
-}
-
 GeoCoordinate _lerp(GeoCoordinate a, GeoCoordinate b, double fraction) =>
     GeoCoordinate(
       latitude: a.latitude + (b.latitude - a.latitude) * fraction,

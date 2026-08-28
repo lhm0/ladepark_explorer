@@ -37,11 +37,12 @@ void main() {
     return container;
   }
 
-  test('dedupes hits and orders them by position along the route', () async {
-    final near = group('near-start', 52.3, 13.2);
-    final far = group('near-end', 48.3, 11.4);
+  test('dedupes hits from overlapping sample queries', () async {
+    final a = group('park-a', 52.3, 13.2);
+    final b = group('park-b', 48.3, 11.4);
     final repo = FakeChargingRepository(
-      findGroupsHandler: (_) async => <ChargingGroupSummary>[far, near],
+      // Every sample returns both parks; each must appear once.
+      findGroupsHandler: (_) async => <ChargingGroupSummary>[b, a, a],
     );
     final container = await containerWith(repo);
 
@@ -51,12 +52,10 @@ void main() {
     expect(state.isSearching, isFalse);
     expect(state.hasSearched, isTrue);
     expect(state.done, state.total);
-    expect(state.parks.map((park) => park.group.groupId), <String>[
-      'near-start',
-      'near-end',
+    expect(state.parks.map((park) => park.groupId), <String>[
+      'park-a',
+      'park-b',
     ]);
-    expect(state.parks.first.positionKm, lessThan(state.parks.last.positionKm));
-    expect(state.parks.first.detourKm, greaterThanOrEqualTo(0));
     expect(repo.queries.length, state.total);
   });
 

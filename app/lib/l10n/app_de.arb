@@ -183,13 +183,10 @@
   "routeCorridorEmpty": "Auf dieser Route wurde kein passender Ladepark gefunden.",
   "routeCorridorLimit": "Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.",
   "routeCorridorFailed": "Einige Abschnitte konnten nicht geprüft werden.",
-  "routeCorridorRetry": "Erneut suchen",
-  "routeCorridorPosition": "bei km {km}",
-  "@routeCorridorPosition": {"placeholders": {"km": {"type": "int"}}},
-  "routeCorridorDetour": "Umweg +{km} km",
-  "@routeCorridorDetour": {"placeholders": {"km": {"type": "int"}}},
-  "routeAddStop": "Als Ladestopp",
-  "routeRemoveStop": "Ladestopp entfernen",
+  "routeCorridorCount": "{count, plural, =1{1 Ladepark im Korridor} other{{count} Ladeparks im Korridor}}",
+  "@routeCorridorCount": {"placeholders": {"count": {"type": "int"}}},
+  "routeInsertStop": "Ladestop einfügen",
+  "routeRemoveStop": "Ladestop entfernen",
   "routeStopsCount": "{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}",
   "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}}
 }

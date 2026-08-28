@@ -59,6 +59,10 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       MKMarkerAnnotationView.self,
       forAnnotationViewWithReuseIdentifier: Self.routeStopReuseIdentifier
     )
+    mapView.register(
+      MKMarkerAnnotationView.self,
+      forAnnotationViewWithReuseIdentifier: Self.corridorReuseIdentifier
+    )
     configureInitialRegion(arguments)
     channel.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
@@ -67,6 +71,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
 
   private static let groupReuseIdentifier = "charging-group"
   private static let routeStopReuseIdentifier = "route-stop"
+  private static let corridorReuseIdentifier = "route-corridor"
   private let mapView: MKMapView
   private let channel: FlutterMethodChannel
   private let locationManager = CLLocationManager()
@@ -75,6 +80,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   private var pendingRadiusKm = 25.0
   private var routeOverlay: MKPolyline?
   private var routeStopAnnotations: [RouteStopAnnotation] = []
+  private var corridorAnnotations: [CorridorParkAnnotation] = []
 
   func view() -> UIView {
     mapView
@@ -88,6 +94,14 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     if let cluster = view.annotation as? MKClusterAnnotation {
       mapView.showAnnotations(cluster.memberAnnotations, animated: true)
       mapView.deselectAnnotation(cluster, animated: false)
+      return
+    }
+    if let park = view.annotation as? CorridorParkAnnotation {
+      mapView.deselectAnnotation(park, animated: false)
+      let groupId = park.groupId
+      DispatchQueue.main.async { [weak self] in
+        self?.channel.invokeMethod("corridorParkSelected", arguments: groupId)
+      }
       return
     }
     guard let group = view.annotation as? ChargingGroupAnnotation else { return }
@@ -108,11 +122,23 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
         for: stop
       ) as! MKMarkerAnnotationView
       view.annotation = stop
-      view.markerTintColor = .systemGreen
+      view.markerTintColor = .systemBlue
       view.glyphText = "\(stop.number)"
       view.clusteringIdentifier = nil
       view.displayPriority = .required
       view.zPriority = .max
+      return view
+    }
+    if let park = annotation as? CorridorParkAnnotation {
+      let view = mapView.dequeueReusableAnnotationView(
+        withIdentifier: Self.corridorReuseIdentifier,
+        for: park
+      ) as! MKMarkerAnnotationView
+      view.annotation = park
+      view.markerTintColor = .systemOrange
+      view.glyphImage = UIImage(systemName: "bolt.fill")
+      view.clusteringIdentifier = nil
+      view.displayPriority = .required
       return view
     }
     if annotation is MKClusterAnnotation {
@@ -216,6 +242,16 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       }
       showRouteStops(rawStops.compactMap(routeCoordinate(from:)))
       result(nil)
+    case "showRouteCorridor":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawParks = values["parks"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_corridor", message: nil, details: nil))
+        return
+      }
+      showRouteCorridor(rawParks)
+      result(nil)
     case "clearRoute":
       clearRoute()
       result(nil)
@@ -230,6 +266,22 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       RouteStopAnnotation(coordinate: coordinate, number: index + 1)
     }
     mapView.addAnnotations(routeStopAnnotations)
+  }
+
+  private func showRouteCorridor(_ parks: [[String: Any]]) {
+    mapView.removeAnnotations(corridorAnnotations)
+    corridorAnnotations = parks.compactMap { park in
+      guard
+        let latitude = park["latitude"] as? Double,
+        let longitude = park["longitude"] as? Double,
+        let groupId = park["groupId"] as? String
+      else { return nil }
+      return CorridorParkAnnotation(
+        groupId: groupId,
+        coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+      )
+    }
+    mapView.addAnnotations(corridorAnnotations)
   }
 
   private func showRoute(_ coordinates: [CLLocationCoordinate2D]) {
@@ -253,6 +305,10 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     if !routeStopAnnotations.isEmpty {
       mapView.removeAnnotations(routeStopAnnotations)
       routeStopAnnotations = []
+    }
+    if !corridorAnnotations.isEmpty {
+      mapView.removeAnnotations(corridorAnnotations)
+      corridorAnnotations = []
     }
   }
 
@@ -472,4 +528,15 @@ final class RouteStopAnnotation: NSObject, MKAnnotation {
   let coordinate: CLLocationCoordinate2D
   let number: Int
   var title: String? { "Ladestopp \(number)" }
+}
+
+final class CorridorParkAnnotation: NSObject, MKAnnotation {
+  init(groupId: String, coordinate: CLLocationCoordinate2D) {
+    self.groupId = groupId
+    self.coordinate = coordinate
+    super.init()
+  }
+
+  let groupId: String
+  let coordinate: CLLocationCoordinate2D
 }

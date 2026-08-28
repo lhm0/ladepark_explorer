@@ -578,20 +578,18 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeCorridorFailed => 'Some sections could not be checked.';
 
   @override
-  String get routeCorridorRetry => 'Search again';
-
-  @override
-  String routeCorridorPosition(int km) {
-    return 'at km $km';
+  String routeCorridorCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charging parks in the corridor',
+      one: '1 charging park in the corridor',
+    );
+    return '$_temp0';
   }
 
   @override
-  String routeCorridorDetour(int km) {
-    return 'detour +$km km';
-  }
-
-  @override
-  String get routeAddStop => 'As charging stop';
+  String get routeInsertStop => 'Insert charging stop';
 
   @override
   String get routeRemoveStop => 'Remove charging stop';

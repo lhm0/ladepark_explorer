@@ -1,9 +1,11 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/route_corridor.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_planning_exception.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_planning_service.dart';
 import 'package:ladepark_explorer/platform/route/mkdirections_route_planning_service.dart';
@@ -43,8 +45,19 @@ final class RoutePlanningController extends Notifier<RoutePlanningState> {
     await _run(_currentRequest());
   }
 
-  Future<void> addStop(RouteStop stop) async {
-    if (!state.canRecalculate || state.containsStop(stop.groupId)) return;
+  Future<void> addStop({
+    required String groupId,
+    required GeoCoordinate coordinate,
+    String? name,
+  }) async {
+    if (!state.canRecalculate || state.containsStop(groupId)) return;
+    final polyline = state.selectedOption?.polyline ?? const <GeoCoordinate>[];
+    final stop = RouteStop(
+      groupId: groupId,
+      coordinate: coordinate,
+      positionKm: positionAlongPolylineKm(polyline, coordinate),
+      name: name,
+    );
     final previousStops = state.stops;
     final stops = <RouteStop>[...previousStops, stop]
       ..sort((a, b) => a.positionKm.compareTo(b.positionKm));

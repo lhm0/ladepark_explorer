@@ -42,14 +42,4 @@ void main() {
     );
     expect(earlyKm, lessThan(lateKm));
   });
-
-  test('detour is about twice the distance from the route', () {
-    const line = <GeoCoordinate>[
-      GeoCoordinate(latitude: 52.0, longitude: 13.0),
-      GeoCoordinate(latitude: 52.0, longitude: 14.0),
-    ];
-    // ~10 km north of the first vertex.
-    const point = GeoCoordinate(latitude: 52.09, longitude: 13.0);
-    expect(estimateDetourKm(line, point), closeTo(20, 4));
-  });
 }

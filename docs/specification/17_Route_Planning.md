@@ -111,12 +111,12 @@ nicht vor.
   - Es gelten dieselben Lade-, Betreiber-, Anschluss-, Infrastruktur-, 24/7-
     und Favoritenfilter wie in der Kartenansicht; Mehrfachwerte und
     UND-Verknüpfung bleiben unverändert.
-  - Für jeden Korridor-Ladepark werden die Position entlang der Route in
-    Streckenkilometern und ein geschätzter Umweg angezeigt.
+  - Die gefundenen Ladeparks werden als Marker auf der Routenkarte gezeigt;
+    andere Ladeparks werden dort nicht dargestellt.
   - Die Korridorbreite ist begrenzt und dokumentiert.
   - Die Suche arbeitet auf dem lokalen Datensatz und benötigt außer der zuvor
     bezogenen Route keine Netzverbindung.
-  - Die Auswahl eines Korridor-Ladeparks öffnet die bestehende Detailansicht.
+  - Die Auswahl eines Korridor-Markers öffnet die bestehende Detailansicht.
   - Überschreitet die Trefferzahl die technische Obergrenze der Kartenabfrage,
     wird sichtbar begrenzt statt unvollständig ohne Hinweis dargestellt.
 
@@ -126,10 +126,14 @@ nicht vor.
 - Beschreibung: Nutzende können Korridor-Ladeparks als Ladestopps übernehmen
   und wieder entfernen.
 - Akzeptanz:
+  - Ein Ladepark wird aus seiner Detailansicht als Ladestopp übernommen oder
+    entfernt.
   - Ein übernommener Stopp wird als geordneter Wegpunkt in die Route
     aufgenommen; die Reihenfolge folgt der Position entlang der Route.
   - Nach jeder Änderung werden die betroffenen Teilstrecken neu berechnet.
   - Distanz und Fahrzeit werden mit den Stopps aktualisiert.
+  - Übernommene Ladestopps sind auf der Karte eigens hervorgehoben und bleiben
+    sichtbar, solange die Route angezeigt wird.
   - Ein Ladestopp kann ohne Fahrzeugprofil gesetzt werden; Reichweiten- und
     Ladeschätzungen bleiben dann leer.
 
