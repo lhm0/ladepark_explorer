@@ -60,3 +60,12 @@ verfügbare Version wird mit Datenstand und Größe in den Einstellungen gezeigt
 erst nach Bestätigung folgen Download, doppelte SHA-256-Prüfung,
 SQLite-Integritäts- und Metadatenprüfung sowie atomare Aktivierung gemäß
 ADR-0017. Der vorherige Downloadbestand bleibt als Rollback erhalten.
+
+Der erste Produktbestand ist veröffentlicht als
+[`dataset-2026.07.0`](https://github.com/lhm0/ladepark_explorer/releases/tag/dataset-2026.07.0).
+Die von der App verwendete stabile Manifestadresse lautet
+`https://github.com/lhm0/ladepark_explorer/releases/latest/download/manifest.json`.
+Das komprimierte Artefakt besitzt 182.274.446 Byte und die SHA-256-Prüfsumme
+`46300b02b4e6230ae1e119e9ec5d7ffcb04ff1064de7e8a193583c3a1fef4b8d`.
+Manifest und Archiv wurden nach der Veröffentlichung am 28. August 2026 über
+ihre öffentlichen URLs vollständig zurückgeladen und verifiziert.

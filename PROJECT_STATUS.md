@@ -356,7 +356,11 @@ Die offenen App-Meilensteine werden in dieser Reihenfolge bearbeitet:
   versioniertem Manifest, öffentliche GitHub-Release-URLs, automatische
   konfigurierbare Manifestprüfung, bestätigter Download mit Fortschritt,
   komprimierte und unkomprimierte SHA-256-Prüfung, SQLite-Integritäts- und
-  Metadatenprüfung sowie atomare Aktivierung mit Rollbackbestand,
+  Metadatenprüfung sowie atomare Aktivierung mit Rollbackbestand. Der erste
+  Produktbestand `2026.07.0` ist als Release `dataset-2026.07.0` veröffentlicht;
+  Manifest und 182.274.446 Byte großes Archiv wurden am 28. August 2026 über
+  die öffentlichen Download-URLs vollständig zurückgelesen und gegen die
+  erwartete SHA-256-Prüfsumme verifiziert,
 - M12: Datenschutzentscheidung und optionale Diagnostik,
 - M13: Release-Härtung und App-Store-Vorbereitung.
 
