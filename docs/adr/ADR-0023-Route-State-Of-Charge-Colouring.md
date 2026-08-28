@@ -57,6 +57,12 @@ bestehen.
 - Die Farbcodierung der Route ist von der Markerfarbe der Korridor-Ladeparks
   (`ADR-0022`, derzeit Orange) und der Ladestopps (Blau) unterscheidbar zu
   halten.
+- `showRoute` erhält zusätzlich ein `fit`-Flag: nur die erste Darstellung
+  bewegt die Karte auf die Route, spätere Farb- oder Stoppänderungen nicht.
+- Die Vorschauseite gleicht die native Karte in einem `addPostFrameCallback`
+  aus `build` heraus ab (mit einem Render-Schlüssel gegen Doppelarbeit), damit
+  die Färbung auch dann folgt, wenn die Seite während des Einfügens eines
+  Ladestopps von der Detailansicht verdeckt ist.
 
 ## Gründe
 

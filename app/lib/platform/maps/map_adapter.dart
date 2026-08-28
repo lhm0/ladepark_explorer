@@ -33,9 +33,14 @@ abstract interface class MapAdapter {
   /// When [segmentColorsArgb] is given it holds one ARGB colour per polyline
   /// segment (`polyline.length - 1` entries) for the state-of-charge colouring
   /// (FR-ROUTE-006, ADR-0023); otherwise the route is drawn in one colour.
+  ///
+  /// [fitToRoute] controls whether the view is moved to fit the route. Pass
+  /// false for incremental redraws (colour or stop changes) so the map does
+  /// not keep re-zooming.
   Future<void> showRoute(
     List<GeoCoordinate> polyline, {
     List<int>? segmentColorsArgb,
+    bool fitToRoute = true,
   });
 
   /// Marks the chosen charging stops along the route (FR-ROUTE-004) as blue

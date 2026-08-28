@@ -176,6 +176,7 @@
   "routeErrorNotFound": "No route was found for the start and destination.",
   "routeErrorInvalid": "Start and destination are required.",
   "routeErrorFailed": "The route could not be calculated.",
+  "routeRetry": "Try again",
   "planRouteToHere": "Plan a route here",
   "routeCorridorTitle": "Charging parks along the route",
   "routeCorridorSearching": "{done} of {total} sections checked",

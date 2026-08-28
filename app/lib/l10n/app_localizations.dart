@@ -1010,6 +1010,12 @@ abstract class AppLocalizations {
   /// **'Die Route konnte nicht berechnet werden.'**
   String get routeErrorFailed;
 
+  /// No description provided for @routeRetry.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut versuchen'**
+  String get routeRetry;
+
   /// No description provided for @planRouteToHere.
   ///
   /// In de, this message translates to:

@@ -461,9 +461,16 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     gezeichnet (grün → gelb → rot, unter der Reserve dunkelrot). Ohne
     vollständiges Profil bleibt die Linie einfarbig,
   - im Vorschaupanel ein Start-Ladezustand-Steller (Vorgabe aus dem Profil,
-    Sitzungszustand) und die Reserve-Warnung „Reichweite reicht nur bis km X",
-  - 12 neue automatisierte Tests (Segmentmodell, EnergyModel, Simulator,
-    Farbabbildung, Kartenkanal, Vorschaupanel); DE/EN-Lokalisierung ergänzt.
+    Sitzungszustand), die Reserve-Warnung „Reichweite reicht nur bis km X" und
+    eine Fehlerzeile mit Wiederholung, wenn eine Neuberechnung fehlschlägt,
+  - die Vorschauseite gleicht die native Karte lifecycle-getrieben aus einem
+    `addPostFrameCallback` ab (Render-Schlüssel gegen Doppelarbeit), damit die
+    Färbung dem Einfügen eines Ladestopps auch dann folgt, wenn die Seite von
+    der Detailansicht verdeckt ist; `showRoute` bewegt die Karte nur bei der
+    ersten Darstellung,
+  - 13 neue automatisierte Tests (Segmentmodell, EnergyModel, Simulator,
+    Provider-Neuberechnung bei Stopp, Farbabbildung, Kartenkanal,
+    Vorschaupanel); DE/EN-Lokalisierung ergänzt.
 - **M17 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen

@@ -561,6 +561,9 @@ class AppLocalizationsDe extends AppLocalizations {
   String get routeErrorFailed => 'Die Route konnte nicht berechnet werden.';
 
   @override
+  String get routeRetry => 'Erneut versuchen';
+
+  @override
   String get planRouteToHere => 'Route hierher planen';
 
   @override

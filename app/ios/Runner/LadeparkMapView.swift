@@ -243,7 +243,8 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
         rawPoints.compactMap(routeCoordinate(from:)),
         segmentColors: (values["segmentColors"] as? [Any])?.compactMap {
           ($0 as? NSNumber)?.int64Value
-        }
+        },
+        fit: (values["fit"] as? Bool) ?? true
       )
       result(nil)
     case "showRouteStops":
@@ -309,7 +310,8 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
 
   private func showRoute(
     _ coordinates: [CLLocationCoordinate2D],
-    segmentColors: [Int64]?
+    segmentColors: [Int64]?,
+    fit: Bool
   ) {
     clearRouteOverlays()
     guard coordinates.count >= 2 else { return }
@@ -327,6 +329,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       mapView.addOverlay(overlay, level: .aboveRoads)
     }
 
+    guard fit else { return }
     var boundingCoordinates = coordinates
     let boundingPolyline = MKPolyline(
       coordinates: &boundingCoordinates,

@@ -9,7 +9,6 @@ import 'package:ladepark_explorer/features/route_planning/application/route_plan
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
-import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
@@ -44,6 +43,8 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
   final List<StreamSubscription<String>> _tapSubscriptions =
       <StreamSubscription<String>>[];
   Widget? _mapView;
+  String? _lastRenderKey;
+  bool _fittedOnce = false;
 
   @override
   void dispose() {
@@ -77,28 +78,40 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       _mapAdapter = null;
       return;
     }
-    await _redraw(adapter);
+    _lastRenderKey = null;
+    _fittedOnce = false;
+    _syncMap();
   }
 
-  Future<void> _redraw(MapKitAdapter adapter) async {
-    final state = ref.read(routePlanningControllerProvider);
-    final option = state.selectedOption;
-    if (option == null) return;
-    await adapter.showRoute(
-      option.polyline,
-      segmentColorsArgb: _segmentColours(),
-    );
-    await adapter.showRouteStops(_stopMarkers(state.stops));
-    await adapter.showRouteCorridor(_corridorParks());
-  }
-
-  void _drawRoute() {
+  /// Reconciles the native map (route colours, stop markers, corridor markers)
+  /// with the current state. Driven from [build], so it also runs when the page
+  /// is revealed after the detail sheet pops.
+  void _syncMap() {
     final adapter = _mapAdapter;
-    final option = ref.read(routePlanningControllerProvider).selectedOption;
-    if (adapter == null || option == null) return;
+    if (adapter == null || !mounted) return;
+    final planning = ref.read(routePlanningControllerProvider);
+    final option = planning.selectedOption;
+    if (option == null) return;
+    final colours = _segmentColours();
+    final stops = _stopMarkers(planning.stops);
+    final corridor = _corridorParks();
+    final key =
+        '${option.polyline.length}'
+        '|${colours?.join(',') ?? ''}'
+        '|${stops.map((stop) => stop.id).join(',')}'
+        '|${corridor.map((park) => park.groupId).join(',')}';
+    if (key == _lastRenderKey) return;
+    _lastRenderKey = key;
     unawaited(
-      adapter.showRoute(option.polyline, segmentColorsArgb: _segmentColours()),
+      adapter.showRoute(
+        option.polyline,
+        segmentColorsArgb: colours,
+        fitToRoute: !_fittedOnce,
+      ),
     );
+    _fittedOnce = true;
+    unawaited(adapter.showRouteStops(stops));
+    unawaited(adapter.showRouteCorridor(corridor));
   }
 
   List<int>? _segmentColours() {
@@ -144,29 +157,11 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
   Widget build(BuildContext context) {
     final strings = AppLocalizations.of(context);
     final state = ref.watch(routePlanningControllerProvider);
-
-    ref.listen<RoutePlanningState>(routePlanningControllerProvider, (
-      previous,
-      next,
-    ) {
-      final option = next.selectedOption;
-      if (option == null) return;
-      final routeChanged = !identical(option, previous?.selectedOption);
-      final stopsChanged = !identical(next.stops, previous?.stops);
-      if (routeChanged || stopsChanged) {
-        _drawRoute();
-        unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
-        unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
-      }
-    });
-    ref.listen<CorridorState>(corridorControllerProvider, (previous, next) {
-      if (!identical(next.parks, previous?.parks)) {
-        unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
-      }
-    });
-    ref.listen<TripEnergyProfile?>(tripEnergyProfileProvider, (previous, next) {
-      _drawRoute();
-    });
+    // Watched so a change to any of these rebuilds the page and re-syncs the
+    // native map, even while the detail sheet still covers this page.
+    ref.watch(tripEnergyProfileProvider);
+    ref.watch(corridorControllerProvider);
+    WidgetsBinding.instance.addPostFrameCallback((_) => _syncMap());
 
     _mapView ??= Semantics(
       label: strings.routeMapSemantics,
@@ -262,6 +257,32 @@ class _RouteSelectorPanel extends ConsumerWidget {
                   child: ListView(
                     padding: EdgeInsets.zero,
                     children: [
+                      if (state.error case final error?) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: Text(
+                                routeErrorMessage(strings, error),
+                                style: Theme.of(context).textTheme.bodySmall
+                                    ?.copyWith(
+                                      color: Theme.of(
+                                        context,
+                                      ).colorScheme.error,
+                                    ),
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => ref
+                                  .read(
+                                    routePlanningControllerProvider.notifier,
+                                  )
+                                  .retry(),
+                              child: Text(strings.routeRetry),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 4),
+                      ],
                       if (state.options.length > 1) ...[
                         Text(
                           strings.routeAlternativesHeading,

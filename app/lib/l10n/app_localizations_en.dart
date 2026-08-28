@@ -556,6 +556,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeErrorFailed => 'The route could not be calculated.';
 
   @override
+  String get routeRetry => 'Try again';
+
+  @override
   String get planRouteToHere => 'Plan a route here';
 
   @override
