@@ -451,7 +451,11 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     Einstellungsseite zeigt eine Kurzzusammenfassung,
   - 6 neue automatisierte Tests (Persistenz, Migration, Controller, Editor);
     DE/EN-Lokalisierung ergänzt.
-- **M16b** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+- **M16b** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: die farbige Ladezustandsdarstellung beginnt nach
+  jedem Ladestopp neu bei Grün, Start-Ladezustand und Ladeziel am Stopp sowie
+  die Korridorbreite sind je Fahrt einstellbar, und die Kartenfilter überleben
+  einen App-Neustart:
   - Segmentmodell (`RouteSegment`/`RoutePath` mit optionalen, in 1.1 leeren
     Attributen) und `buildRoutePath` aus der dezimierten Polyline,
   - austauschbare `EnergyModel`-Schnittstelle mit `ConstantRateEnergyModel`
