@@ -15,9 +15,11 @@ import 'package:ladepark_explorer/features/route_planning/domain/models/route_wa
 import 'package:ladepark_explorer/features/route_planning/domain/models/vehicle_profile.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
+import 'package:ladepark_explorer/platform/navigation/navigation_providers.dart';
 
 import '../../support/fake_charging_repository.dart';
 import '../../support/fake_explorer_filters_repository.dart';
+import '../../support/fake_navigation_adapter.dart';
 import '../../support/fake_route_planning_service.dart';
 import '../../support/fake_vehicle_profile_repository.dart';
 
@@ -250,5 +252,38 @@ void main() {
     await tester.pumpAndSettle();
 
     expect(container.read(corridorControllerProvider).widthKm, 30);
+  });
+
+  testWidgets('hands the planned route to the navigation app', (tester) async {
+    final apple = FakeNavigationAdapter();
+    final container = ProviderContainer(
+      overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
+        routePlanningServiceProvider.overrideWithValue(
+          FakeRoutePlanningService(options: <RouteOption>[option(585)]),
+        ),
+        // Google Maps unavailable -> the launcher resolves to Apple Maps
+        // without showing a chooser.
+        googleMapsNavigationAdapterProvider.overrideWithValue(
+          FakeNavigationAdapter(available: false),
+        ),
+        appleMapsNavigationAdapterProvider.overrideWithValue(apple),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container
+        .read(routePlanningControllerProvider.notifier)
+        .planRoute(request);
+    await pumpPreview(tester, container);
+
+    await tester.tap(find.text('In Navigation öffnen'));
+    await tester.pumpAndSettle();
+
+    expect(apple.openRouteCount, 1);
+    expect(apple.lastRoute?.origin.latitude, 52.52);
+    expect(apple.lastRoute?.destination.latitude, 48.14);
+    expect(apple.lastRoute?.stops, isEmpty);
   });
 }

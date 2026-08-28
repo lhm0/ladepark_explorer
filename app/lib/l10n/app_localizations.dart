@@ -1070,6 +1070,18 @@ abstract class AppLocalizations {
   /// **'Ladestop entfernen'**
   String get routeRemoveStop;
 
+  /// No description provided for @routeOpenInNavigation.
+  ///
+  /// In de, this message translates to:
+  /// **'In Navigation öffnen'**
+  String get routeOpenInNavigation;
+
+  /// No description provided for @routeNavigationTruncated.
+  ///
+  /// In de, this message translates to:
+  /// **'Diese Navigations-App übernimmt nicht alle Ladestopps. Ergänze die übrigen dort.'**
+  String get routeNavigationTruncated;
+
   /// No description provided for @routeStopsCount.
   ///
   /// In de, this message translates to:

@@ -598,6 +598,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get routeRemoveStop => 'Remove charging stop';
 
   @override
+  String get routeOpenInNavigation => 'Open in navigation app';
+
+  @override
+  String get routeNavigationTruncated =>
+      'This navigation app does not take every charging stop. Add the rest there.';
+
+  @override
   String routeStopsCount(int count) {
     String _temp0 = intl.Intl.pluralLogic(
       count,

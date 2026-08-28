@@ -495,7 +495,20 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
     Simulator inkl. Stopp-Trace/Ladeziel/`socAtKm`, Provider-Neuberechnung bei
     Stopp, Stopp bleibt bei fehlgeschlagener Neuberechnung, Farbabbildung,
     Kartenkanal, Vorschaupanel); DE/EN-Lokalisierung ergänzt.
-- **M17 bis M19** sind noch nicht implementiert.
+- **M19 – Routenübergabe an eine Navigations-App** implementiert und
+  automatisiert geprüft; manuelle Abnahme steht aus:
+  - `NavigationAdapter` erhält `openRoute(NavigationRoute)`; die Vorschau zeigt
+    „In Navigation öffnen“ als Hauptaktion (FR-ROUTE-011),
+  - Apple Maps bekommt die vollständige Kette (`MKMapItem.openMaps`), Google
+    Maps den universellen `maps/dir`-Link mit bis zu acht Zwischenstopps; wird
+    gekürzt, erklärt ein Hinweis das (`NavigationHandoff`),
+  - die App-Auswahl (Präferenz, Auswahldialog, Apple-Fallback) ist in die
+    gemeinsame Hilfsfunktion `resolveNavigationAdapter` gezogen und wird von
+    Detailansicht und Routenvorschau genutzt (ADR-0016),
+  - neue Tests für beide Adapter (`openRoute`, Google-Kürzung) und den
+    Vorschau-Knopf; DE/EN-Lokalisierung ergänzt.
+- **M17 und M18** (automatischer Ladestopp-Vorschlag, adaptive Teil-Neuplanung
+  mit Sperren) sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen
 

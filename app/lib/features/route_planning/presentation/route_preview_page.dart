@@ -10,11 +10,13 @@ import 'package:ladepark_explorer/features/route_planning/application/route_plan
 import 'package:ladepark_explorer/features/route_planning/application/vehicle_profile_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/trip_energy_simulator.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/navigation_launcher.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_soc_colour.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/maps/map_adapter.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
+import 'package:ladepark_explorer/platform/navigation/navigation_adapter.dart';
 
 /// Result handed back to the map screen.
 enum RoutePreviewResult { newRoute }
@@ -222,12 +224,13 @@ class _RouteSelectorPanel extends ConsumerWidget {
     final strings = AppLocalizations.of(context);
     final option = state.selectedOption!;
     final corridor = ref.watch(corridorControllerProvider);
+    final navigationRoute = _navigationRoute();
     return Material(
       elevation: 8,
       child: SafeArea(
         top: false,
         child: SizedBox(
-          height: 288,
+          height: 340,
           child: Padding(
             padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
             child: Column(
@@ -348,10 +351,22 @@ class _RouteSelectorPanel extends ConsumerWidget {
                   ),
                 ),
                 const SizedBox(height: 8),
+                FilledButton.icon(
+                  onPressed: navigationRoute == null
+                      ? null
+                      : () => launchRouteInNavigationApp(
+                          context,
+                          ref,
+                          navigationRoute,
+                        ),
+                  icon: const Icon(Icons.navigation_outlined),
+                  label: Text(strings.routeOpenInNavigation),
+                ),
+                const SizedBox(height: 8),
                 Row(
                   children: [
                     Expanded(
-                      child: FilledButton.icon(
+                      child: OutlinedButton.icon(
                         onPressed: onShowOnMap,
                         icon: const Icon(Icons.map_outlined),
                         label: Text(strings.routeShowOnMap),
@@ -376,6 +391,36 @@ class _RouteSelectorPanel extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+
+  /// The planned start, ordered charging stops and destination for the
+  /// navigation hand-off (FR-ROUTE-011), or null if the endpoints are unknown.
+  NavigationRoute? _navigationRoute() {
+    final origin = state.origin;
+    final destination = state.destination;
+    if (origin == null || destination == null) return null;
+    NavigationWaypoint waypoint(double lat, double lon, String? name) =>
+        NavigationWaypoint(latitude: lat, longitude: lon, name: name);
+    return NavigationRoute(
+      origin: waypoint(
+        origin.coordinate.latitude,
+        origin.coordinate.longitude,
+        origin.label,
+      ),
+      destination: waypoint(
+        destination.coordinate.latitude,
+        destination.coordinate.longitude,
+        destination.label,
+      ),
+      stops: <NavigationWaypoint>[
+        for (final stop in state.stops)
+          waypoint(
+            stop.coordinate.latitude,
+            stop.coordinate.longitude,
+            stop.name,
+          ),
+      ],
     );
   }
 }

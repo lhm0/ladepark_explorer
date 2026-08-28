@@ -17,10 +17,14 @@ enum LadeparkPlatformChannels {
         resolveDatasetPath(call.arguments, result: result)
       case "openAppleMapsDirections":
         openAppleMapsDirections(call.arguments, result: result)
+      case "openAppleMapsRoute":
+        openAppleMapsRoute(call.arguments, result: result)
       case "isGoogleMapsAvailable":
         result(UIApplication.shared.canOpenURL(URL(string: "comgooglemaps://")!))
       case "openGoogleMapsDirections":
         openGoogleMapsDirections(call.arguments, result: result)
+      case "openGoogleMapsRoute":
+        openGoogleMapsRoute(call.arguments, result: result)
       case "takePendingLocation":
         result(pendingLocation)
         pendingLocation = nil
@@ -411,6 +415,88 @@ enum LadeparkPlatformChannels {
       UIApplication.shared.canOpenURL(url)
     else {
       result(FlutterError(code: "google_maps_unavailable", message: nil, details: nil))
+      return
+    }
+    UIApplication.shared.open(url, options: [:]) { success in
+      if success {
+        result(nil)
+      } else {
+        result(FlutterError(code: "google_maps_open_failed", message: nil, details: nil))
+      }
+    }
+  }
+
+  // MARK: - Handing the planned route to a navigation app (FR-ROUTE-011)
+
+  private static func coordinate(from value: Any?) -> CLLocationCoordinate2D? {
+    guard
+      let map = value as? [String: Any],
+      let latitude = map["latitude"] as? Double,
+      let longitude = map["longitude"] as? Double
+    else { return nil }
+    return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+  }
+
+  private static func openAppleMapsRoute(_ arguments: Any?, result: FlutterResult) {
+    guard
+      let values = arguments as? [String: Any],
+      let rawWaypoints = values["waypoints"] as? [[String: Any]],
+      rawWaypoints.count >= 2
+    else {
+      result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
+      return
+    }
+    let items: [MKMapItem] = rawWaypoints.compactMap { raw in
+      guard let point = coordinate(from: raw) else { return nil }
+      let item = MKMapItem(placemark: MKPlacemark(coordinate: point))
+      item.name = raw["name"] as? String
+      return item
+    }
+    guard items.count >= 2 else {
+      result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
+      return
+    }
+    MKMapItem.openMaps(
+      with: items,
+      launchOptions: [MKLaunchOptionsDirectionsModeKey: MKLaunchOptionsDirectionsModeDriving]
+    )
+    result(nil)
+  }
+
+  private static func openGoogleMapsRoute(
+    _ arguments: Any?,
+    result: @escaping FlutterResult
+  ) {
+    guard
+      let values = arguments as? [String: Any],
+      let origin = coordinate(from: values["origin"]),
+      let destination = coordinate(from: values["destination"]),
+      var components = URLComponents(string: "https://www.google.com/maps/dir/")
+    else {
+      result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
+      return
+    }
+    let waypoints: [String] = (values["waypoints"] as? [[String: Any]] ?? []).compactMap { raw in
+      guard let point = coordinate(from: raw) else { return nil }
+      return "\(point.latitude),\(point.longitude)"
+    }
+    var queryItems = [
+      URLQueryItem(name: "api", value: "1"),
+      URLQueryItem(name: "origin", value: "\(origin.latitude),\(origin.longitude)"),
+      URLQueryItem(
+        name: "destination",
+        value: "\(destination.latitude),\(destination.longitude)"
+      ),
+      URLQueryItem(name: "travelmode", value: "driving"),
+    ]
+    if !waypoints.isEmpty {
+      queryItems.append(
+        URLQueryItem(name: "waypoints", value: waypoints.joined(separator: "|"))
+      )
+    }
+    components.queryItems = queryItems
+    guard let url = components.url else {
+      result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
       return
     }
     UIApplication.shared.open(url, options: [:]) { success in

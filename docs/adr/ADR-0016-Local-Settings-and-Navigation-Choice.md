@@ -56,3 +56,26 @@ gespeichert wie App-Einstellungen und Fahrzeugprofil (`ADR-0021`):
   Speicher wirksam; die Kartenabfrage wird davon nicht beeinträchtigt.
 - Unbekannte Enum-Werte (etwa eine später entfernte Infrastrukturkategorie)
   werden beim Laden verworfen, fehlende Felder fallen auf den Standard zurück.
+
+## Nachtrag – Übergabe der geplanten Route an eine Navigations-App
+
+`FR-ROUTE-011` verlangt, die geplante Route einschließlich Ladestopps an die
+gewählte Navigations-App zu übergeben. Dieselbe Navigationswahl wie für ein
+einzelnes Ziel gilt weiter; die App-Auswahl (`resolveNavigationAdapter`) ist
+aus der Detailansicht in eine gemeinsame Hilfsfunktion gezogen.
+
+- Der `NavigationAdapter`-Vertrag erhält `openRoute(NavigationRoute)` neben dem
+  bestehenden `openDirections`. `NavigationRoute` trägt Start, geordnete
+  Ladestopps und Ziel als reine Koordinaten mit optionalem Namen.
+- **Apple Maps** bekommt die vollständige Kette als geordnete Liste von
+  `MKMapItem` über `MKMapItem.openMaps(with:launchOptions:)` im Fahrmodus.
+- **Google Maps** wird über den universellen Verzeichnis-Link
+  `https://www.google.com/maps/dir/?api=1&origin=…&destination=…&waypoints=…`
+  geöffnet; bei installierter App fängt diese den Link ab. Der Link nimmt eine
+  begrenzte Zahl Wegpunkte, daher werden höchstens acht Zwischenstopps (die
+  ersten Richtung Ziel) übergeben.
+- Der Adapter meldet über `NavigationHandoff`, wie viele Stopps tatsächlich
+  übergeben wurden. Wurde gekürzt, erklärt die Oberfläche das mit einem
+  kurzen Hinweis.
+- Es werden weiterhin nur Zielkoordinaten übergeben, kein Konto und kein
+  Backend; die eigentliche Navigation bleibt Sache der Ziel-App.

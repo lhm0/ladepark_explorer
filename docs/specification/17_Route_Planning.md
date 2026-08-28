@@ -263,12 +263,16 @@ nicht vor.
 - Beschreibung: Die geplante Route einschließlich Ladestopps kann an Apple Maps
   oder Google Maps übergeben werden.
 - Akzeptanz:
+  - Aus der Routenvorschau öffnet „In Navigation öffnen“ die geplante Route in
+    der gewählten Navigations-App.
   - Soweit die Ziel-App mehrere Wegpunkte annimmt, werden Start, Ladestopps und
-    Ziel in Reihenfolge übergeben.
-  - Andernfalls wird mindestens der nächste Ladestopp beziehungsweise das Ziel
-    übergeben; die Einschränkung wird erklärt.
+    Ziel in Reihenfolge übergeben. Apple Maps erhält die vollständige Kette;
+    Google Maps erhält bis zu acht Zwischenstopps.
+  - Nimmt die Ziel-App nicht alle Ladestopps an, werden die ersten Richtung
+    Ziel übergeben und der Rest wird als Hinweis erklärt.
   - Es gelten die bestehenden Navigationswahl- und Fallback-Regeln aus
-    `FR-NAV-001`.
+    `FR-NAV-001` (gespeicherte Präferenz, Auswahl bei „jedes Mal fragen“,
+    Rückfall auf Apple Maps, wenn Google Maps fehlt).
 
 ## 5. Nicht-funktionale Anforderungen
 
@@ -399,7 +403,9 @@ festgelegt:
   darunter (`ADR-0023`); Breite und Deckkraft eines optionalen Farbsaums
   entlang der Route bleiben offen,
 - Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
-- Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App.
+- ~~Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App~~
+  – festgelegt: Apple Maps vollständige Kette, Google Maps bis acht
+  Zwischenstopps, sonst Kürzung mit Hinweis (`FR-ROUTE-011`, `ADR-0016`).
 
 ## 9. Ausblick: „intelligente“ Vorhersage
 
