@@ -1,7 +1,8 @@
 # Flutter-Architektur
 
-Status: M0 bis M12 implementiert; M13 Release-Härtung offen; M14 (Basisroute
-der Routenplanung, Version 1.1) implementiert
+Status: M0 bis M12 implementiert; M13 Release-Härtung offen. Version 1.1
+(„Routen-Update“) ist mit M14, M15, M16 und M19 funktional eingefroren
+(App-Version `1.1.0`); M17 und M18 (Version 1.2) sind offen.
 
 Entschieden sind Flutter, Apple MapKit für die iPhone-Version 1.0, lokale
 SQLite-Datenhaltung und Repository Pattern. Fachlogik und Datenzugriff werden
@@ -274,14 +275,41 @@ M16b ergänzt die Reichweitenvorhersage (`FR-ROUTE-006`, ADR-0020/0023).
 leeren Optionalattributen. Die austauschbare `EnergyModel`-Schnittstelle hat
 mit `ConstantRateEnergyModel` eine triviale Umsetzung. Der
 `TripEnergySimulator` läuft die Segmente ab, zieht je Segment den
-Verbrauchsanteil ab und hebt den Ladezustand an jedem Ladestopp auf den
-Ziel-Ladezustand des Profils; er meldet den ersten Kilometer unter der
-Reserve. `tripEnergyProfileProvider` verknüpft Route, Profil und den je Fahrt
-einstellbaren Start-Ladezustand. Die Präsentation bildet den mittleren
+Verbrauchsanteil ab und hebt den Ladezustand an jedem Ladestopp auf das
+Ladeziel am Stopp – ein je Fahrt einstellbarer Wert mit fester Vorgabe 80 %
+(`kDefaultChargeTargetSocPercent`), unabhängig vom Ziel-Ladezustand bei
+Ankunft. Er meldet den ersten Kilometer unter der Reserve und liefert
+zusätzlich `stopSocs`, `socAtKm` und `chargeTargetSocPercent` für die
+Diagnoseanzeige. `tripEnergyProfileProvider` verknüpft Route, Profil, den
+Start-Ladezustand und das Ladeziel. Die Präsentation bildet den mittleren
 Ladezustand je Abschnitt über `socColourArgb` auf eine Farbe ab; `showRoute`
 nimmt optional eine ARGB-Liste je Abschnitt entgegen, die nativ als kurze
-`MKPolyline`-Abschnitte gezeichnet wird. Ohne vollständiges Profil bleibt die
-Route einfarbig.
+`MKPolyline`-Abschnitte gezeichnet wird, sowie ein `fit`-Flag, das die Karte
+nur beim ersten Zeichnen bewegt. Ein gesetzter Ladestopp bleibt bestehen,
+auch wenn die Neuberechnung der Route über ihn fehlschlägt; die Schätzung
+projiziert ihn dann auf die vorhandene Geometrie, sodass die Färbung ab dem
+Stopp neu bei Grün beginnt. Die `RoutePreviewPage` gleicht die native Karte
+aus einem `addPostFrameCallback` mit Render-Schlüssel ab. Ohne vollständiges
+Profil bleibt die Route einfarbig.
+
+M19 ergänzt die Übergabe der geplanten Route an eine Navigations-App
+(`FR-ROUTE-011`, ADR-0016 Nachtrag). `NavigationAdapter.openRoute` nimmt eine
+`NavigationRoute` (Start, geordnete Ladestopps, Ziel) entgegen; Apple Maps
+erhält die vollständige Kette über `MKMapItem.openMaps`, Google Maps wird über
+`comgooglemaps://` zum nächsten Ladestopp geführt, da das App-Schema keine
+Wegpunktkette kennt. Die App-Auswahl (Präferenz, Auswahldialog,
+Apple-Fallback) liegt in der gemeinsamen `resolveNavigationAdapter` und wird
+von Detailansicht und `RoutePreviewPage` genutzt. Ein `NavigationHandoff`
+meldet, wenn nicht die ganze Kette übergeben werden konnte; die Vorschau
+erklärt das mit einem Hinweis.
+
+Unabhängig von der Routenplanung überlebt seit Version 1.1 die
+Kartenfilter-Auswahl einen App-Neustart (`FR-FILTER-001`, ADR-0016 Nachtrag).
+Der Vertrag `ExplorerFiltersRepository` liegt in `features/explorer/domain/`;
+`SqliteSettingsRepository` implementiert ihn zusätzlich und legt die Auswahl
+als einen JSON-Wert in der bestehenden `app_setting`-Tabelle ab. Der
+`ExplorerMapController` lädt sie beim Aufbau und schreibt sie bei jeder
+Filteränderung zurück; der transiente Umkreisfilter wird nicht gespeichert.
 
 ## Verifizierte iOS-Entwicklungsumgebung
 

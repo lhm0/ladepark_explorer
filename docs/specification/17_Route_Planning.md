@@ -198,9 +198,15 @@ nicht vor.
   - Das Vorhersageverfahren ist hinter einer austauschbaren Schnittstelle
     gekapselt (`NFR-ROUTE-EXT-001`).
 
+> Umsetzungsstand: `FR-ROUTE-007` bis `FR-ROUTE-010` sind für **Version 1.2**
+> vorgesehen (Meilensteine M17 und M18) und im eingefrorenen Stand von Version
+> 1.1 noch nicht umgesetzt. Bis dahin erfolgt die Ladestopp-Auswahl manuell
+> (`FR-ROUTE-004`), unterstützt durch die farbige Reichweitenanzeige aus
+> `FR-ROUTE-006`.
+
 ### FR-ROUTE-007 – Automatischer Ladestopp-Vorschlag
 
-- Priorität: Muss
+- Priorität: Muss (Version 1.2)
 - Beschreibung: Die App schlägt aus den Korridor-Ladeparks eine Folge von
   Ladestopps vor, mit der der geschätzte Ladezustand zwischen Reserve und
   nutzbarer Obergrenze bleibt.
@@ -218,7 +224,7 @@ nicht vor.
 
 ### FR-ROUTE-008 – Lademengen- und Ladezeitschätzung
 
-- Priorität: Muss
+- Priorität: Muss (Version 1.2)
 - Beschreibung: Die App schätzt je Ladestopp die nachzuladende Energie und die
   Ladedauer.
 - Akzeptanz:
@@ -231,7 +237,7 @@ nicht vor.
 
 ### FR-ROUTE-009 – Alternative Ladestopps und adaptive Neuplanung
 
-- Priorität: Muss
+- Priorität: Muss (Version 1.2)
 - Beschreibung: Nutzende können jeden vorgeschlagenen Ladestopp durch eine
   Alternative aus dem Korridor ersetzen; die App passt die Planung an.
 - Akzeptanz:
@@ -247,7 +253,7 @@ nicht vor.
 
 ### FR-ROUTE-010 – Stoppbezogene Anpassungen
 
-- Priorität: Soll
+- Priorität: Soll (Version 1.2)
 - Beschreibung: Nutzende können je Ladestopp den Ziel-Ladezustand anpassen und
   einen Stopp gegen automatische Änderungen sperren.
 - Akzeptanz:
@@ -379,15 +385,26 @@ funktionsfähig. Das Fernziel tauscht Implementierungen, nicht Aufrufer.
 
 ## 7. Umsetzung in Meilensteinen
 
-| Meilenstein | Inhalt | Anforderungen |
-| --- | --- | --- |
-| M14.0 | Anforderungen und ADRs (dieses Kapitel, `ADR-0019` bis `ADR-0023`) | – |
-| M14 | Basisroute A→B, natives Overlay, Distanz und Fahrzeit, Alternativrouten, Offline- und Fehlerzustände | `FR-ROUTE-001`, `FR-ROUTE-002`, `NFR-ROUTE-OFFLINE-001` |
-| M15 | Korridorsuche mit aktiven Filtern, Position und Umweg, manuelle Ladestopps, Neuberechnung der Teilstrecken | `FR-ROUTE-003`, `FR-ROUTE-004` |
-| M16 | Fahrzeugprofil, Segmentmodell, `EnergyModel`, Ladezustandssimulation, farbige Ladezustandsdarstellung der Route (`ADR-0023`) und Reserve-Warnung | `FR-ROUTE-005`, `FR-ROUTE-006`, `NFR-ROUTE-EXT-001` |
-| M17 | `ChargingModel`, `StopPlanner`, automatischer Ladestopp-Vorschlag mit Lademenge, Ladezeit und Gesamtreisezeit | `FR-ROUTE-007`, `FR-ROUTE-008` |
-| M18 | Alternativenauswahl, adaptive Neuplanung, Hinzufügen/Entfernen/Sperren, stoppbezogene Ziel-Ladezustände, Sitzungspersistenz | `FR-ROUTE-009`, `FR-ROUTE-010` |
-| M19 | Datenschutzdokumentation, Offline-Härtung, Zugänglichkeit, DE/EN-Redaktion, Gerätematrix, Routenübergabe an Navigations-App | `FR-ROUTE-011`, `NFR-ROUTE-PRIV-001`, `NFR-ROUTE-OFFLINE-001`, `NFR-ROUTE-PERF-001` |
+Umsetzungsstand: **Version 1.1 ist mit M14, M15, M16 und M19 funktional
+eingefroren** (implementiert und manuell auf Simulator und echtem iPhone
+abgenommen). M17 und M18 – der automatische Ladestopp-Vorschlag und die
+adaptive Neuplanung – sind auf **Version 1.2** verschoben; `FR-ROUTE-007` bis
+`FR-ROUTE-010` bleiben verbindlich spezifiziert, aber noch nicht umgesetzt.
+
+| Meilenstein | Status | Inhalt | Anforderungen |
+| --- | --- | --- | --- |
+| M14.0 | abgenommen | Anforderungen und ADRs (dieses Kapitel, `ADR-0019` bis `ADR-0023`) | – |
+| M14 | abgenommen | Basisroute A→B, natives Overlay, Distanz und Fahrzeit, Alternativrouten, Offline- und Fehlerzustände | `FR-ROUTE-001`, `FR-ROUTE-002`, `NFR-ROUTE-OFFLINE-001` |
+| M15 | abgenommen | Korridorsuche mit aktiven Filtern (einstellbare Breite), manuelle Ladestopps, Neuberechnung der Teilstrecken | `FR-ROUTE-003`, `FR-ROUTE-004` |
+| M16 | abgenommen | Fahrzeugprofil in den Einstellungen, Segmentmodell, `EnergyModel`, Ladezustandssimulation, farbige Route (`ADR-0023`) mit Neustart bei Grün je Stopp, Start-Ladezustand und Ladeziel am Stopp einstellbar, Reserve-Warnung | `FR-ROUTE-005`, `FR-ROUTE-006`, `NFR-ROUTE-EXT-001` |
+| M19 | abgenommen | Routenübergabe an Apple Maps (vollständige Kette) bzw. Google Maps (nächster Ladestopp), gemeinsame Navigations-App-Wahl | `FR-ROUTE-011` |
+| M17 | Version 1.2 | `ChargingModel`, `StopPlanner`, automatischer Ladestopp-Vorschlag mit Lademenge, Ladezeit und Gesamtreisezeit | `FR-ROUTE-007`, `FR-ROUTE-008` |
+| M18 | Version 1.2 | Alternativenauswahl, adaptive Neuplanung, Sperren vorgelagerter Stopps, stoppbezogene Ziel-Ladezustände | `FR-ROUTE-009`, `FR-ROUTE-010` |
+
+Die ursprünglich unter M19 mitgeführte Zugänglichkeits- und Gerätematrix­abnahme
+sowie die formale Performance-Messung der Routenplanung
+(`NFR-ROUTE-PRIV-001` ist erfüllt, `NFR-ROUTE-PERF-001` noch offen) gehören zur
+gemeinsamen Release-Härtung mit M13.
 
 ## 8. Noch zu konkretisierende Werte
 

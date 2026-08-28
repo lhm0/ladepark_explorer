@@ -2,6 +2,13 @@
 
 Stand: 28. August 2026
 
+**Version 1.1 („Routen-Update“, App-Version `1.1.0`) ist funktional
+eingefroren:** die Meilensteine M14, M15, M16 und M19 sind implementiert und
+auf Simulator und echtem iPhone manuell abgenommen. M13 (Release-Härtung für
+Version 1.0) und M17/M18 (automatischer Ladestopp-Vorschlag und adaptive
+Neuplanung, Version 1.2) stehen noch aus. Die Änderungshistorie steht in
+[`CHANGELOG.md`](CHANGELOG.md).
+
 ## Aktueller Zustand
 
 - Git-Repository ist auf dem Branch `main` initialisiert.
@@ -311,7 +318,9 @@ Stand: 28. August 2026
     Stationsankern.
   - ADR-0015: konservativer, strukturierter Filter für durchgehende
     Zugänglichkeit.
-  - ADR-0016: lokale Einstellungen und Wahl der Navigations-App.
+  - ADR-0016: lokale Einstellungen und Wahl der Navigations-App; Nachträge zur
+    persistenten Kartenfilter-Auswahl und zur Übergabe der geplanten Route an
+    eine Navigations-App (Version 1.1).
   - ADR-0017: statische, atomare Ladebestandsupdates über ein Manifest.
   - ADR-0018: keine Telemetrie in Version 1.0.
   - ADR-0019: plattformneutraler `RoutePlanningService` mit MapKit-Adapter
@@ -354,33 +363,39 @@ Erreicht:
   erforderliche Ladepunktzahl und Mindestleistung werden ausschließlich aus
   eindeutig als 24/7 normalisierten Stationen gezählt.
 
-## Nächster Meilenstein
+## Offene Meilensteine
 
-M0 bis M12 sind implementiert. Als letzter verbindlicher Meilenstein für
-Version 1.0 folgt M13 – Release-Härtung und App-Store-Vorbereitung. Er umfasst
-insbesondere reale Performance- und Offlineabnahme, Zugänglichkeit,
-Lizenznachweise, die Entscheidung zur Manifest-Herkunftssignatur, Signierung,
-App-Store-Metadaten, TestFlight und eine finale Gerätematrix. TestFlight wurde
-bewusst noch nicht begonnen. Die Soll-Anforderung `FR-LINK-001` ist durch
-Schema und Lizenzregeln vorbereitet, besitzt aber noch keine kuratierten
-Produktlinks oder App-Darstellung; M13 muss Umsetzung oder begründete
-Verschiebung entscheiden.
+- **M13 – Release-Härtung für Version 1.0.** Reale Performance- und
+  Offlineabnahme, Zugänglichkeit, Lizenznachweise, Entscheidung zur
+  Manifest-Herkunftssignatur, Signierung, App-Store-Metadaten, TestFlight und
+  eine finale Gerätematrix. TestFlight wurde bewusst noch nicht begonnen. Die
+  Soll-Anforderung `FR-LINK-001` ist durch Schema und Lizenzregeln
+  vorbereitet, besitzt aber noch keine kuratierten Produktlinks oder
+  App-Darstellung; M13 muss Umsetzung oder begründete Verschiebung
+  entscheiden. Die Zugänglichkeits- und Performance-Abnahme der Routenplanung
+  (`NFR-ROUTE-PERF-001`) gehört zu dieser gemeinsamen Härtung.
+- **M17/M18 – Version 1.2.** Automatischer Ladestopp-Vorschlag mit Lademenge,
+  Ladezeit und Gesamtreisezeit (`FR-ROUTE-007/008`) sowie Alternativenauswahl,
+  adaptive Neuplanung und Sperren vorgelagerter Stopps (`FR-ROUTE-009/010`).
+  Die Verträge `ChargingModel` und `StopPlanner` (ADR-0020) und der
+  Abfahrt-Rückruf im `TripEnergySimulator` sind dafür bereits vorhanden.
 
 Die statusmarkierte Gesamtroadmap steht in
 `docs/specification/14_Roadmap.md`. Die technische Übergabe für eine
 kontextfreie Weiterentwicklung steht in `docs/AI_HANDOVER.md`.
 
-## Begonnener Ausbau: Version 1.1 – Routen-Update
+## Version 1.1 – Routen-Update (funktional eingefroren)
 
-Parallel zu M13 ist der Ausbau um eine Routenplanung mit einfacher
-Reichweiten- und Ladeplanung entschieden und spezifiziert. Die Verbrauchs-,
-Lade- und Stopp-Planungslogik liegt bewusst hinter austauschbaren
-Schnittstellen (`EnergyModel`, `ChargingModel`, `StopPlanner` gemäß ADR-0020),
-damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
+Version 1.1 ergänzt Version 1.0 um eine Routenplanung mit einfacher
+Reichweitenschätzung. Die Ladestopp-Auswahl ist manuell, unterstützt durch die
+farbige Reichweitenanzeige. Die Verbrauchs-, Lade- und Stopp-Planungslogik
+liegt bewusst hinter austauschbaren Schnittstellen (`EnergyModel`,
+`ChargingModel`, `StopPlanner` gemäß ADR-0020), damit eine spätere
+„intelligente“ Vorhersage nachgerüstet werden kann.
 
 - **M14.0** abgeschlossen: verbindliches Kapitel
   `docs/specification/17_Route_Planning.md` (`FR-ROUTE-001` bis `FR-ROUTE-011`,
-  `NFR-ROUTE-*`) und ADR-0019 bis ADR-0022.
+  `NFR-ROUTE-*`) und ADR-0019 bis ADR-0023.
 - **M14** implementiert, automatisiert geprüft und manuell auf Simulator und
   echtem iPhone abgenommen: kein Freeze mehr, das Vorschau-Split-Layout ist
   stabil, wiederholtes Öffnen und Schließen der Routen- und Vorschauansicht ist
@@ -507,10 +522,15 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - die App-Auswahl (Präferenz, Auswahldialog, Apple-Fallback) ist in die
     gemeinsame Hilfsfunktion `resolveNavigationAdapter` gezogen und wird von
     Detailansicht und Routenvorschau genutzt (ADR-0016),
-  - neue Tests für beide Adapter (`openRoute`, Google-Kürzung) und den
+  - neue Tests für beide Adapter (`openRoute`, Google „nächster Stopp“) und den
     Vorschau-Knopf; DE/EN-Lokalisierung ergänzt.
+- **Verifikation des eingefrorenen Stands:** 72 Importertests und 115
+  Flutter-Tests; `dart format`, `flutter analyze`, Architekturprüfung,
+  `python3 tooling/check_markdown_links.py .`, `git diff --check` und der
+  iOS-Simulator-Build erfolgreich.
 - **M17 und M18** (automatischer Ladestopp-Vorschlag, adaptive Teil-Neuplanung
-  mit Sperren) sind noch nicht implementiert.
+  mit Sperren, `FR-ROUTE-007` bis `FR-ROUTE-010`) sind auf **Version 1.2**
+  verschoben und nicht Teil des eingefrorenen 1.1-Stands.
 
 ## Bekannte offene Entscheidungen
 
@@ -530,14 +550,18 @@ Für die spätere App:
 - ein möglicher späterer Wechsel der statischen Updateablage von GitHub zu
   einem Objektspeicher.
 
-Für Version 1.1 (Routen-Update), noch vor der jeweiligen Meilensteinabnahme:
+Für die Routenplanung noch offen:
 
-- Korridorbreite und Abtastabstand entlang der Route,
-- Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
-- Vorgabewerte und Wertebereiche des Fahrzeugprofils, Standard-Reserve und
-  Standard-Ziel-Ladezustand,
-- Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
-- Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App.
+- Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung (Version
+  1.2, M17),
+- Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001` (mit der
+  M13-Härtung).
+
+Für Version 1.1 festgelegt: Korridorbreite je Fahrt einstellbar (20–60 km,
+Vorgabe 20 km), 20 km Abtastabstand (ADR-0022); Fahrzeugprofil-Vorgaben und
+Wertebereiche (ADR-0021); Ladeziel am Stopp fest 80 %; Wegpunktübergabe je
+Ziel-App (Apple Maps vollständige Kette, Google Maps nächster Stopp,
+ADR-0016 Nachtrag).
 
 ## Bekannte Risiken
 
