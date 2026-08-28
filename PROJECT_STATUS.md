@@ -400,7 +400,11 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - klare Offline-, Fehler- und Drosselungszustände mit Wiederholung,
   - 16 neue automatisierte Tests (Service-Contract, Kartenkanal, Controller,
     Eingabe- und Vorschauseite); DE/EN-Lokalisierung ergänzt.
-- **M15** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+- **M15** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: kein Freeze; Korridorsuche, orange Korridormarker,
+  „Ladestop einfügen"/„entfernen" aus der Detailansicht sowie die blauen,
+  antippbaren Ladestopp-Marker auf Vorschau- und Hauptkarte funktionieren wie
+  spezifiziert:
   - Korridorsuche gemäß ADR-0022: die dezimierte Route wird alle 20 km
     abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit Radius 10 km
     und den aktiven Filtern sequentiell im Charging-Isolate; Treffer werden
@@ -514,8 +518,8 @@ Einstellungen, Apple-/Google-Maps-Navigation, die M11-Manifest-,
 Installations- und Rollbackverträge, der M12-Datenschutz-Widgettest, die
 M14-Verträge für den `RoutePlanningService`, den nativen Routenkanal, den
 Routen-Controller und die Eingabe- und Vorschauseite sowie die
-M15-Korridorgeometrie, der Korridor-Controller, die Korridorseite und die
-Stopp-Operationen enthalten. Die automatisierte
+M15-Korridorgeometrie, der Korridor-Controller, die Korridorsuche im Panel und
+die Stopp-Operationen enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
 App wurde mit dem vollständigen Deutschlandbestand auf einem iPhone-16-Simulator
@@ -533,3 +537,9 @@ erneutes Öffnen und „Route beenden“ liefen wiederholt ohne Freeze oder sons
 Auffälligkeiten. Der zuvor mit einem Flutter-Zusammenfassungsbalken über der
 Karte reproduzierte Einfrierer tritt mit dem nicht überlappenden Split-Layout
 nicht mehr auf.
+
+Die M15-Korridorfunktion wurde auf dem iPhone-16-Simulator und einem echten
+iPhone manuell abgenommen: Korridorsuche mit Fortschritt, orange Korridormarker,
+Detailansicht mit „Ladestop einfügen"/„entfernen", blaue nummerierte
+Ladestopp-Marker, Neuberechnung der Route beim Setzen und Entfernen von Stopps
+sowie die antippbaren blauen Marker auf der Hauptkarte liefen ohne Freeze.
