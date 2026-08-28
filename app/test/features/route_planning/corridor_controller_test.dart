@@ -6,6 +6,7 @@ import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate
 import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
 
 import '../../support/fake_charging_repository.dart';
+import '../../support/fake_explorer_filters_repository.dart';
 
 // Corridor search integration for FR-ROUTE-003 / ADR-0022.
 void main() {
@@ -30,7 +31,12 @@ void main() {
 
   Future<ProviderContainer> containerWith(FakeChargingRepository repo) async {
     final container = ProviderContainer(
-      overrides: [chargingRepositoryProvider.overrideWith((ref) async => repo)],
+      overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
+        chargingRepositoryProvider.overrideWith((ref) async => repo),
+      ],
     );
     addTearDown(container.dispose);
     await container.read(explorerMapControllerProvider.future);

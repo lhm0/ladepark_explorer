@@ -17,6 +17,7 @@ import 'package:ladepark_explorer/features/route_planning/presentation/route_pre
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 
 import '../../support/fake_charging_repository.dart';
+import '../../support/fake_explorer_filters_repository.dart';
 import '../../support/fake_route_planning_service.dart';
 import '../../support/fake_vehicle_profile_repository.dart';
 
@@ -48,6 +49,9 @@ void main() {
   ) async {
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         routePlanningServiceProvider.overrideWithValue(
           FakeRoutePlanningService(options: options),
         ),
@@ -147,6 +151,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         routePlanningServiceProvider.overrideWithValue(
           FakeRoutePlanningService(options: <RouteOption>[option(585)]),
         ),
@@ -177,6 +184,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         routePlanningServiceProvider.overrideWithValue(
           FakeRoutePlanningService(options: <RouteOption>[option(585)]),
         ),

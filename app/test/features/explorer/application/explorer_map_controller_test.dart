@@ -11,6 +11,7 @@ import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate
 import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
 
 import '../../../support/fake_charging_repository.dart';
+import '../../../support/fake_explorer_filters_repository.dart';
 
 // State integration for FR-MAP-001, FR-FILTER-002, FR-FILTER-003, FR-DETAIL-001,
 // NFR-OFFLINE-001, and NFR-PERF-001.
@@ -31,6 +32,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -94,6 +98,9 @@ void main() {
     final repository = FakeChargingRepository(detail: detail);
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -111,6 +118,9 @@ void main() {
     final repository = FakeChargingRepository();
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -132,6 +142,9 @@ void main() {
     final repository = FakeChargingRepository();
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -193,6 +206,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -222,6 +238,9 @@ void main() {
     final repository = FakeChargingRepository();
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -268,6 +287,9 @@ void main() {
     final repository = FakeChargingRepository();
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -320,6 +342,9 @@ void main() {
     );
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith((ref) async => repository),
       ],
     );
@@ -358,5 +383,48 @@ void main() {
       container.read(explorerMapControllerProvider).value!.groups,
       const <ChargingGroupSummary>[latestGroup],
     );
+  });
+
+  test('starts with the persisted filter selection', () async {
+    final repository = FakeChargingRepository();
+    const saved = ExplorerFilters(minimumPowerKw: 50, favoritesOnly: true);
+    final container = ProviderContainer(
+      overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(saved),
+        ),
+        chargingRepositoryProvider.overrideWith((ref) async => repository),
+      ],
+    );
+    addTearDown(container.dispose);
+
+    final state = await container.read(explorerMapControllerProvider.future);
+    expect(state.filters, saved);
+  });
+
+  test('persists the filter selection when it changes', () async {
+    final repository = FakeChargingRepository();
+    final filtersRepository = FakeExplorerFiltersRepository();
+    final container = ProviderContainer(
+      overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => filtersRepository,
+        ),
+        chargingRepositoryProvider.overrideWith((ref) async => repository),
+      ],
+    );
+    addTearDown(container.dispose);
+    await container.read(explorerMapControllerProvider.future);
+    final controller = container.read(explorerMapControllerProvider.notifier);
+    controller.visibleBoundsChanged(
+      const GeoBounds(south: 50, west: 10, north: 52, east: 14),
+    );
+    await Future<void>.delayed(const Duration(milliseconds: 350));
+
+    const changed = ExplorerFilters(minimumPowerKw: 50, alwaysOpenOnly: true);
+    controller.filtersChanged(changed);
+    await Future<void>.delayed(const Duration(milliseconds: 20));
+
+    expect(filtersRepository.stored, changed);
   });
 }

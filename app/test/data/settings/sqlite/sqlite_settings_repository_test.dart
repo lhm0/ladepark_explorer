@@ -2,11 +2,14 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:ladepark_explorer/data/settings/sqlite/sqlite_settings_repository.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/explorer_filters.dart';
+import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/vehicle_profile.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:sqlite3/sqlite3.dart';
 
-// Persistence contract for FR-I18N-001, FR-NAV-001 and FR-ROUTE-005.
+// Persistence contract for FR-I18N-001, FR-NAV-001, FR-ROUTE-005 and
+// FR-FILTER-001 (filter selection survives a restart).
 void main() {
   test('persists language, navigation, and automatic update checks', () async {
     final directory = await Directory.systemTemp.createTemp(
@@ -105,4 +108,82 @@ void main() {
       expect(await repository.loadVehicleProfile(), isNotNull);
     },
   );
+
+  test('persists the explorer filter selection across a restart', () async {
+    final directory = await Directory.systemTemp.createTemp('ladepark-filters');
+    addTearDown(() => directory.delete(recursive: true));
+    final path = '${directory.path}/settings.sqlite3';
+
+    var repository = await SqliteSettingsRepository.open(path);
+    expect(await repository.loadFilters(), isNull);
+
+    const filters = ExplorerFilters(
+      diameterM: 100,
+      minimumEvseCount: 4,
+      minimumPowerKw: 50,
+      operatorNames: <String>['EnBW'],
+      operatorIds: <String>['op-1', 'op-2'],
+      connectorTypes: <String>['ccs'],
+      requiredAmenities: <AmenityType>[
+        AmenityType.toilet,
+        AmenityType.restaurant,
+      ],
+      alwaysOpenOnly: true,
+      favoritesOnly: true,
+      // Transient; must not be restored.
+      nearbyRadiusKm: 25,
+    );
+    await repository.saveFilters(filters);
+    await repository.close();
+
+    repository = await SqliteSettingsRepository.open(path);
+    addTearDown(repository.close);
+    final restored = await repository.loadFilters();
+
+    expect(restored, isNotNull);
+    expect(restored!.diameterM, 100);
+    expect(restored.minimumEvseCount, 4);
+    expect(restored.minimumPowerKw, 50);
+    expect(restored.operatorNames, <String>['EnBW']);
+    expect(restored.operatorIds, <String>['op-1', 'op-2']);
+    expect(restored.connectorTypes, <String>['ccs']);
+    expect(restored.requiredAmenities, <AmenityType>[
+      AmenityType.toilet,
+      AmenityType.restaurant,
+    ]);
+    expect(restored.alwaysOpenOnly, isTrue);
+    expect(restored.favoritesOnly, isTrue);
+    // The "distance to current location" filter is deliberately not restored.
+    expect(restored.nearbyRadiusKm, isNull);
+  });
+
+  test('tolerates an unknown amenity name in the stored filters', () async {
+    final directory = await Directory.systemTemp.createTemp('ladepark-filters');
+    addTearDown(() => directory.delete(recursive: true));
+    final path = '${directory.path}/settings.sqlite3';
+
+    final database = sqlite3.open(path);
+    database.execute('''
+      CREATE TABLE app_setting (key TEXT PRIMARY KEY, value TEXT NOT NULL)
+        WITHOUT ROWID
+    ''');
+    database.execute(
+      "INSERT INTO app_setting (key, value) VALUES ('explorer_filters', ?)",
+      <Object?>[
+        '{"favoritesOnly":true,"requiredAmenities":["toilet","teleporter"]}',
+      ],
+    );
+    database.userVersion = 2;
+    database.close();
+
+    final repository = await SqliteSettingsRepository.open(path);
+    addTearDown(repository.close);
+    final restored = await repository.loadFilters();
+
+    expect(restored, isNotNull);
+    expect(restored!.favoritesOnly, isTrue);
+    expect(restored.requiredAmenities, <AmenityType>[AmenityType.toilet]);
+    // Missing keys fall back to the defaults.
+    expect(restored.diameterM, ExplorerFilters.defaults.diameterM);
+  });
 }

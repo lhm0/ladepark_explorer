@@ -267,6 +267,11 @@ Stand: 28. August 2026
   - Die Filterseite übernimmt ihren sichtbaren Stand beim Verlassen über
     Zurück; „Abbruch“ stellt den Öffnungsstand und „Standard herstellen“ die
     Produktvorgaben wieder her, ohne die Seite zu schließen.
+  - Die Filterauswahl überlebt einen App-Neustart: sie wird als ein
+    JSON-Wert (`explorer_filters`) in der lokalen Einstellungsdatenbank
+    gespeichert, hinter dem Vertrag `ExplorerFiltersRepository` (ADR-0016).
+    `SqliteSettingsRepository` implementiert ihn zusätzlich; der transiente
+    Umkreisfilter „Entfernung zum aktuellen Standort“ wird nicht gespeichert.
 - Der Spezifikationskern für Version 1.0 ist erstellt und fachlich
   konsolidiert:
   - Produktvision und Scope,

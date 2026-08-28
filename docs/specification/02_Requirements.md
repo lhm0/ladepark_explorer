@@ -123,6 +123,10 @@ Kennzeichnung:
     gewählte Mindestanzahl ein.
   - Änderungen wirken ohne erneuten Datendownload.
   - Aktive Filter sind sichtbar und können gemeinsam zurückgesetzt werden.
+  - Die Filterauswahl bleibt über einen App-Neustart erhalten; sie wird lokal
+    gespeichert (`ADR-0016`). Ausgenommen ist „Entfernung zum aktuellen
+    Standort“, da dieser Filter einen aktuellen Standort voraussetzt und beim
+    Start zurückgesetzt wird.
   - Das Verlassen der Filteransicht über Zurück übernimmt den sichtbaren
     Filterstand.
   - „Abbruch“ stellt den Stand beim Öffnen der Filteransicht wieder her, ohne

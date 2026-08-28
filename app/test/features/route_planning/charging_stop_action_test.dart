@@ -14,6 +14,7 @@ import 'package:ladepark_explorer/features/route_planning/domain/models/route_wa
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 
 import '../../support/fake_charging_repository.dart';
+import '../../support/fake_explorer_filters_repository.dart';
 import '../../support/fake_route_planning_service.dart';
 
 // FR-ROUTE-004: the park detail can add the park as a charging stop.
@@ -68,6 +69,9 @@ void main() {
   ) async {
     final container = ProviderContainer(
       overrides: [
+        explorerFiltersRepositoryProvider.overrideWith(
+          (ref) async => FakeExplorerFiltersRepository(),
+        ),
         chargingRepositoryProvider.overrideWith(
           (ref) async => FakeChargingRepository(detail: detail),
         ),
