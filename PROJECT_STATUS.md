@@ -429,7 +429,9 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
     Korridorsuche im Panel, Stopp-Operationen, „Ladestop einfügen"-Knopf);
     DE/EN-Lokalisierung ergänzt.
-- **M16a** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+- **M16a** implementiert, automatisiert geprüft und manuell abgenommen: das
+  Fahrzeugprofil lässt sich in den Einstellungen anlegen, ändern und löschen,
+  überlebt einen App-Neustart und weist ungültige Eingaben ab:
   - `VehicleProfile`-Domänenmodell und `VehicleProfileRepository`-Vertrag in
     `features/route_planning/domain/` (nutzbare Kapazität, Verbrauch je 100 km,
     Reserve- und Ziel-Ladezustand, Start-Ladezustand, maximale Ladeleistung,
