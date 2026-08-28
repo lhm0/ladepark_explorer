@@ -739,6 +739,114 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Nicht vorhanden'**
   String get amenityAbsent;
+
+  /// No description provided for @privacy.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz'**
+  String get privacy;
+
+  /// No description provided for @privacyAndDiagnostics.
+  ///
+  /// In de, this message translates to:
+  /// **'Datenschutz und Diagnose'**
+  String get privacyAndDiagnostics;
+
+  /// No description provided for @privacySummary.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine Telemetrie, keine Absturzberichte und kein Werbetracking'**
+  String get privacySummary;
+
+  /// No description provided for @noTelemetry.
+  ///
+  /// In de, this message translates to:
+  /// **'Keine automatische Übertragung'**
+  String get noTelemetry;
+
+  /// No description provided for @noTelemetryExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Die App übermittelt keine Nutzungsereignisse oder Absturzberichte an den Entwickler. Es gibt kein Analyse-, Werbe- oder Tracking-SDK.'**
+  String get noTelemetryExplanation;
+
+  /// No description provided for @localData.
+  ///
+  /// In de, this message translates to:
+  /// **'Daten auf diesem Gerät'**
+  String get localData;
+
+  /// No description provided for @localDataExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Favoriten, Einstellungen und heruntergeladene Ladepark-Datensätze bleiben lokal. Sie werden bei einer Deinstallation der App entfernt.'**
+  String get localDataExplanation;
+
+  /// No description provided for @externalServices.
+  ///
+  /// In de, this message translates to:
+  /// **'Bewusste Netzwerkzugriffe'**
+  String get externalServices;
+
+  /// No description provided for @externalServicesExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Apple stellt Karte und Online-Ortssuche bereit. Updateprüfungen rufen ein Manifest von GitHub ab. Beim Start einer Navigation werden Zielkoordinaten an Apple Maps oder Google Maps übergeben.'**
+  String get externalServicesExplanation;
+
+  /// No description provided for @localDiagnostics.
+  ///
+  /// In de, this message translates to:
+  /// **'Lokaler Diagnosestatus'**
+  String get localDiagnostics;
+
+  /// No description provided for @telemetryStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Telemetrie: deaktiviert'**
+  String get telemetryStatus;
+
+  /// No description provided for @crashReportingStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatische Absturzberichte: deaktiviert'**
+  String get crashReportingStatus;
+
+  /// No description provided for @adTrackingStatus.
+  ///
+  /// In de, this message translates to:
+  /// **'Werbung und Tracking: nicht enthalten'**
+  String get adTrackingStatus;
+
+  /// No description provided for @datasetChecksEnabled.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatische Datensatzprüfung: aktiviert'**
+  String get datasetChecksEnabled;
+
+  /// No description provided for @datasetChecksDisabled.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatische Datensatzprüfung: deaktiviert'**
+  String get datasetChecksDisabled;
+
+  /// No description provided for @copyDiagnostics.
+  ///
+  /// In de, this message translates to:
+  /// **'Diagnosestatus kopieren'**
+  String get copyDiagnostics;
+
+  /// No description provided for @diagnosticsCopied.
+  ///
+  /// In de, this message translates to:
+  /// **'Diagnosestatus wurde kopiert.'**
+  String get diagnosticsCopied;
+
+  /// No description provided for @diagnosticsPrivacyExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.'**
+  String get diagnosticsPrivacyExplanation;
 }
 
 class _AppLocalizationsDelegate

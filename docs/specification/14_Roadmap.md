@@ -39,8 +39,11 @@ Status: Produktroadmap – Termine noch offen
 - **M11 – Statische Datensatzupdates (implementiert):** öffentliches
   GitHub-Release, deterministisches gzip-Manifest, bestätigter Download,
   doppelte SHA-256- und SQLite-Prüfung, atomarer Wechsel und Rollbackbestand.
-- **M12 – Datenschutz und Diagnostik:** Entscheidung über einen vollständigen
-  Verzicht oder eine ausdrücklich einwilligungsbasierte Telemetrie.
+- **M12 – Datenschutz und Diagnostik (implementiert):** Version 1.0 verzichtet
+  vollständig auf Telemetrie, automatische Fehlerberichte, Werbung und
+  Tracking. Eine zweisprachige App-Seite dokumentiert lokale Daten und
+  Netzwerkgrenzen; ein datensparsamer Diagnosestatus kann nur bewusst kopiert
+  werden.
 - **M13 – Release-Härtung:** Performance, Offlineverhalten,
   Zugänglichkeit, Lizenznachweise, TestFlight und App-Store-Vorbereitung.
 

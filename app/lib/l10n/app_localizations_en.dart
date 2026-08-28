@@ -400,4 +400,63 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get amenityAbsent => 'Not present';
+
+  @override
+  String get privacy => 'Privacy';
+
+  @override
+  String get privacyAndDiagnostics => 'Privacy and diagnostics';
+
+  @override
+  String get privacySummary =>
+      'No telemetry, crash reports, or advertising tracking';
+
+  @override
+  String get noTelemetry => 'No automatic transmission';
+
+  @override
+  String get noTelemetryExplanation =>
+      'The app does not send usage events or crash reports to the developer. It contains no analytics, advertising, or tracking SDK.';
+
+  @override
+  String get localData => 'Data on this device';
+
+  @override
+  String get localDataExplanation =>
+      'Favorites, settings, and downloaded charging datasets remain local. They are removed when the app is uninstalled.';
+
+  @override
+  String get externalServices => 'Deliberate network access';
+
+  @override
+  String get externalServicesExplanation =>
+      'Apple provides the map and online place search. Update checks retrieve a manifest from GitHub. Starting navigation passes destination coordinates to Apple Maps or Google Maps.';
+
+  @override
+  String get localDiagnostics => 'Local diagnostic status';
+
+  @override
+  String get telemetryStatus => 'Telemetry: disabled';
+
+  @override
+  String get crashReportingStatus => 'Automatic crash reports: disabled';
+
+  @override
+  String get adTrackingStatus => 'Advertising and tracking: not included';
+
+  @override
+  String get datasetChecksEnabled => 'Automatic dataset checks: enabled';
+
+  @override
+  String get datasetChecksDisabled => 'Automatic dataset checks: disabled';
+
+  @override
+  String get copyDiagnostics => 'Copy diagnostic status';
+
+  @override
+  String get diagnosticsCopied => 'Diagnostic status copied.';
+
+  @override
+  String get diagnosticsPrivacyExplanation =>
+      'The text contains no coordinates, search terms, favorites, or device identifier. It is copied to the clipboard only through this button and is never sent automatically.';
 }

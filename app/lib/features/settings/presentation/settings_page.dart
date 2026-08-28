@@ -4,6 +4,7 @@ import 'package:ladepark_explorer/features/dataset_update/application/dataset_up
 import 'package:ladepark_explorer/features/dataset_update/domain/dataset_update_manifest.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
+import 'package:ladepark_explorer/features/settings/presentation/privacy_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/navigation/navigation_providers.dart';
 
@@ -82,6 +83,22 @@ class SettingsPage extends ConsumerWidget {
                   .setAutomaticDatasetChecks(enabled),
             ),
             _DatasetUpdateTile(update: update),
+            const Divider(),
+            _SectionTitle(strings.privacy),
+            ListTile(
+              key: const ValueKey('privacy-and-diagnostics'),
+              leading: const Icon(Icons.shield_outlined),
+              title: Text(strings.privacyAndDiagnostics),
+              subtitle: Text(strings.privacySummary),
+              trailing: const Icon(Icons.chevron_right),
+              onTap: () => Navigator.of(context).push<void>(
+                MaterialPageRoute<void>(
+                  builder: (_) => PrivacyPage(
+                    automaticDatasetChecks: value.automaticDatasetChecks,
+                  ),
+                ),
+              ),
+            ),
           ],
         ),
       ),

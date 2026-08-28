@@ -327,21 +327,23 @@ Kennzeichnung:
 
 ## 8. Datenschutz und Diagnosedaten
 
-### FR-PRIV-001 – Freiwillige Telemetrie
+### FR-PRIV-001 – Datenschutz und freiwillige Diagnostik
 
 - Priorität: Muss
-- Beschreibung: Anonyme Nutzungs- und Fehlerdaten werden nur nach ausdrücklicher
-  Einwilligung übertragen.
+- Beschreibung: Version 1.0 überträgt keine Nutzungs- oder Fehlerdaten an den
+  Entwickler. Eine spätere Telemetrie ist nur nach ausdrücklicher Einwilligung
+  zulässig.
 - Akzeptanz:
-  - Die Entscheidung wird bei der Ersteinrichtung verständlich abgefragt und
-    ist nicht vorausgewählt.
-  - Die Einwilligung kann später in den Einstellungen geändert oder widerrufen
-    werden.
-  - Ohne Einwilligung bleibt der vollständige fachliche Funktionsumfang
-    erhalten.
+  - Version 1.0 enthält kein Analyse-, Werbe-, Tracking- oder automatisches
+    Crash-Reporting-SDK und benötigt deshalb keine Scheineinwilligung bei der
+    Ersteinrichtung.
+  - Die Einstellungen erklären lokale Daten und bewusste Netzwerkzugriffe.
+  - Ein lokaler Diagnosestatus wird nur nach ausdrücklicher Aktion kopiert und
+    enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung.
   - Es gibt kein Werbetracking und kein personenbezogenes Nutzungsprofil.
-  - Vor Auswahl eines Dienstes werden Ereignisse, Aufbewahrung,
-    Anonymisierung und Datenempfänger dokumentiert.
+  - Vor einer späteren Dienstauswahl werden Ereignisse, Aufbewahrung,
+    Anonymisierung und Datenempfänger dokumentiert; die Einwilligung ist
+    freiwillig, widerrufbar und nicht vorausgewählt.
 
 ## 9. Nicht-funktionale Anforderungen
 

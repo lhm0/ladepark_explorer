@@ -402,4 +402,65 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get amenityAbsent => 'Nicht vorhanden';
+
+  @override
+  String get privacy => 'Datenschutz';
+
+  @override
+  String get privacyAndDiagnostics => 'Datenschutz und Diagnose';
+
+  @override
+  String get privacySummary =>
+      'Keine Telemetrie, keine Absturzberichte und kein Werbetracking';
+
+  @override
+  String get noTelemetry => 'Keine automatische Übertragung';
+
+  @override
+  String get noTelemetryExplanation =>
+      'Die App übermittelt keine Nutzungsereignisse oder Absturzberichte an den Entwickler. Es gibt kein Analyse-, Werbe- oder Tracking-SDK.';
+
+  @override
+  String get localData => 'Daten auf diesem Gerät';
+
+  @override
+  String get localDataExplanation =>
+      'Favoriten, Einstellungen und heruntergeladene Ladepark-Datensätze bleiben lokal. Sie werden bei einer Deinstallation der App entfernt.';
+
+  @override
+  String get externalServices => 'Bewusste Netzwerkzugriffe';
+
+  @override
+  String get externalServicesExplanation =>
+      'Apple stellt Karte und Online-Ortssuche bereit. Updateprüfungen rufen ein Manifest von GitHub ab. Beim Start einer Navigation werden Zielkoordinaten an Apple Maps oder Google Maps übergeben.';
+
+  @override
+  String get localDiagnostics => 'Lokaler Diagnosestatus';
+
+  @override
+  String get telemetryStatus => 'Telemetrie: deaktiviert';
+
+  @override
+  String get crashReportingStatus =>
+      'Automatische Absturzberichte: deaktiviert';
+
+  @override
+  String get adTrackingStatus => 'Werbung und Tracking: nicht enthalten';
+
+  @override
+  String get datasetChecksEnabled => 'Automatische Datensatzprüfung: aktiviert';
+
+  @override
+  String get datasetChecksDisabled =>
+      'Automatische Datensatzprüfung: deaktiviert';
+
+  @override
+  String get copyDiagnostics => 'Diagnosestatus kopieren';
+
+  @override
+  String get diagnosticsCopied => 'Diagnosestatus wurde kopiert.';
+
+  @override
+  String get diagnosticsPrivacyExplanation =>
+      'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.';
 }

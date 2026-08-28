@@ -11,7 +11,8 @@ Architektur und Implementierung. Neue Codex-Chats sollen hier beginnen.
 4. [Systemarchitektur](specification/03_System_Architecture.md)
 5. [Domänenmodell und Glossar](specification/04_Data_Model.md)
 6. [Lizenz- und Datenquellen-Dossier](specification/15_License_Compliance.md)
-7. [Roadmap](specification/14_Roadmap.md)
+7. [Datenschutz und Diagnostik](specification/16_Privacy_and_Diagnostics.md)
+8. [Roadmap](specification/14_Roadmap.md)
 
 Die übrigen Kapitel vertiefen Importer, Clustering, SQLite, Flutter, UI,
 zukünftige APIs, Tests, Deployment und Coding Guidelines.
@@ -49,6 +50,7 @@ Aktuelle Architekturentscheidungen:
 - [ADR-0015 – Konservativer Filter für durchgehende Zugänglichkeit](adr/ADR-0015-Structured-Opening-Hours-Filter.md)
 - [ADR-0016 – Lokale Einstellungen und Wahl der Navigations-App](adr/ADR-0016-Local-Settings-and-Navigation-Choice.md)
 - [ADR-0017 – Statische, atomare Ladebestandsupdates](adr/ADR-0017-Static-Dataset-Updates.md)
+- [ADR-0018 – Keine Telemetrie in Version 1.0](adr/ADR-0018-No-Telemetry-in-Version-1.md)
 
 ## Verbindlichkeit
 

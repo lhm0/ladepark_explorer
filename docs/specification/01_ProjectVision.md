@@ -109,7 +109,8 @@ Version 1.0 umfasst:
 - lokale Favoriten,
 - Übergabe eines Standorts an Apple Maps oder Google Maps,
 - deutsche und englische Benutzeroberfläche,
-- optionale, einwilligungsbasierte anonyme Telemetrie und Fehlerberichte.
+- keine Telemetrie, automatischen Fehlerberichte, Werbung oder Tracking; eine
+  spätere Einführung bleibt eine neue, einwilligungspflichtige Entscheidung.
 
 Alle öffentlich zugänglichen, aus den verwendeten Quellen importierbaren
 Ladeeinrichtungen werden in der Datenbasis berücksichtigt. Reine AC-Standorte

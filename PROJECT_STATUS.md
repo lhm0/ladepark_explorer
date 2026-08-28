@@ -361,7 +361,12 @@ Die offenen App-Meilensteine werden in dieser Reihenfolge bearbeitet:
   Manifest und 182.274.446 Byte großes Archiv wurden am 28. August 2026 über
   die öffentlichen Download-URLs vollständig zurückgelesen und gegen die
   erwartete SHA-256-Prüfsumme verifiziert,
-- M12: Datenschutzentscheidung und optionale Diagnostik,
+- M12 ist implementiert: Version 1.0 enthält gemäß ADR-0018 kein Analyse-,
+  Telemetrie-, Werbe- oder Crash-Reporting-SDK. Eine zweisprachige
+  Datenschutzseite erklärt lokale Daten und bewusste Netzwerkzugriffe. Der
+  datensparsame Diagnosestatus enthält keine Koordinaten, Suchbegriffe,
+  Favoriten oder Gerätekennung und gelangt nur nach ausdrücklicher Aktion in
+  die Zwischenablage,
 - M13: Release-Härtung und App-Store-Vorbereitung.
 
 ## Bekannte offene Entscheidungen

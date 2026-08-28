@@ -77,6 +77,11 @@ Aktivierung. Ein Negativtest beschädigt den Download und belegt, dass der zuvor
 aktive Zeiger unverändert bleibt. Der Importertest erzeugt dasselbe Paket
 zweimal und vergleicht die komprimierten Bytes auf Determinismus.
 
+Der M12-Widgettest prüft die zweisprachig vorbereitete Datenschutzansicht,
+den sichtbaren Verzicht auf Telemetrie und automatische Fehlerberichte sowie
+die ausdrücklich ausgelöste Kopie des datensparsamen Diagnosestatus. Der Test
+belegt außerdem, dass der kopierte Text keine Koordinaten enthält.
+
 Ein weiterer Kartenvertragstest prüft den nativen Befehl zum Wiederherstellen
 der Deutschlandansicht; der Widgettest sichert die sichtbare Schaltfläche.
 Der iOS-Simulator-Build kompiliert die explizite native Zoomkonfiguration. Die
@@ -197,6 +202,7 @@ Die vollständigen funktionalen Probeläufe des Importers stehen in
 | Favoriten | `FR-FAV-001`, `FR-FILTER-001` | getrennter SQLite-Speicher, Anker-/Aliasauflösung, SQL-Kartenfilter und Widgettests für Herz und Liste |
 | Navigation und Sprache | `FR-NAV-001`, `FR-I18N-001` | Apple-/Google-Maps-Kanalverträge, Installationsprüfung und persistenter SQLite-Einstellungstest; manueller iPhone-Test folgt |
 | Datensatzupdate | `FR-DATA-002`, `NFR-RELIABILITY-001` | deterministischer Pakettest, Manifest-/Versionsvertrag, doppelte Hashprüfung, SQLite-Validierung und Rollbacktest |
+| Datenschutz und Diagnostik | `FR-PRIV-001` | Widgettest für transparente Netzwerkgrenzen und ausschließlich bewusst kopierten, datensparsamen Diagnosestatus |
 | Basisdatensatz | `FR-DATA-001`, `NFR-DATA-001` | reproduzierbarer SQLite-Doppelbuild und Validierung |
 | Offline-Datenzugriff | `NFR-OFFLINE-001` | read-only SQLite-App-Adapter im Hintergrund-Isolate |
 | Performance | `NFR-PERF-001` | explorative Deutschlandmessungen; formaler Gerätetest fehlt |

@@ -116,12 +116,13 @@ späteren Regelversion verwendet werden. Die App prüft Google Maps über dessen
 iOS-URL-Schema, speichert die bevorzugte Ziel-App lokal und bietet bei
 Nichtverfügbarkeit Apple Maps als Fallback an.
 
-### 3.6 Optionale Telemetrie
+### 3.6 Datenschutz und lokale Diagnostik
 
-Ein noch auszuwählender Dienst darf nach Einwilligung ausschließlich
-dokumentierte, datensparsame Diagnose- und Nutzungsereignisse empfangen.
-Telemetrie ist von allen fachlichen Kernfunktionen getrennt. Der Ausfall oder
-die Ablehnung der Telemetrie darf die App nicht einschränken.
+Version 1.0 verwendet gemäß ADR-0018 keinen Telemetrie- oder
+Crash-Reporting-Dienst. Die App erklärt ihre Netzwerkgrenzen und kann einen
+datensparsamen Status nur nach ausdrücklicher Nutzeraktion in die lokale
+Zwischenablage kopieren. Eine spätere Telemetrie bleibt von allen fachlichen
+Kernfunktionen getrennt und benötigt eine neue dokumentierte Entscheidung.
 
 ## 4. Hauptdatenflüsse
 
@@ -183,8 +184,8 @@ nicht als fachliches Anwendungsbackend.
 - Externes Geocoding und Navigation werden als Datenweitergabe an den jeweiligen
   Anbieter erkennbar gemacht, soweit rechtlich beziehungsweise technisch
   erforderlich.
-- Telemetrie arbeitet nur nach Einwilligung und ohne Werbe-ID oder
-  personenbezogenes Profil.
+- Version 1.0 enthält keine Telemetrie, Werbe-ID oder automatischen
+  Fehlerberichte und bildet kein personenbezogenes Profil.
 
 ## 7. Technologieentscheidungen
 
@@ -226,7 +227,7 @@ nicht als fachliches Anwendungsbackend.
 
 - Android-Kartenadapter und dessen Kartenversorgung,
 - Geocodinganbieter,
-- Telemetrie- und Crash-Reporting-Anbieter,
+- eine mögliche spätere Neubewertung von Telemetrie und Crash-Reporting,
 - endgültiger Objektspeicher und Domainstruktur,
 - endgültiger Signierungs- und App-Store-Prozess.
 
@@ -243,5 +244,6 @@ durch ADRs festgehalten.
 | Karte und Standort | FR-MAP-001/002, FR-SEARCH-001/002 |
 | Navigation | FR-NAV-001 |
 | Lokalisierung | FR-I18N-001 |
+| Datenschutz und lokale Diagnose | FR-PRIV-001 |
 | Telemetrie | FR-PRIV-001 |
 | Plattformtrennung | NFR-PORT-001 |

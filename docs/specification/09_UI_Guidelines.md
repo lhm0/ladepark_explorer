@@ -100,6 +100,12 @@ kompakten Kopfzeile und werden bei Überlänge gekürzt; der vollständige Name
 bleibt als Tooltip zugänglich. Betreiberspalten besitzen unabhängig von der
 Länge des Betreibernamens eine einheitliche kompakte Breite.
 
+M12 ergänzt in den Einstellungen eine eigene opake Seite „Datenschutz und
+Diagnose“. Kurze Karten unterscheiden fehlende Telemetrie, lokale Daten und
+bewusste externe Netzwerkzugriffe. Ein sichtbarer Diagnosestatus kann nur über
+eine beschriftete Schaltfläche kopiert werden; die App bietet keine
+Einwilligung für einen nicht vorhandenen Dienst an.
+
 ## 2. Kartenverhalten und Performance
 
 - Apple MapKit ist der Kartenadapter der iPhone-Version 1.0.
