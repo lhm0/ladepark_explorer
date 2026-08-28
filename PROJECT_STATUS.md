@@ -374,8 +374,10 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
 - **M14.0** abgeschlossen: verbindliches Kapitel
   `docs/specification/17_Route_Planning.md` (`FR-ROUTE-001` bis `FR-ROUTE-011`,
   `NFR-ROUTE-*`) und ADR-0019 bis ADR-0022.
-- **M14** implementiert und automatisiert geprüft; manuelle Abnahme auf
-  Simulator und iPhone steht aus:
+- **M14** implementiert, automatisiert geprüft und manuell auf Simulator und
+  echtem iPhone abgenommen: kein Freeze mehr, das Vorschau-Split-Layout ist
+  stabil, wiederholtes Öffnen und Schließen der Routen- und Vorschauansicht ist
+  unauffällig:
   - plattformneutraler `RoutePlanningService` in
     `app/lib/features/route_planning/domain/` mit typisierten `RouteRequest`-
     und `RouteOption`-Modellen und stabilen `RoutePlanningError`-Kategorien,
@@ -498,3 +500,11 @@ Marker und native Cluster werden angezeigt. Der Debug-App-Build ist rund
 441.950.208 Byte und komprimiert 182.274.446 Byte.
 Der echte App-Wechsel zu Google Maps und der sprachliche Gesamteindruck bleiben
 auf einem iPhone manuell abzunehmen.
+
+Die M14-Routenplanung wurde am 28. August 2026 auf dem iPhone-16-Simulator und
+einem echten iPhone manuell abgenommen: Route berechnen, Vorschau mit Karte und
+Alternativpanel gleichzeitig, Umschalten zwischen Routen, „Auf Karte anzeigen“,
+erneutes Öffnen und „Route beenden“ liefen wiederholt ohne Freeze oder sonstige
+Auffälligkeiten. Der zuvor mit einem Flutter-Zusammenfassungsbalken über der
+Karte reproduzierte Einfrierer tritt mit dem nicht überlappenden Split-Layout
+nicht mehr auf.
