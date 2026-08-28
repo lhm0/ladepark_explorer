@@ -57,6 +57,7 @@ Aktuelle Architekturentscheidungen:
 - [ADR-0020 – Energie- und Segmentmodell hinter austauschbaren Schnittstellen](adr/ADR-0020-Energy-and-Segment-Model.md)
 - [ADR-0021 – Lokaler Fahrzeugprofil-Speicher](adr/ADR-0021-Vehicle-Profile-Store.md)
 - [ADR-0022 – Routenkorridor-Suche über Abtastung der Polyline](adr/ADR-0022-Route-Corridor-Search.md)
+- [ADR-0023 – Ladezustandsfärbung der Route](adr/ADR-0023-Route-State-Of-Charge-Colouring.md)
 
 ## Verbindlichkeit
 

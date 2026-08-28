@@ -167,9 +167,18 @@ nicht vor.
 - Akzeptanz:
   - Die Vorhersage der Version 1.1 verwendet ausschließlich Streckenlänge,
     Fahrzeugverbrauch und Start-Ladezustand.
-  - Der geschätzte Ladezustand wird entlang der Route sichtbar gemacht.
+  - Der geschätzte Ladezustand wird als Färbung der Routenlinie auf der Karte
+    sichtbar gemacht: ein Verlauf von Grün über Gelb nach Rot, wobei Rot dem
+    Reserve-Ladezustand entspricht (Vorgabe 10 Prozent). Die genauen
+    Farbschwellen sind dokumentiert (`ADR-0023`).
+  - An jedem Ladestopp beginnt die Färbung wieder bei Grün, ausgehend vom
+    angenommenen Abfahrt-Ladezustand. In Version 1.1 ist dieser der
+    Ziel-Ladezustand des Fahrzeugprofils; ab `FR-ROUTE-008` stammt er aus dem
+    Ladeverfahren.
   - Unterschreitet der geschätzte Ladezustand ohne Ladestopp die Reserve, wird
-    die Stelle markiert.
+    die Stelle zusätzlich als Warnung markiert.
+  - Ohne vollständiges Fahrzeugprofil bleibt die Routenlinie einfarbig; die
+    Ladezustandsfärbung ist dann inaktiv.
   - Die Vorhersage ist als Schätzung gekennzeichnet und wird nicht als
     garantierte Reichweite bezeichnet.
   - Das Vorhersageverfahren ist hinter einer austauschbaren Schnittstelle
@@ -318,6 +327,11 @@ Die verbindlichen Entscheidungen stehen in den ADRs:
 - [`ADR-0022 – Routenkorridor-Suche`](../adr/ADR-0022-Route-Corridor-Search.md):
   Abtastung entlang der dezimierten Polyline mit der bestehenden
   Radiusabfrage; keine Vertragsänderung in Version 1.1.
+- [`ADR-0023 – Ladezustandsfärbung der Route`](../adr/ADR-0023-Route-State-Of-Charge-Colouring.md):
+  der `TripEnergySimulator` liefert je Polylinienabschnitt einen geschätzten
+  Ladezustand; die App bildet ihn auf eine Farbe ab und übergibt die
+  eingefärbten Abschnitte nativ an das Routen-Overlay. An jedem Ladestopp
+  springt der Ladezustand auf den Abfahrtswert.
 
 ### Schnittstellen im Überblick
 
@@ -347,10 +361,10 @@ funktionsfähig. Das Fernziel tauscht Implementierungen, nicht Aufrufer.
 
 | Meilenstein | Inhalt | Anforderungen |
 | --- | --- | --- |
-| M14.0 | Anforderungen und ADRs (dieses Kapitel, `ADR-0019` bis `ADR-0022`) | – |
+| M14.0 | Anforderungen und ADRs (dieses Kapitel, `ADR-0019` bis `ADR-0023`) | – |
 | M14 | Basisroute A→B, natives Overlay, Distanz und Fahrzeit, Alternativrouten, Offline- und Fehlerzustände | `FR-ROUTE-001`, `FR-ROUTE-002`, `NFR-ROUTE-OFFLINE-001` |
 | M15 | Korridorsuche mit aktiven Filtern, Position und Umweg, manuelle Ladestopps, Neuberechnung der Teilstrecken | `FR-ROUTE-003`, `FR-ROUTE-004` |
-| M16 | Fahrzeugprofil, Segmentmodell, `EnergyModel`, Ladezustandssimulation und Reserve-Warnung | `FR-ROUTE-005`, `FR-ROUTE-006`, `NFR-ROUTE-EXT-001` |
+| M16 | Fahrzeugprofil, Segmentmodell, `EnergyModel`, Ladezustandssimulation, farbige Ladezustandsdarstellung der Route (`ADR-0023`) und Reserve-Warnung | `FR-ROUTE-005`, `FR-ROUTE-006`, `NFR-ROUTE-EXT-001` |
 | M17 | `ChargingModel`, `StopPlanner`, automatischer Ladestopp-Vorschlag mit Lademenge, Ladezeit und Gesamtreisezeit | `FR-ROUTE-007`, `FR-ROUTE-008` |
 | M18 | Alternativenauswahl, adaptive Neuplanung, Hinzufügen/Entfernen/Sperren, stoppbezogene Ziel-Ladezustände, Sitzungspersistenz | `FR-ROUTE-009`, `FR-ROUTE-010` |
 | M19 | Datenschutzdokumentation, Offline-Härtung, Zugänglichkeit, DE/EN-Redaktion, Gerätematrix, Routenübergabe an Navigations-App | `FR-ROUTE-011`, `NFR-ROUTE-PRIV-001`, `NFR-ROUTE-OFFLINE-001`, `NFR-ROUTE-PERF-001` |
@@ -365,6 +379,8 @@ festgelegt:
 - Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
 - Vorgabewerte des Fahrzeugprofils und zulässige Wertebereiche,
 - Standard-Reserve und Standard-Ziel-Ladezustand,
+- Farbschwellen und Verlaufsfunktion der Ladezustandsfärbung sowie Breite und
+  Deckkraft eines optionalen Farbsaums entlang der Route (`ADR-0023`),
 - Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
 - Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App.
 

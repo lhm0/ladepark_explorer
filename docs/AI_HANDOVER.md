@@ -48,7 +48,7 @@ App-Store-Vorbereitung. TestFlight wurde bewusst noch nicht begonnen.
 **Parallel begonnener Ausbau:** Version 1.1 („Routen-Update“) ergänzt eine
 Routenplanung mit einfacher Reichweiten- und Ladeplanung. Sie ist in
 [`specification/17_Route_Planning.md`](specification/17_Route_Planning.md) und
-ADR-0019 bis ADR-0022 spezifiziert; die Meilensteine M14 bis M19 sind noch
+ADR-0019 bis ADR-0023 spezifiziert; die Meilensteine M14 bis M19 sind noch
 nicht implementiert. Siehe Abschnitt 10.4.
 
 **Nicht Bestandteil von 1.0:** Benutzerkonten, Community-Inhalte,

@@ -94,7 +94,7 @@ Status: M14.0, M14 und M15 implementiert und manuell abgenommen; M16 bis M19
 geplant. Verbindlich spezifiziert in
 [`17_Route_Planning.md`](17_Route_Planning.md) mit den Anforderungen
 `FR-ROUTE-001` bis `FR-ROUTE-011` und `NFR-ROUTE-*`; Architektur entschieden
-in ADR-0019 bis ADR-0022.
+in ADR-0019 bis ADR-0023.
 
 Version 1.1 fügt der bestehenden App eine Routenplanung mit einfacher
 Reichweiten- und Ladeplanung hinzu. Die Verbrauchsvorhersage beruht zunächst
@@ -104,10 +104,10 @@ Die Umsetzung erfolgt inkrementell und wird als ein Release ausgeliefert.
 
 | Meilenstein | Inhalt | Anforderungen |
 | --- | --- | --- |
-| M14.0 | Anforderungskapitel und ADR-0019 bis ADR-0022 | – |
+| M14.0 | Anforderungskapitel und ADR-0019 bis ADR-0023 | – |
 | M14 | Basisroute A→B, natives Route-Overlay in `MKMapView`, Distanz und Fahrzeit, Alternativrouten, klare Offline-, Fehler- und Drosselungszustände | `FR-ROUTE-001/002`, `NFR-ROUTE-OFFLINE-001` |
-| M15 | Ladeparks im Routenkorridor unter den aktiven Filtern, Position und geschätzter Umweg, manuelle Ladestopps, Neuberechnung der Teilstrecken | `FR-ROUTE-003/004` |
-| M16 | Lokales Fahrzeugprofil, Segmentmodell, `EnergyModel`, Ladezustandssimulation und Reserve-Warnung | `FR-ROUTE-005/006`, `NFR-ROUTE-EXT-001` |
+| M15 | Ladeparks im Routenkorridor unter den aktiven Filtern als Kartenmarker, Ladestop aus der Detailansicht einfügen/entfernen, Neuberechnung der Teilstrecken | `FR-ROUTE-003/004` |
+| M16 | Lokales Fahrzeugprofil, Segmentmodell, `EnergyModel`, Ladezustandssimulation, farbige Ladezustandsdarstellung der Route (ADR-0023) und Reserve-Warnung | `FR-ROUTE-005/006`, `NFR-ROUTE-EXT-001` |
 | M17 | `ChargingModel` und `StopPlanner`, automatischer Ladestopp-Vorschlag mit Lademenge, Ladezeit und Gesamtreisezeit | `FR-ROUTE-007/008` |
 | M18 | Alternative Ladestopps, adaptive Neuplanung, Hinzufügen/Entfernen/Sperren, stoppbezogene Ziel-Ladezustände, Sitzungspersistenz | `FR-ROUTE-009/010` |
 | M19 | Datenschutzdokumentation, Offline-Härtung, Zugänglichkeit, DE/EN-Redaktion, Gerätematrix, Routenübergabe an eine Navigations-App | `FR-ROUTE-011`, `NFR-ROUTE-PRIV-001`, `NFR-ROUTE-OFFLINE-001`, `NFR-ROUTE-PERF-001` |
@@ -194,7 +194,7 @@ Quelllizenzen gemeinsam betrachten.
 | bestätigte Parks | stabile Stations-IDs; getrennte `verified_park`-Semantik | Regelmodell, Redaktion, Migration und API |
 | Community | klare lokale Fachmodelle und IDs | Backend, Konten, Moderation, Datenschutz |
 | Android | Flutter, Repository Pattern, `MapAdapter` | Karten-, Suche-, Standort- und Navigationsadapter |
-| Routenplanung (Version 1.1) | native MapKit-View, Koordinatenmodelle, entschieden in ADR-0019 bis ADR-0022 | Umsetzung M14 bis M19 gemäß [`17_Route_Planning.md`](17_Route_Planning.md) |
+| Routenplanung (Version 1.1) | native MapKit-View, Koordinatenmodelle, entschieden in ADR-0019 bis ADR-0023 | Umsetzung M14 bis M19 gemäß [`17_Route_Planning.md`](17_Route_Planning.md) |
 | Live-Daten | Trennung von Stammdaten und App-Speichern | Livequelle, Aktualitätsmodell, Backend und Ausfallsemantik |
 | OSM | separates Artefakt vorgesehen | Anbieter, Pipeline, ODbL-Nachweis und Hosting |
 | anderer Downloadhost | Manifest- und HTTP-Abstraktion | neue Basis-URL, Betrieb und Signatur |

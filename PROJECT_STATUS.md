@@ -317,6 +317,8 @@ Stand: 28. August 2026
     Einstellungsspeicher (Version 1.1).
   - ADR-0022: Routenkorridor-Suche über Abtastung der dezimierten Polyline
     ohne Vertragsänderung (Version 1.1).
+  - ADR-0023: Ladezustandsfärbung der Route über eingefärbte Polylinien­abschnitte
+    (Version 1.1, Umsetzung in M16).
 - Das Lizenz- und Datenquellen-Dossier ist die fortlaufende Basis für die
   finale Lizenzprüfung. Version 1.0 vermeidet bewusst eine Architektur, deren
   Veröffentlichung eine individuelle juristische Einzelfallprüfung voraussetzt.
