@@ -114,6 +114,26 @@ final class ExplorerMapController extends AsyncNotifier<ExplorerMapState> {
     );
   }
 
+  /// Groups within [radiusKm] of [center] under the current filters and
+  /// favorite/amenity anchors. Used by the route corridor search (FR-ROUTE-003).
+  Future<List<ChargingGroupSummary>> findGroupsNear(
+    GeoCoordinate center, {
+    required double radiusKm,
+  }) async {
+    final current = state.requireValue;
+    final repository = await ref.read(chargingRepositoryProvider.future);
+    return repository.findGroups(
+      _queryFor(
+        _boundsForRadius(center, radiusKm),
+        current.filters,
+        favoriteAnchorStationIds: current.favoriteAnchorStationIds,
+        amenityAnchorStationIds: current.amenityAnchorStationIds,
+        center: center,
+        radiusKm: radiusKm,
+      ),
+    );
+  }
+
   Future<LocationSearchTarget?> findNearestPark(GeoCoordinate center) async {
     final current = state.requireValue;
     final repository = await ref.read(chargingRepositoryProvider.future);

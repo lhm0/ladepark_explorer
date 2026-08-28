@@ -98,8 +98,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       final option = next.selectedOption;
       if (option == null) {
         unawaited(_mapAdapter?.clearRoute());
-      } else if (!identical(option, previous?.selectedOption)) {
+        return;
+      }
+      final routeChanged = !identical(option, previous?.selectedOption);
+      final stopsChanged = !identical(next.stops, previous?.stops);
+      if (routeChanged) {
         unawaited(_mapAdapter?.showRoute(option.polyline));
+      }
+      if (routeChanged || stopsChanged) {
+        unawaited(
+          _mapAdapter?.showRouteStops(
+            next.stops.map((stop) => stop.coordinate).toList(growable: false),
+          ),
+        );
       }
     });
     return Scaffold(
@@ -264,7 +275,22 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         transitionDuration: Duration.zero,
         reverseTransitionDuration: Duration.zero,
         pageBuilder: (context, animation, secondaryAnimation) =>
-            const RoutePreviewPage(),
+            RoutePreviewPage(onOpenDetail: _openGroupDetailRoute),
+      ),
+    );
+  }
+
+  Future<void> _openGroupDetailRoute(String groupId) {
+    final detailFuture = ref
+        .read(explorerMapControllerProvider.notifier)
+        .loadGroupDetail(groupId);
+    return Navigator.of(context).push<void>(
+      PageRouteBuilder<void>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            GroupDetailPage(future: detailFuture),
       ),
     );
   }
@@ -405,11 +431,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (groups != null) {
       unawaited(adapter.showGroups(groups));
     }
-    final routeOption = ref
-        .read(routePlanningControllerProvider)
-        .selectedOption;
+    final routePlanning = ref.read(routePlanningControllerProvider);
+    final routeOption = routePlanning.selectedOption;
     if (routeOption != null) {
       unawaited(adapter.showRoute(routeOption.polyline));
+      unawaited(
+        adapter.showRouteStops(
+          routePlanning.stops
+              .map((stop) => stop.coordinate)
+              .toList(growable: false),
+        ),
+      );
     }
     final pendingExternalLocation = _pendingExternalLocation;
     if (pendingExternalLocation != null) {

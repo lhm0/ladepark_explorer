@@ -557,4 +557,54 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get planRouteToHere => 'Plan a route here';
+
+  @override
+  String get routeCorridorTitle => 'Charging parks along the route';
+
+  @override
+  String routeCorridorSearching(int done, int total) {
+    return '$done of $total sections checked';
+  }
+
+  @override
+  String get routeCorridorEmpty =>
+      'No matching charging park was found along this route.';
+
+  @override
+  String get routeCorridorLimit =>
+      'There are more results than shown. Narrow the route or the filters.';
+
+  @override
+  String get routeCorridorFailed => 'Some sections could not be checked.';
+
+  @override
+  String get routeCorridorRetry => 'Search again';
+
+  @override
+  String routeCorridorPosition(int km) {
+    return 'at km $km';
+  }
+
+  @override
+  String routeCorridorDetour(int km) {
+    return 'detour +$km km';
+  }
+
+  @override
+  String get routeAddStop => 'As charging stop';
+
+  @override
+  String get routeRemoveStop => 'Remove charging stop';
+
+  @override
+  String routeStopsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count charging stops',
+      one: '1 charging stop',
+      zero: 'No charging stops',
+    );
+    return '$_temp0';
+  }
 }

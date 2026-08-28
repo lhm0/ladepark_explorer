@@ -355,7 +355,8 @@ funktionsfähig. Das Fernziel tauscht Implementierungen, nicht Aufrufer.
 Vor Umsetzung beziehungsweise Abnahme der betroffenen Anforderung werden
 festgelegt:
 
-- Korridorbreite und Abtastabstand entlang der Route,
+- ~~Korridorbreite und Abtastabstand entlang der Route~~ – mit M15 festgelegt:
+  20 km Abtastabstand, 10 km Korridorradius (ADR-0022),
 - Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
 - Vorgabewerte des Fahrzeugprofils und zulässige Wertebereiche,
 - Standard-Reserve und Standard-Ziel-Ladezustand,

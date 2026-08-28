@@ -176,5 +176,20 @@
   "routeErrorNotFound": "Für Start und Ziel wurde keine Route gefunden.",
   "routeErrorInvalid": "Start und Ziel müssen angegeben sein.",
   "routeErrorFailed": "Die Route konnte nicht berechnet werden.",
-  "planRouteToHere": "Route hierher planen"
+  "planRouteToHere": "Route hierher planen",
+  "routeCorridorTitle": "Ladeparks entlang der Route",
+  "routeCorridorSearching": "{done} von {total} Abschnitten geprüft",
+  "@routeCorridorSearching": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "routeCorridorEmpty": "Auf dieser Route wurde kein passender Ladepark gefunden.",
+  "routeCorridorLimit": "Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.",
+  "routeCorridorFailed": "Einige Abschnitte konnten nicht geprüft werden.",
+  "routeCorridorRetry": "Erneut suchen",
+  "routeCorridorPosition": "bei km {km}",
+  "@routeCorridorPosition": {"placeholders": {"km": {"type": "int"}}},
+  "routeCorridorDetour": "Umweg +{km} km",
+  "@routeCorridorDetour": {"placeholders": {"km": {"type": "int"}}},
+  "routeAddStop": "Als Ladestopp",
+  "routeRemoveStop": "Ladestopp entfernen",
+  "routeStopsCount": "{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}",
+  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}}
 }

@@ -180,6 +180,23 @@ final class MapKitAdapter implements MapAdapter {
   }
 
   @override
+  Future<void> showRouteStops(List<GeoCoordinate> stops) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRouteStops', <String, Object?>{
+      'stops': stops
+          .map(
+            (point) => <String, Object?>{
+              'latitude': point.latitude,
+              'longitude': point.longitude,
+            },
+          )
+          .toList(growable: false),
+    });
+  }
+
+  @override
   Future<void> clearRoute() async {
     if (!_disposed) {
       await _channel.invokeMethod<void>('clearRoute');

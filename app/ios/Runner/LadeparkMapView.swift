@@ -55,6 +55,10 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       MKMarkerAnnotationView.self,
       forAnnotationViewWithReuseIdentifier: Self.groupReuseIdentifier
     )
+    mapView.register(
+      MKMarkerAnnotationView.self,
+      forAnnotationViewWithReuseIdentifier: Self.routeStopReuseIdentifier
+    )
     configureInitialRegion(arguments)
     channel.setMethodCallHandler { [weak self] call, result in
       self?.handle(call, result: result)
@@ -62,6 +66,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   }
 
   private static let groupReuseIdentifier = "charging-group"
+  private static let routeStopReuseIdentifier = "route-stop"
   private let mapView: MKMapView
   private let channel: FlutterMethodChannel
   private let locationManager = CLLocationManager()
@@ -69,6 +74,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   private var pendingLocationResult: FlutterResult?
   private var pendingRadiusKm = 25.0
   private var routeOverlay: MKPolyline?
+  private var routeStopAnnotations: [RouteStopAnnotation] = []
 
   func view() -> UIView {
     mapView
@@ -96,6 +102,19 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     _ mapView: MKMapView,
     viewFor annotation: MKAnnotation
   ) -> MKAnnotationView? {
+    if let stop = annotation as? RouteStopAnnotation {
+      let view = mapView.dequeueReusableAnnotationView(
+        withIdentifier: Self.routeStopReuseIdentifier,
+        for: stop
+      ) as! MKMarkerAnnotationView
+      view.annotation = stop
+      view.markerTintColor = .systemGreen
+      view.glyphText = "\(stop.number)"
+      view.clusteringIdentifier = nil
+      view.displayPriority = .required
+      view.zPriority = .max
+      return view
+    }
     if annotation is MKClusterAnnotation {
       return nil
     }
@@ -187,12 +206,30 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       }
       showRoute(rawPoints.compactMap(routeCoordinate(from:)))
       result(nil)
+    case "showRouteStops":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawStops = values["stops"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_route_stops", message: nil, details: nil))
+        return
+      }
+      showRouteStops(rawStops.compactMap(routeCoordinate(from:)))
+      result(nil)
     case "clearRoute":
       clearRoute()
       result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func showRouteStops(_ coordinates: [CLLocationCoordinate2D]) {
+    mapView.removeAnnotations(routeStopAnnotations)
+    routeStopAnnotations = coordinates.enumerated().map { index, coordinate in
+      RouteStopAnnotation(coordinate: coordinate, number: index + 1)
+    }
+    mapView.addAnnotations(routeStopAnnotations)
   }
 
   private func showRoute(_ coordinates: [CLLocationCoordinate2D]) {
@@ -209,9 +246,14 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   }
 
   private func clearRoute() {
-    guard let overlay = routeOverlay else { return }
-    mapView.removeOverlay(overlay)
-    routeOverlay = nil
+    if let overlay = routeOverlay {
+      mapView.removeOverlay(overlay)
+      routeOverlay = nil
+    }
+    if !routeStopAnnotations.isEmpty {
+      mapView.removeAnnotations(routeStopAnnotations)
+      routeStopAnnotations = []
+    }
   }
 
   private func routeCoordinate(from value: [String: Any]) -> CLLocationCoordinate2D? {
@@ -418,4 +460,16 @@ final class ChargingGroupAnnotation: NSObject, MKAnnotation {
   var hpcEvseCount: Int
   var isFavorite: Bool
   var title: String? { "\(evseCount) Ladepunkte" }
+}
+
+final class RouteStopAnnotation: NSObject, MKAnnotation {
+  init(coordinate: CLLocationCoordinate2D, number: Int) {
+    self.coordinate = coordinate
+    self.number = number
+    super.init()
+  }
+
+  let coordinate: CLLocationCoordinate2D
+  let number: Int
+  var title: String? { "Ladestopp \(number)" }
 }

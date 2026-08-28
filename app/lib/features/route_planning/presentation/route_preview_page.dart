@@ -2,8 +2,11 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_corridor_page.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
@@ -11,15 +14,17 @@ import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
 /// Result handed back to the map screen.
 enum RoutePreviewResult { newRoute }
 
-/// Opaque full-screen route preview (FR-ROUTE-001, FR-ROUTE-002).
+/// Opaque full-screen route preview (FR-ROUTE-001..004).
 ///
 /// Per ADR-0011 no Flutter surface is composited over the native map. The map
-/// and the alternative selector are non-overlapping siblings in a [Column]: the
-/// map fills the space above a static panel that never changes size and is
-/// never inserted or removed. The map widget instance is cached so panel
+/// and the selector are non-overlapping siblings in a [Column]: the map fills a
+/// fixed remaining space above a panel of constant height that is never
+/// inserted, removed or resized. The map widget instance is cached so panel
 /// updates do not rebuild the platform view (ADR-0019 Nachtrag, flutter#62717).
 class RoutePreviewPage extends ConsumerStatefulWidget {
-  const RoutePreviewPage({super.key});
+  const RoutePreviewPage({required this.onOpenDetail, super.key});
+
+  final void Function(String groupId) onOpenDetail;
 
   @override
   ConsumerState<RoutePreviewPage> createState() => _RoutePreviewPageState();
@@ -48,11 +53,26 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       _mapAdapter = null;
       return;
     }
-    final option = ref.read(routePlanningControllerProvider).selectedOption;
+    final state = ref.read(routePlanningControllerProvider);
+    final option = state.selectedOption;
     if (option != null) {
       await adapter.showRoute(option.polyline);
+      await adapter.showRouteStops(_stopCoordinates(state.stops));
     }
   }
+
+  List<GeoCoordinate> _stopCoordinates(List<RouteStop> stops) =>
+      stops.map((stop) => stop.coordinate).toList(growable: false);
+
+  Future<void> _openCorridor() => Navigator.of(context).push<void>(
+    PageRouteBuilder<void>(
+      opaque: true,
+      transitionDuration: Duration.zero,
+      reverseTransitionDuration: Duration.zero,
+      pageBuilder: (context, animation, secondaryAnimation) =>
+          RouteCorridorPage(onOpenDetail: widget.onOpenDetail),
+    ),
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -64,8 +84,14 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
       next,
     ) {
       final option = next.selectedOption;
-      if (option != null && !identical(option, previous?.selectedOption)) {
+      if (option == null) return;
+      final routeChanged = !identical(option, previous?.selectedOption);
+      final stopsChanged = !identical(next.stops, previous?.stops);
+      if (routeChanged) {
         unawaited(_mapAdapter?.showRoute(option.polyline));
+      }
+      if (routeChanged || stopsChanged) {
+        unawaited(_mapAdapter?.showRouteStops(_stopCoordinates(next.stops)));
       }
     });
 
@@ -90,6 +116,7 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
                   onSelect: ref
                       .read(routePlanningControllerProvider.notifier)
                       .selectAlternative,
+                  onSearchCorridor: _openCorridor,
                   onShowOnMap: () => Navigator.of(context).pop(),
                   onNewRoute: () =>
                       Navigator.of(context).pop(RoutePreviewResult.newRoute),
@@ -108,6 +135,7 @@ class _RouteSelectorPanel extends StatelessWidget {
   const _RouteSelectorPanel({
     required this.state,
     required this.onSelect,
+    required this.onSearchCorridor,
     required this.onShowOnMap,
     required this.onNewRoute,
     required this.onClear,
@@ -115,6 +143,7 @@ class _RouteSelectorPanel extends StatelessWidget {
 
   final RoutePlanningState state;
   final ValueChanged<int> onSelect;
+  final VoidCallback onSearchCorridor;
   final VoidCallback onShowOnMap;
   final VoidCallback onNewRoute;
   final VoidCallback onClear;
@@ -127,76 +156,106 @@ class _RouteSelectorPanel extends StatelessWidget {
       elevation: 8,
       child: SafeArea(
         top: false,
-        child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Row(
-                children: [
-                  const Icon(Icons.directions_car_outlined),
-                  const SizedBox(width: 10),
-                  Expanded(
-                    child: Text(
-                      strings.routeSummary(
-                        formatRouteDistance(strings, option.totalDistanceKm),
-                        formatRouteDuration(strings, option.totalTravelTime),
+        child: SizedBox(
+          height: 220,
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(
+                  children: [
+                    const Icon(Icons.directions_car_outlined),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: Text(
+                        strings.routeSummary(
+                          formatRouteDistance(strings, option.totalDistanceKm),
+                          formatRouteDuration(strings, option.totalTravelTime),
+                        ),
+                        style: Theme.of(context).textTheme.titleMedium,
                       ),
-                      style: Theme.of(context).textTheme.titleMedium,
                     ),
-                  ),
-                ],
-              ),
-              if (state.options.length > 1) ...[
-                const SizedBox(height: 4),
-                Text(
-                  strings.routeAlternativesHeading,
-                  style: Theme.of(context).textTheme.labelMedium,
+                    if (state.isCalculating)
+                      const SizedBox.square(
+                        dimension: 18,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      ),
+                  ],
                 ),
-                for (var index = 0; index < state.options.length; index++)
-                  _AlternativeRow(
-                    key: ValueKey('route-alternative-$index'),
-                    label: strings.routeOptionLabel(index + 1),
-                    summary: strings.routeSummary(
-                      formatRouteDistance(
-                        strings,
-                        state.options[index].totalDistanceKm,
+                const SizedBox(height: 8),
+                Expanded(
+                  child: ListView(
+                    padding: EdgeInsets.zero,
+                    children: [
+                      if (state.options.length > 1) ...[
+                        Text(
+                          strings.routeAlternativesHeading,
+                          style: Theme.of(context).textTheme.labelMedium,
+                        ),
+                        for (
+                          var index = 0;
+                          index < state.options.length;
+                          index++
+                        )
+                          _AlternativeRow(
+                            key: ValueKey('route-alternative-$index'),
+                            label: strings.routeOptionLabel(index + 1),
+                            summary: strings.routeSummary(
+                              formatRouteDistance(
+                                strings,
+                                state.options[index].totalDistanceKm,
+                              ),
+                              formatRouteDuration(
+                                strings,
+                                state.options[index].totalTravelTime,
+                              ),
+                            ),
+                            selected: index == state.selectedIndex,
+                            onTap: () => onSelect(index),
+                          ),
+                        const SizedBox(height: 4),
+                      ],
+                      OutlinedButton.icon(
+                        onPressed: onSearchCorridor,
+                        icon: const Icon(Icons.ev_station_outlined),
+                        label: Text(strings.routeCorridorTitle),
                       ),
-                      formatRouteDuration(
-                        strings,
-                        state.options[index].totalTravelTime,
+                      const SizedBox(height: 4),
+                      Text(
+                        strings.routeStopsCount(state.stops.length),
+                        style: Theme.of(context).textTheme.bodySmall,
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: FilledButton.icon(
+                        onPressed: onShowOnMap,
+                        icon: const Icon(Icons.map_outlined),
+                        label: Text(strings.routeShowOnMap),
                       ),
                     ),
-                    selected: index == state.selectedIndex,
-                    onTap: () => onSelect(index),
-                  ),
+                    const SizedBox(width: 8),
+                    IconButton.outlined(
+                      onPressed: onNewRoute,
+                      tooltip: strings.routeNewRoute,
+                      icon: const Icon(Icons.add_road_outlined),
+                    ),
+                    const SizedBox(width: 8),
+                    IconButton.outlined(
+                      onPressed: onClear,
+                      tooltip: strings.routeClear,
+                      icon: const Icon(Icons.close),
+                    ),
+                  ],
+                ),
               ],
-              const SizedBox(height: 12),
-              Row(
-                children: [
-                  Expanded(
-                    child: FilledButton.icon(
-                      onPressed: onShowOnMap,
-                      icon: const Icon(Icons.map_outlined),
-                      label: Text(strings.routeShowOnMap),
-                    ),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.outlined(
-                    onPressed: onNewRoute,
-                    tooltip: strings.routeNewRoute,
-                    icon: const Icon(Icons.add_road_outlined),
-                  ),
-                  const SizedBox(width: 8),
-                  IconButton.outlined(
-                    onPressed: onClear,
-                    tooltip: strings.routeClear,
-                    icon: const Icon(Icons.close),
-                  ),
-                ],
-              ),
-            ],
+            ),
           ),
         ),
       ),

@@ -75,7 +75,7 @@ void main() {
                 onPressed: () => Navigator.push<RoutePreviewResult>(
                   context,
                   MaterialPageRoute<RoutePreviewResult>(
-                    builder: (_) => const RoutePreviewPage(),
+                    builder: (_) => RoutePreviewPage(onOpenDetail: (_) {}),
                   ),
                 ),
                 child: const Text('open'),

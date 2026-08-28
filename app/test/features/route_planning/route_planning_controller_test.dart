@@ -5,12 +5,13 @@ import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_option.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_planning_exception.dart';
 
 import '../../support/fake_route_planning_service.dart';
 
-// State integration for FR-ROUTE-001, FR-ROUTE-002 and NFR-ROUTE-OFFLINE-001.
+// State integration for FR-ROUTE-001..004 and NFR-ROUTE-OFFLINE-001.
 void main() {
   RouteRequest request() => const RouteRequest(
     origin: RouteWaypoint(
@@ -98,7 +99,7 @@ void main() {
       expect(state.error, RoutePlanningError.offline);
       expect(state.hasRoute, isFalse);
       expect(state.isCalculating, isFalse);
-      expect(state.request, isNotNull);
+      expect(state.canRecalculate, isTrue);
     },
   );
 
@@ -146,6 +147,66 @@ void main() {
 
     final state = container.read(routePlanningControllerProvider);
     expect(state.hasRoute, isFalse);
-    expect(state.request, isNull);
+    expect(state.canRecalculate, isFalse);
+    expect(state.origin, isNull);
+  });
+
+  RouteStop stop(String id, double positionKm) => RouteStop(
+    groupId: id,
+    coordinate: GeoCoordinate(latitude: 50 + positionKm / 100, longitude: 10),
+    positionKm: positionKm,
+  );
+
+  test('adds a stop as an ordered waypoint and recomputes the route', () async {
+    final service = FakeRoutePlanningService(
+      options: <RouteOption>[option(585), option(602)],
+    );
+    final container = containerWith(service);
+    final controller = container.read(routePlanningControllerProvider.notifier);
+
+    await controller.planRoute(request());
+    service.options = <RouteOption>[option(610)];
+    await controller.addStop(stop('b', 300));
+    await controller.addStop(stop('a', 120));
+
+    final state = container.read(routePlanningControllerProvider);
+    expect(state.stops.map((s) => s.groupId), <String>['a', 'b']);
+    expect(state.selectedOption?.totalDistanceKm, 610);
+    final lastRequest = service.requests.last;
+    expect(lastRequest.intermediateWaypoints, hasLength(2));
+    expect(lastRequest.includeAlternatives, isFalse);
+  });
+
+  test('removing a stop recomputes and can restore alternatives', () async {
+    final service = FakeRoutePlanningService(
+      options: <RouteOption>[option(585)],
+    );
+    final container = containerWith(service);
+    final controller = container.read(routePlanningControllerProvider.notifier);
+
+    await controller.planRoute(request());
+    await controller.addStop(stop('a', 120));
+    await controller.removeStop('a');
+
+    final state = container.read(routePlanningControllerProvider);
+    expect(state.stops, isEmpty);
+    expect(service.requests.last.intermediateWaypoints, isEmpty);
+    expect(service.requests.last.includeAlternatives, isTrue);
+  });
+
+  test('a failed recompute rolls back the added stop', () async {
+    final service = FakeRoutePlanningService(
+      options: <RouteOption>[option(585)],
+    );
+    final container = containerWith(service);
+    final controller = container.read(routePlanningControllerProvider.notifier);
+
+    await controller.planRoute(request());
+    service.error = RoutePlanningError.offline;
+    await controller.addStop(stop('a', 120));
+
+    final state = container.read(routePlanningControllerProvider);
+    expect(state.stops, isEmpty);
+    expect(state.error, RoutePlanningError.offline);
   });
 }

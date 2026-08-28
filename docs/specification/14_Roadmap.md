@@ -90,8 +90,8 @@ vollständigen Nachweisen in App Store Connect vorliegt.
 
 ## 4. Version 1.1 – Routen-Update
 
-Status: M14.0 und M14 implementiert und manuell abgenommen; M15 bis M19
-geplant. Verbindlich spezifiziert in
+Status: M14.0 und M14 implementiert und manuell abgenommen; M15 implementiert;
+M16 bis M19 geplant. Verbindlich spezifiziert in
 [`17_Route_Planning.md`](17_Route_Planning.md) mit den Anforderungen
 `FR-ROUTE-001` bis `FR-ROUTE-011` und `NFR-ROUTE-*`; Architektur entschieden
 in ADR-0019 bis ADR-0022.

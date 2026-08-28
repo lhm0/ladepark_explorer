@@ -357,7 +357,7 @@ python3 tooling/check_markdown_links.py
 git diff --check
 ```
 
-Zuletzt verifiziert: 72 Importertests und 71 Flutter-Tests; Ruff, Mypy,
+Zuletzt verifiziert: 72 Importertests und 82 Flutter-Tests; Ruff, Mypy,
 Flutter-Analyse, Architekturprüfung, Markdownlinks und iOS-Simulator-Build
 waren erfolgreich. Der vollständige manuelle Produktlauf wurde auf einem
 iPhone-16-Simulator ausgeführt; Teilfunktionen wurden auch auf einem echten

@@ -22,7 +22,11 @@ abstract interface class MapAdapter {
   /// (FR-ROUTE-001, ADR-0019). Replaces any previously shown route.
   Future<void> showRoute(List<GeoCoordinate> polyline);
 
-  /// Removes the native route overlay, if any.
+  /// Marks the chosen charging stops along the route (FR-ROUTE-004), numbered
+  /// in the given order. Replaces any previously shown stops.
+  Future<void> showRouteStops(List<GeoCoordinate> stops);
+
+  /// Removes the native route overlay and any route stop markers.
   Future<void> clearRoute();
 
   Future<void> dispose();

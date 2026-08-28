@@ -1015,6 +1015,72 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Route hierher planen'**
   String get planRouteToHere;
+
+  /// No description provided for @routeCorridorTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladeparks entlang der Route'**
+  String get routeCorridorTitle;
+
+  /// No description provided for @routeCorridorSearching.
+  ///
+  /// In de, this message translates to:
+  /// **'{done} von {total} Abschnitten geprüft'**
+  String routeCorridorSearching(int done, int total);
+
+  /// No description provided for @routeCorridorEmpty.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf dieser Route wurde kein passender Ladepark gefunden.'**
+  String get routeCorridorEmpty;
+
+  /// No description provided for @routeCorridorLimit.
+  ///
+  /// In de, this message translates to:
+  /// **'Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.'**
+  String get routeCorridorLimit;
+
+  /// No description provided for @routeCorridorFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Einige Abschnitte konnten nicht geprüft werden.'**
+  String get routeCorridorFailed;
+
+  /// No description provided for @routeCorridorRetry.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut suchen'**
+  String get routeCorridorRetry;
+
+  /// No description provided for @routeCorridorPosition.
+  ///
+  /// In de, this message translates to:
+  /// **'bei km {km}'**
+  String routeCorridorPosition(int km);
+
+  /// No description provided for @routeCorridorDetour.
+  ///
+  /// In de, this message translates to:
+  /// **'Umweg +{km} km'**
+  String routeCorridorDetour(int km);
+
+  /// No description provided for @routeAddStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Als Ladestopp'**
+  String get routeAddStop;
+
+  /// No description provided for @routeRemoveStop.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladestopp entfernen'**
+  String get routeRemoveStop;
+
+  /// No description provided for @routeStopsCount.
+  ///
+  /// In de, this message translates to:
+  /// **'{count, plural, =0{Keine Ladestopps} =1{1 Ladestopp} other{{count} Ladestopps}}'**
+  String routeStopsCount(int count);
 }
 
 class _AppLocalizationsDelegate

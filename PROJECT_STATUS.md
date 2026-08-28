@@ -400,7 +400,24 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - klare Offline-, Fehler- und Drosselungszustände mit Wiederholung,
   - 16 neue automatisierte Tests (Service-Contract, Kartenkanal, Controller,
     Eingabe- und Vorschauseite); DE/EN-Lokalisierung ergänzt.
-- **M15 bis M19** sind noch nicht implementiert.
+- **M15** implementiert und automatisiert geprüft; manuelle Abnahme steht aus:
+  - Korridorsuche gemäß ADR-0022: die dezimierte Route wird alle 20 km
+    abgetastet, je Punkt läuft die vorhandene Umkreisabfrage mit Radius 10 km
+    und den aktiven Filtern sequentiell im Charging-Isolate; Treffer werden
+    über `groupId` dedupliziert, mit Streckenposition und geschätztem Umweg
+    versehen und nach Position sortiert; Fortschritt und 500-Treffer-Grenze
+    sind sichtbar,
+  - `RouteCorridorPage` (opake Route) listet die Korridor-Ladeparks; ein Tippen
+    öffnet die bestehende Detailansicht, ein Schalter übernimmt den Ladepark
+    als Ladestopp beziehungsweise entfernt ihn,
+  - Ladestopps werden als geordnete Wegpunkte an `MKDirections` übergeben, die
+    Teilstrecken, Distanz und Fahrzeit werden neu berechnet; ein fehlerhafter
+    Neuberechnungsversuch nimmt den Stopp zurück,
+  - Ladestopps werden nativ als nummerierte grüne Marker in der Karte gezeigt
+    (`showRouteStops`), das Auswahlpanel der Vorschau hat feste Höhe,
+  - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
+    Korridorseite, Stopp-Operationen); DE/EN-Lokalisierung ergänzt.
+- **M16 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen
 
@@ -485,12 +502,14 @@ Direktfilter benötigte im Prototyp 154–207 ms für den Berliner Ausschnitt,
 53 ms für 25 km um München und 443 ms für die Deutschlandansicht.
 
 Die Flutter-App wurde mit `flutter gen-l10n`, `dart format`,
-`flutter analyze` und 71 Tests erfolgreich geprüft. Darin sind der
+`flutter analyze` und 82 Tests erfolgreich geprüft. Darin sind der
 M2-SQLite-Contract, die M3-Kartenkoordination, die M10-Verträge für lokale
 Einstellungen, Apple-/Google-Maps-Navigation, die M11-Manifest-,
-Installations- und Rollbackverträge, der M12-Datenschutz-Widgettest sowie die
+Installations- und Rollbackverträge, der M12-Datenschutz-Widgettest, die
 M14-Verträge für den `RoutePlanningService`, den nativen Routenkanal, den
-Routen-Controller und die Eingabeseite enthalten. Die automatisierte
+Routen-Controller und die Eingabe- und Vorschauseite sowie die
+M15-Korridorgeometrie, der Korridor-Controller, die Korridorseite und die
+Stopp-Operationen enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
 App wurde mit dem vollständigen Deutschlandbestand auf einem iPhone-16-Simulator

@@ -176,5 +176,20 @@
   "routeErrorNotFound": "No route was found for the start and destination.",
   "routeErrorInvalid": "Start and destination are required.",
   "routeErrorFailed": "The route could not be calculated.",
-  "planRouteToHere": "Plan a route here"
+  "planRouteToHere": "Plan a route here",
+  "routeCorridorTitle": "Charging parks along the route",
+  "routeCorridorSearching": "{done} of {total} sections checked",
+  "@routeCorridorSearching": {"placeholders": {"done": {"type": "int"}, "total": {"type": "int"}}},
+  "routeCorridorEmpty": "No matching charging park was found along this route.",
+  "routeCorridorLimit": "There are more results than shown. Narrow the route or the filters.",
+  "routeCorridorFailed": "Some sections could not be checked.",
+  "routeCorridorRetry": "Search again",
+  "routeCorridorPosition": "at km {km}",
+  "@routeCorridorPosition": {"placeholders": {"km": {"type": "int"}}},
+  "routeCorridorDetour": "detour +{km} km",
+  "@routeCorridorDetour": {"placeholders": {"km": {"type": "int"}}},
+  "routeAddStop": "As charging stop",
+  "routeRemoveStop": "Remove charging stop",
+  "routeStopsCount": "{count, plural, =0{No charging stops} =1{1 charging stop} other{{count} charging stops}}",
+  "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}}
 }

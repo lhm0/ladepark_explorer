@@ -1,16 +1,20 @@
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_option.dart';
-import 'package:ladepark_explorer/features/route_planning/domain/models/route_request.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/route_planning_exception.dart';
 
 /// UI state of the route planning feature: the computed alternatives, which one
-/// is selected, whether a calculation is running and the last error.
+/// is selected, whether a calculation is running, the last error, the fixed
+/// endpoints and the manually chosen charging stops.
 class RoutePlanningState {
   const RoutePlanningState({
     this.options = const <RouteOption>[],
     this.selectedIndex = 0,
     this.isCalculating = false,
     this.error,
-    this.request,
+    this.origin,
+    this.destination,
+    this.stops = const <RouteStop>[],
   });
 
   final List<RouteOption> options;
@@ -18,14 +22,24 @@ class RoutePlanningState {
   final bool isCalculating;
   final RoutePlanningError? error;
 
-  /// The last request, kept so the user can retry after an error.
-  final RouteRequest? request;
+  /// Fixed start and destination, kept so the route can be recomputed after a
+  /// stop change or a retry.
+  final RouteWaypoint? origin;
+  final RouteWaypoint? destination;
+
+  /// Charging stops picked from the corridor, ordered by position on the route.
+  final List<RouteStop> stops;
 
   bool get hasRoute => options.isNotEmpty;
+
+  bool get canRecalculate => origin != null && destination != null;
 
   RouteOption? get selectedOption => options.isEmpty
       ? null
       : options[selectedIndex.clamp(0, options.length - 1)];
+
+  bool containsStop(String groupId) =>
+      stops.any((stop) => stop.groupId == groupId);
 
   RoutePlanningState copyWith({
     List<RouteOption>? options,
@@ -33,12 +47,16 @@ class RoutePlanningState {
     bool? isCalculating,
     RoutePlanningError? error,
     bool clearError = false,
-    RouteRequest? request,
+    RouteWaypoint? origin,
+    RouteWaypoint? destination,
+    List<RouteStop>? stops,
   }) => RoutePlanningState(
     options: options ?? this.options,
     selectedIndex: selectedIndex ?? this.selectedIndex,
     isCalculating: isCalculating ?? this.isCalculating,
     error: clearError ? null : (error ?? this.error),
-    request: request ?? this.request,
+    origin: origin ?? this.origin,
+    destination: destination ?? this.destination,
+    stops: stops ?? this.stops,
   );
 }

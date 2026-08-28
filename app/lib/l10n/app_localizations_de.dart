@@ -562,4 +562,55 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get planRouteToHere => 'Route hierher planen';
+
+  @override
+  String get routeCorridorTitle => 'Ladeparks entlang der Route';
+
+  @override
+  String routeCorridorSearching(int done, int total) {
+    return '$done von $total Abschnitten geprüft';
+  }
+
+  @override
+  String get routeCorridorEmpty =>
+      'Auf dieser Route wurde kein passender Ladepark gefunden.';
+
+  @override
+  String get routeCorridorLimit =>
+      'Es gibt mehr Treffer als angezeigt. Grenze die Route oder die Filter ein.';
+
+  @override
+  String get routeCorridorFailed =>
+      'Einige Abschnitte konnten nicht geprüft werden.';
+
+  @override
+  String get routeCorridorRetry => 'Erneut suchen';
+
+  @override
+  String routeCorridorPosition(int km) {
+    return 'bei km $km';
+  }
+
+  @override
+  String routeCorridorDetour(int km) {
+    return 'Umweg +$km km';
+  }
+
+  @override
+  String get routeAddStop => 'Als Ladestopp';
+
+  @override
+  String get routeRemoveStop => 'Ladestopp entfernen';
+
+  @override
+  String routeStopsCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count Ladestopps',
+      one: '1 Ladestopp',
+      zero: 'Keine Ladestopps',
+    );
+    return '$_temp0';
+  }
 }

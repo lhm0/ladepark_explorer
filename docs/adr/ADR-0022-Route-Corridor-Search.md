@@ -28,10 +28,10 @@ Flutter-Konsument, Fixture und Vertrag (`ADR-0007`).
   dezimierte Polyline in festem Abstand ab und führt je Abtastpunkt die
   vorhandene Umkreisabfrage (`center`, `radiusKm`) mit den aktiven Filtern
   aus. Die Teilergebnisse werden über `groupId` dedupliziert.
-- Abtastabstand und Korridorradius sind konfigurierbar und dokumentiert
-  (Startwerte im Bereich weniger zehn Kilometer Abstand und einstelliger bis
-  niedrig zweistelliger Kilometer Radius). Beide werden vor der M15-Abnahme
-  endgültig festgelegt.
+- Abtastabstand und Korridorradius sind konfigurierbar und dokumentiert. Mit
+  M15 festgelegt: 20 Kilometer Abtastabstand, 10 Kilometer Korridorradius
+  (`CorridorController.sampleSpacingKm` und `corridorRadiusKm`). Eine spätere
+  Anpassung nach Feldtests bleibt möglich.
 - Die Abfragen laufen sequentiell im bestehenden Charging-Isolate und halten
   den Latest-wins-Vertrag ein. Die Oberfläche zeigt einen Fortschritt, da die
   Korridorsuche länger dauern kann als eine einzelne Kartenabfrage.

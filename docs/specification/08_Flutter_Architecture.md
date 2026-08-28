@@ -245,6 +245,17 @@ mit einem schmalen Zusammenfassungsbalken über der Hauptkarte reproduzierte den
 ADR-0011-Freeze auf dem Gerät und wurde nach Internetrecherche als bekannte
 iOS-`UiKitView`-Freeze-Klasse verworfen (ADR-0019 Nachtrag).
 
+M15 ergänzt die Korridorsuche (`features/route_planning/domain/route_corridor.dart`
+für die reine Geometrie, `application/corridor_providers.dart` für den
+`CorridorController`). Gemäß ADR-0022 tastet der Controller die dezimierte
+Route alle 20 km ab und ruft je Punkt `ExplorerMapController.findGroupsNear`
+mit 10 km Radius; die Abfragen laufen sequentiell im Charging-Isolate. Treffer
+werden über `groupId` dedupliziert, mit Streckenposition und geschätztem Umweg
+versehen und sortiert. Die opake `RouteCorridorPage` listet sie; ein Schalter
+übernimmt einen Ladepark als Ladestopp. Ladestopps liegen als geordnete
+`RouteStop`s im `RoutePlanningState`, werden `MKDirections` als Wegpunkte
+übergeben und nativ als nummerierte grüne Marker gezeigt (`showRouteStops`).
+
 ## Verifizierte iOS-Entwicklungsumgebung
 
 - macOS 15.0,
