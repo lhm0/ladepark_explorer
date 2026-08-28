@@ -2,6 +2,9 @@ import 'package:ladepark_explorer/features/explorer/domain/models/charging_group
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_bounds.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 
+/// A charging stop marker: its group id and where it sits.
+typedef RouteStopMarker = ({String id, GeoCoordinate coordinate});
+
 abstract interface class MapAdapter {
   Stream<GeoBounds> get visibleBounds;
 
@@ -9,6 +12,9 @@ abstract interface class MapAdapter {
 
   /// Group ids of route corridor markers the user tapped (FR-ROUTE-003).
   Stream<String> get selectedCorridorParkIds;
+
+  /// Group ids of route stop markers the user tapped (FR-ROUTE-004).
+  Stream<String> get selectedRouteStopIds;
 
   Future<void> showGroups(List<ChargingGroupSummary> groups);
 
@@ -26,8 +32,9 @@ abstract interface class MapAdapter {
   Future<void> showRoute(List<GeoCoordinate> polyline);
 
   /// Marks the chosen charging stops along the route (FR-ROUTE-004) as blue
-  /// numbered markers, in the given order. Replaces any previously shown stops.
-  Future<void> showRouteStops(List<GeoCoordinate> stops);
+  /// numbered, tappable markers, in the given order. Replaces any previously
+  /// shown stops.
+  Future<void> showRouteStops(List<RouteStopMarker> stops);
 
   /// Shows the charging parks found in the route corridor (FR-ROUTE-003) as
   /// tappable markers. Replaces any previously shown corridor parks.

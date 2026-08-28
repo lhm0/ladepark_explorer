@@ -132,8 +132,9 @@ nicht vor.
     aufgenommen; die Reihenfolge folgt der Position entlang der Route.
   - Nach jeder Änderung werden die betroffenen Teilstrecken neu berechnet.
   - Distanz und Fahrzeit werden mit den Stopps aktualisiert.
-  - Übernommene Ladestopps sind auf der Karte eigens hervorgehoben und bleiben
-    sichtbar, solange die Route angezeigt wird.
+  - Übernommene Ladestopps sind auf der Karte eigens hervorgehoben, bleiben
+    sichtbar, solange die Route angezeigt wird, und lassen sich dort erneut
+    antippen, um sie über die Detailansicht wieder zu entfernen.
   - Ein Ladestopp kann ohne Fahrzeugprofil gesetzt werden; Reichweiten- und
     Ladeschätzungen bleiben dann leer.
 

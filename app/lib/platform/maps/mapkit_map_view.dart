@@ -67,6 +67,8 @@ final class MapKitAdapter implements MapAdapter {
   final StreamController<String> _selections = StreamController.broadcast();
   final StreamController<String> _corridorSelections =
       StreamController.broadcast();
+  final StreamController<String> _routeStopSelections =
+      StreamController.broadcast();
   List<ChargingGroupSummary>? _pendingMarkerGroups;
   Future<void>? _markerDrain;
   bool _disposed = false;
@@ -76,6 +78,9 @@ final class MapKitAdapter implements MapAdapter {
 
   @override
   Stream<String> get selectedCorridorParkIds => _corridorSelections.stream;
+
+  @override
+  Stream<String> get selectedRouteStopIds => _routeStopSelections.stream;
 
   @override
   Stream<GeoBounds> get visibleBounds => _bounds.stream;
@@ -185,16 +190,17 @@ final class MapKitAdapter implements MapAdapter {
   }
 
   @override
-  Future<void> showRouteStops(List<GeoCoordinate> stops) async {
+  Future<void> showRouteStops(List<RouteStopMarker> stops) async {
     if (_disposed) {
       return;
     }
     await _channel.invokeMethod<void>('showRouteStops', <String, Object?>{
       'stops': stops
           .map(
-            (point) => <String, Object?>{
-              'latitude': point.latitude,
-              'longitude': point.longitude,
+            (stop) => <String, Object?>{
+              'latitude': stop.coordinate.latitude,
+              'longitude': stop.coordinate.longitude,
+              'groupId': stop.id,
             },
           )
           .toList(growable: false),
@@ -241,6 +247,8 @@ final class MapKitAdapter implements MapAdapter {
       _selections.add(arguments);
     } else if (call.method == 'corridorParkSelected' && arguments is String) {
       _corridorSelections.add(arguments);
+    } else if (call.method == 'routeStopSelected' && arguments is String) {
+      _routeStopSelections.add(arguments);
     }
     return null;
   }
@@ -257,6 +265,7 @@ final class MapKitAdapter implements MapAdapter {
     await _bounds.close();
     await _selections.close();
     await _corridorSelections.close();
+    await _routeStopSelections.close();
   }
 }
 

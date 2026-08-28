@@ -18,6 +18,7 @@ import 'package:ladepark_explorer/features/park_info/application/park_informatio
 import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_planning_page.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
@@ -26,6 +27,7 @@ import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:ladepark_explorer/features/settings/presentation/settings_page.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
 import 'package:ladepark_explorer/platform/inbound/inbound_location_adapter.dart';
+import 'package:ladepark_explorer/platform/maps/map_adapter.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
 import 'package:ladepark_explorer/platform/navigation/navigation_providers.dart';
 import 'package:ladepark_explorer/platform/search/mapkit_place_search_adapter.dart';
@@ -41,6 +43,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   MapKitAdapter? _mapAdapter;
   StreamSubscription<Object?>? _boundsSubscription;
   StreamSubscription<Object?>? _selectionSubscription;
+  StreamSubscription<Object?>? _routeStopSubscription;
   bool _detailsOpen = false;
   InboundLocationAdapter? _inboundLocationAdapter;
   StreamSubscription<GeoCoordinate>? _inboundLocationSubscription;
@@ -106,11 +109,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
         unawaited(_mapAdapter?.showRoute(option.polyline));
       }
       if (routeChanged || stopsChanged) {
-        unawaited(
-          _mapAdapter?.showRouteStops(
-            next.stops.map((stop) => stop.coordinate).toList(growable: false),
-          ),
-        );
+        unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
       }
     });
     return Scaffold(
@@ -280,6 +279,10 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     );
   }
 
+  List<RouteStopMarker> _stopMarkers(List<RouteStop> stops) => stops
+      .map((stop) => (id: stop.groupId, coordinate: stop.coordinate))
+      .toList(growable: false);
+
   Future<void> _openCorridorParkDetail(String groupId) {
     final detailFuture = ref
         .read(explorerMapControllerProvider.notifier)
@@ -427,6 +430,9 @@ class _MapScreenState extends ConsumerState<MapScreen> {
       ref.read(explorerMapControllerProvider.notifier).visibleBoundsChanged,
     );
     _selectionSubscription = adapter.selectedGroupIds.listen(_groupSelected);
+    _routeStopSubscription = adapter.selectedRouteStopIds.listen(
+      _openCorridorParkDetail,
+    );
     final groups = ref.read(explorerMapControllerProvider).value?.groups;
     if (groups != null) {
       unawaited(adapter.showGroups(groups));
@@ -435,13 +441,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     final routeOption = routePlanning.selectedOption;
     if (routeOption != null) {
       unawaited(adapter.showRoute(routeOption.polyline));
-      unawaited(
-        adapter.showRouteStops(
-          routePlanning.stops
-              .map((stop) => stop.coordinate)
-              .toList(growable: false),
-        ),
-      );
+      unawaited(adapter.showRouteStops(_stopMarkers(routePlanning.stops)));
     }
     final pendingExternalLocation = _pendingExternalLocation;
     if (pendingExternalLocation != null) {
@@ -542,12 +542,15 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Future<void> _disposeMapAdapter() async {
     final boundsSubscription = _boundsSubscription;
     final selectionSubscription = _selectionSubscription;
+    final routeStopSubscription = _routeStopSubscription;
     final mapAdapter = _mapAdapter;
     _boundsSubscription = null;
     _selectionSubscription = null;
+    _routeStopSubscription = null;
     _mapAdapter = null;
     await boundsSubscription?.cancel();
     await selectionSubscription?.cancel();
+    await routeStopSubscription?.cancel();
     await mapAdapter?.dispose();
   }
 

@@ -414,11 +414,12 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   - übernommene Ladestopps werden als geordnete Wegpunkte an `MKDirections`
     übergeben, Teilstrecken, Distanz und Fahrzeit werden neu berechnet; ein
     fehlerhafter Neuberechnungsversuch nimmt den Stopp zurück,
-  - Ladestopps werden nativ als **blaue** nummerierte Marker gezeigt
-    (`showRouteStops`) und bleiben sichtbar, solange die Route auf der Karte
-    liegt; Korridormarker (`showRouteCorridor`) erscheinen nur in der Vorschau
-    und schließen die bereits gewählten Stopps aus; das Auswahlpanel der
-    Vorschau hat feste Höhe,
+  - Ladestopps werden nativ als **blaue** nummerierte, antippbare Marker
+    gezeigt (`showRouteStops`) und bleiben sichtbar, solange die Route auf der
+    Karte liegt; ein Tippen öffnet die Detailansicht mit „Ladestop entfernen".
+    Korridormarker (`showRouteCorridor`) erscheinen nur in der Vorschau und
+    schließen die bereits gewählten Stopps aus; das Auswahlpanel der Vorschau
+    hat feste Höhe,
   - 11 neue automatisierte Tests (Korridorgeometrie, Korridor-Controller,
     Korridorsuche im Panel, Stopp-Operationen, „Ladestop einfügen"-Knopf);
     DE/EN-Lokalisierung ergänzt.

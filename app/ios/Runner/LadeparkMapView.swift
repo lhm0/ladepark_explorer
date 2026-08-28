@@ -104,6 +104,14 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
       }
       return
     }
+    if let stop = view.annotation as? RouteStopAnnotation {
+      mapView.deselectAnnotation(stop, animated: false)
+      let groupId = stop.groupId
+      DispatchQueue.main.async { [weak self] in
+        self?.channel.invokeMethod("routeStopSelected", arguments: groupId)
+      }
+      return
+    }
     guard let group = view.annotation as? ChargingGroupAnnotation else { return }
     mapView.deselectAnnotation(group, animated: false)
     let groupId = group.groupId
@@ -240,7 +248,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
         result(FlutterError(code: "invalid_route_stops", message: nil, details: nil))
         return
       }
-      showRouteStops(rawStops.compactMap(routeCoordinate(from:)))
+      showRouteStops(rawStops)
       result(nil)
     case "showRouteCorridor":
       guard
@@ -260,10 +268,19 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     }
   }
 
-  private func showRouteStops(_ coordinates: [CLLocationCoordinate2D]) {
+  private func showRouteStops(_ stops: [[String: Any]]) {
     mapView.removeAnnotations(routeStopAnnotations)
-    routeStopAnnotations = coordinates.enumerated().map { index, coordinate in
-      RouteStopAnnotation(coordinate: coordinate, number: index + 1)
+    routeStopAnnotations = stops.enumerated().compactMap { index, stop in
+      guard
+        let latitude = stop["latitude"] as? Double,
+        let longitude = stop["longitude"] as? Double,
+        let groupId = stop["groupId"] as? String
+      else { return nil }
+      return RouteStopAnnotation(
+        groupId: groupId,
+        coordinate: CLLocationCoordinate2D(latitude: latitude, longitude: longitude),
+        number: index + 1
+      )
     }
     mapView.addAnnotations(routeStopAnnotations)
   }
@@ -519,12 +536,14 @@ final class ChargingGroupAnnotation: NSObject, MKAnnotation {
 }
 
 final class RouteStopAnnotation: NSObject, MKAnnotation {
-  init(coordinate: CLLocationCoordinate2D, number: Int) {
+  init(groupId: String, coordinate: CLLocationCoordinate2D, number: Int) {
+    self.groupId = groupId
     self.coordinate = coordinate
     self.number = number
     super.init()
   }
 
+  let groupId: String
   let coordinate: CLLocationCoordinate2D
   let number: Int
   var title: String? { "Ladestopp \(number)" }

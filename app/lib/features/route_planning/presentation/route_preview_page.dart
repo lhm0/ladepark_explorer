@@ -3,13 +3,13 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ladepark_explorer/features/explorer/domain/models/charging_group_summary.dart';
-import 'package:ladepark_explorer/features/explorer/domain/models/geo_coordinate.dart';
 import 'package:ladepark_explorer/features/route_planning/application/corridor_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
 import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
 import 'package:ladepark_explorer/features/route_planning/domain/models/route_stop.dart';
 import 'package:ladepark_explorer/features/route_planning/presentation/route_format.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
+import 'package:ladepark_explorer/platform/maps/map_adapter.dart';
 import 'package:ladepark_explorer/platform/maps/mapkit_map_view.dart';
 
 /// Result handed back to the map screen.
@@ -37,12 +37,15 @@ class RoutePreviewPage extends ConsumerStatefulWidget {
 
 class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
   MapKitAdapter? _mapAdapter;
-  StreamSubscription<String>? _corridorTapSubscription;
+  final List<StreamSubscription<String>> _tapSubscriptions =
+      <StreamSubscription<String>>[];
   Widget? _mapView;
 
   @override
   void dispose() {
-    unawaited(_corridorTapSubscription?.cancel());
+    for (final subscription in _tapSubscriptions) {
+      unawaited(subscription.cancel());
+    }
     unawaited(_mapAdapter?.dispose());
     super.dispose();
   }
@@ -53,12 +56,17 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
 
   Future<void> _attachAdapter(MapKitAdapter adapter) async {
     final previous = _mapAdapter;
-    final previousSubscription = _corridorTapSubscription;
-    _mapAdapter = adapter;
-    _corridorTapSubscription = adapter.selectedCorridorParkIds.listen(
-      widget.onOpenDetail,
+    final previousSubscriptions = List<StreamSubscription<String>>.of(
+      _tapSubscriptions,
     );
-    await previousSubscription?.cancel();
+    _mapAdapter = adapter;
+    _tapSubscriptions
+      ..clear()
+      ..add(adapter.selectedCorridorParkIds.listen(widget.onOpenDetail))
+      ..add(adapter.selectedRouteStopIds.listen(widget.onOpenDetail));
+    for (final subscription in previousSubscriptions) {
+      await subscription.cancel();
+    }
     await previous?.dispose();
     if (!mounted) {
       await adapter.dispose();
@@ -73,12 +81,13 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
     final option = state.selectedOption;
     if (option == null) return;
     await adapter.showRoute(option.polyline);
-    await adapter.showRouteStops(_stopCoordinates(state.stops));
+    await adapter.showRouteStops(_stopMarkers(state.stops));
     await adapter.showRouteCorridor(_corridorParks());
   }
 
-  List<GeoCoordinate> _stopCoordinates(List<RouteStop> stops) =>
-      stops.map((stop) => stop.coordinate).toList(growable: false);
+  List<RouteStopMarker> _stopMarkers(List<RouteStop> stops) => stops
+      .map((stop) => (id: stop.groupId, coordinate: stop.coordinate))
+      .toList(growable: false);
 
   List<ChargingGroupSummary> _corridorParks() {
     final stopIds = ref
@@ -119,7 +128,7 @@ class _RoutePreviewPageState extends ConsumerState<RoutePreviewPage> {
         unawaited(_mapAdapter?.showRoute(option.polyline));
       }
       if (routeChanged || stopsChanged) {
-        unawaited(_mapAdapter?.showRouteStops(_stopCoordinates(next.stops)));
+        unawaited(_mapAdapter?.showRouteStops(_stopMarkers(next.stops)));
         unawaited(_mapAdapter?.showRouteCorridor(_corridorParks()));
       }
     });
