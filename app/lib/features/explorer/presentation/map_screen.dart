@@ -16,6 +16,11 @@ import 'package:ladepark_explorer/features/favorites/application/favorite_provid
 import 'package:ladepark_explorer/features/favorites/presentation/favorites_page.dart';
 import 'package:ladepark_explorer/features/park_info/application/park_information_providers.dart';
 import 'package:ladepark_explorer/features/park_info/domain/models/park_information.dart';
+import 'package:ladepark_explorer/features/route_planning/application/route_planning_providers.dart';
+import 'package:ladepark_explorer/features/route_planning/application/route_planning_state.dart';
+import 'package:ladepark_explorer/features/route_planning/domain/models/route_waypoint.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_planning_page.dart';
+import 'package:ladepark_explorer/features/route_planning/presentation/route_preview_page.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:ladepark_explorer/features/settings/presentation/settings_page.dart';
@@ -40,6 +45,7 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   InboundLocationAdapter? _inboundLocationAdapter;
   StreamSubscription<GeoCoordinate>? _inboundLocationSubscription;
   GeoCoordinate? _pendingExternalLocation;
+  RouteWaypoint? _pendingRouteDestination;
   final MapKitPlaceSearchAdapter _placeSearchAdapter =
       const MapKitPlaceSearchAdapter();
 
@@ -85,6 +91,17 @@ class _MapScreenState extends ConsumerState<MapScreen> {
                 .toList(growable: false),
           );
     });
+    ref.listen<RoutePlanningState>(routePlanningControllerProvider, (
+      previous,
+      next,
+    ) {
+      final option = next.selectedOption;
+      if (option == null) {
+        unawaited(_mapAdapter?.clearRoute());
+      } else if (!identical(option, previous?.selectedOption)) {
+        unawaited(_mapAdapter?.showRoute(option.polyline));
+      }
+    });
     return Scaffold(
       appBar: AppBar(
         title: Text(strings.appTitle),
@@ -93,6 +110,11 @@ class _MapScreenState extends ConsumerState<MapScreen> {
             onPressed: _openSettings,
             tooltip: strings.settings,
             icon: const Icon(Icons.settings_outlined),
+          ),
+          IconButton(
+            onPressed: mapState.hasValue ? _openRoutePlanning : null,
+            tooltip: strings.routePlanning,
+            icon: const Icon(Icons.directions_outlined),
           ),
           IconButton(
             onPressed: mapState.hasValue ? _openFavorites : null,
@@ -201,6 +223,67 @@ class _MapScreenState extends ConsumerState<MapScreen> {
   Future<void> _openSettings() => Navigator.of(
     context,
   ).push<void>(MaterialPageRoute<void>(builder: (_) => const SettingsPage()));
+
+  Future<void> _openRoutePlanning() async {
+    final hasRoute = ref.read(routePlanningControllerProvider).hasRoute;
+    if (hasRoute && _pendingRouteDestination == null) {
+      final result = await _openRoutePreview();
+      if (result == RoutePreviewResult.newRoute && mounted) {
+        await _openRoutePlanningInput();
+      }
+      return;
+    }
+    await _openRoutePlanningInput();
+  }
+
+  Future<void> _openRoutePlanningInput() async {
+    final destination = _pendingRouteDestination;
+    _pendingRouteDestination = null;
+    await Navigator.of(context).push<void>(
+      PageRouteBuilder<void>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            RoutePlanningPage(
+              resolveEndpoint: _resolveRouteEndpoint,
+              currentLocation: _currentLocationForRoute,
+              initialDestination: destination,
+            ),
+      ),
+    );
+    if (mounted && ref.read(routePlanningControllerProvider).hasRoute) {
+      await _openRoutePreview();
+    }
+  }
+
+  Future<RoutePreviewResult?> _openRoutePreview() {
+    return Navigator.of(context).push<RoutePreviewResult>(
+      PageRouteBuilder<RoutePreviewResult>(
+        opaque: true,
+        transitionDuration: Duration.zero,
+        reverseTransitionDuration: Duration.zero,
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const RoutePreviewPage(),
+      ),
+    );
+  }
+
+  Future<GeoCoordinate?> _resolveRouteEndpoint(String query) async {
+    try {
+      return await _placeSearchAdapter.geocodePlace(query);
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  Future<GeoCoordinate> _currentLocationForRoute() async {
+    final adapter = _mapAdapter;
+    if (adapter == null) {
+      throw PlatformException(code: 'location_unavailable');
+    }
+    return adapter.focusUserLocation(radiusKm: 10);
+  }
 
   Future<void> _openFavorites() async {
     final favorites = await ref.read(favoritesControllerProvider.future);
@@ -322,6 +405,12 @@ class _MapScreenState extends ConsumerState<MapScreen> {
     if (groups != null) {
       unawaited(adapter.showGroups(groups));
     }
+    final routeOption = ref
+        .read(routePlanningControllerProvider)
+        .selectedOption;
+    if (routeOption != null) {
+      unawaited(adapter.showRoute(routeOption.polyline));
+    }
     final pendingExternalLocation = _pendingExternalLocation;
     if (pendingExternalLocation != null) {
       _pendingExternalLocation = null;
@@ -346,7 +435,19 @@ class _MapScreenState extends ConsumerState<MapScreen> {
           transitionDuration: Duration.zero,
           reverseTransitionDuration: Duration.zero,
           pageBuilder: (context, animation, secondaryAnimation) =>
-              GroupDetailPage(future: detailFuture),
+              GroupDetailPage(
+                future: detailFuture,
+                onPlanRoute: (detail) {
+                  _pendingRouteDestination = RouteWaypoint(
+                    coordinate: GeoCoordinate(
+                      latitude: detail.latitude,
+                      longitude: detail.longitude,
+                    ),
+                    label: detail.name ?? detail.city,
+                  );
+                  unawaited(_openRoutePlanning());
+                },
+              ),
         ),
       );
     } finally {
@@ -485,11 +586,15 @@ class GroupDetailPage extends StatefulWidget {
   const GroupDetailPage({
     required this.future,
     this.enableFavoriteAction = true,
+    this.onPlanRoute,
     super.key,
   });
 
   final Future<ChargingGroupDetail?> future;
   final bool enableFavoriteAction;
+
+  /// When set, the detail sheet offers to plan a route to this park.
+  final void Function(ChargingGroupDetail detail)? onPlanRoute;
 
   @override
   State<GroupDetailPage> createState() => _GroupDetailPageState();
@@ -516,6 +621,7 @@ class _GroupDetailPageState extends State<GroupDetailPage> {
             detail: snapshot.data!,
             scrollController: _scrollController,
             enableFavoriteAction: widget.enableFavoriteAction,
+            onPlanRoute: widget.onPlanRoute,
           );
         },
       ),
@@ -565,12 +671,14 @@ class GroupDetailSheet extends ConsumerWidget {
     required this.detail,
     required this.scrollController,
     this.enableFavoriteAction = true,
+    this.onPlanRoute,
     super.key,
   });
 
   final ChargingGroupDetail detail;
   final ScrollController scrollController;
   final bool enableFavoriteAction;
+  final void Function(ChargingGroupDetail detail)? onPlanRoute;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -672,6 +780,20 @@ class GroupDetailSheet extends ConsumerWidget {
               label: Text(strings.openNavigation),
             ),
           ),
+          if (onPlanRoute case final planRoute?) ...[
+            const SizedBox(height: 12),
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.of(context).pop();
+                  planRoute(detail);
+                },
+                icon: const Icon(Icons.directions_outlined),
+                label: Text(strings.planRouteToHere),
+              ),
+            ),
+          ],
         ],
       ),
     );

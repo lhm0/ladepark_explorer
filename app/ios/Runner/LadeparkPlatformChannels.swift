@@ -26,10 +26,265 @@ enum LadeparkPlatformChannels {
         pendingLocation = nil
       case "geocodePlace":
         geocodePlace(call.arguments, result: result)
+      case "planRoute":
+        planRoute(call.arguments, result: result)
       default:
         result(FlutterMethodNotImplemented)
       }
     }
+  }
+
+  // MARK: - Route planning (FR-ROUTE-001, FR-ROUTE-002; ADR-0019)
+
+  private enum RouteErrorCode: Error {
+    case offline, throttled, notFound, failed
+
+    var channelCode: String {
+      switch self {
+      case .offline: return "route_offline"
+      case .throttled: return "route_throttled"
+      case .notFound: return "route_not_found"
+      case .failed: return "route_failed"
+      }
+    }
+  }
+
+  private static func planRoute(_ arguments: Any?, result: @escaping FlutterResult) {
+    guard
+      let values = arguments as? [String: Any],
+      let origin = routeCoordinate(from: values["origin"]),
+      let destination = routeCoordinate(from: values["destination"])
+    else {
+      result(FlutterError(code: "route_invalid_request", message: nil, details: nil))
+      return
+    }
+    let intermediates = (values["waypoints"] as? [[String: Any]])?
+      .compactMap { routeCoordinate(from: $0) } ?? []
+    let includeAlternatives = values["includeAlternatives"] as? Bool ?? false
+    let stops = [origin] + intermediates + [destination]
+    var pairs: [(CLLocationCoordinate2D, CLLocationCoordinate2D)] = []
+    for index in 0..<(stops.count - 1) {
+      pairs.append((stops[index], stops[index + 1]))
+    }
+
+    // Alternatives are only meaningful for a single origin-to-destination leg.
+    if pairs.count == 1, includeAlternatives {
+      calculateLeg(pairs[0], alternatives: true) { outcome in
+        switch outcome {
+        case .failure(let code):
+          result(FlutterError(code: code.channelCode, message: nil, details: nil))
+        case .success(let routes):
+          result(routes.map { routeOption(from: [$0]) })
+        }
+      }
+      return
+    }
+
+    calculateLegs(pairs, collected: []) { outcome in
+      switch outcome {
+      case .failure(let code):
+        result(FlutterError(code: code.channelCode, message: nil, details: nil))
+      case .success(let routes):
+        result([routeOption(from: routes)])
+      }
+    }
+  }
+
+  private static func calculateLegs(
+    _ pairs: [(CLLocationCoordinate2D, CLLocationCoordinate2D)],
+    collected: [MKRoute],
+    completion: @escaping (Result<[MKRoute], RouteErrorCode>) -> Void
+  ) {
+    guard let next = pairs.first else {
+      completion(.success(collected))
+      return
+    }
+    calculateLeg(next, alternatives: false) { outcome in
+      switch outcome {
+      case .failure(let code):
+        completion(.failure(code))
+      case .success(let routes):
+        guard let route = routes.first else {
+          completion(.failure(.notFound))
+          return
+        }
+        calculateLegs(
+          Array(pairs.dropFirst()),
+          collected: collected + [route],
+          completion: completion
+        )
+      }
+    }
+  }
+
+  private static func calculateLeg(
+    _ pair: (CLLocationCoordinate2D, CLLocationCoordinate2D),
+    alternatives: Bool,
+    completion: @escaping (Result<[MKRoute], RouteErrorCode>) -> Void
+  ) {
+    let request = MKDirections.Request()
+    request.source = MKMapItem(placemark: MKPlacemark(coordinate: pair.0))
+    request.destination = MKMapItem(placemark: MKPlacemark(coordinate: pair.1))
+    request.transportType = .automobile
+    request.requestsAlternateRoutes = alternatives
+    MKDirections(request: request).calculate { response, error in
+      if let error {
+        completion(.failure(classifyRouteError(error)))
+        return
+      }
+      guard let routes = response?.routes, !routes.isEmpty else {
+        completion(.failure(.notFound))
+        return
+      }
+      completion(.success(routes))
+    }
+  }
+
+  private static func classifyRouteError(_ error: Error) -> RouteErrorCode {
+    let nsError = error as NSError
+    if nsError.domain == NSURLErrorDomain {
+      return .offline
+    }
+    if nsError.domain == MKError.errorDomain,
+      let raw = UInt(exactly: nsError.code),
+      let code = MKError.Code(rawValue: raw)
+    {
+      switch code {
+      case .loadingThrottled:
+        return .throttled
+      case .placemarkNotFound, .directionsNotFound:
+        return .notFound
+      default:
+        return .failed
+      }
+    }
+    return .failed
+  }
+
+  private static func routeOption(from routes: [MKRoute]) -> [String: Any] {
+    var coordinates: [CLLocationCoordinate2D] = []
+    var legs: [[String: Any]] = []
+    var totalDistance = 0.0
+    var totalTime = 0.0
+    for route in routes {
+      let routeCoordinates = polylineCoordinates(route.polyline)
+      legs.append([
+        "startLatitude": routeCoordinates.first?.latitude ?? 0,
+        "startLongitude": routeCoordinates.first?.longitude ?? 0,
+        "endLatitude": routeCoordinates.last?.latitude ?? 0,
+        "endLongitude": routeCoordinates.last?.longitude ?? 0,
+        "distanceKm": route.distance / 1000.0,
+        "travelTimeSeconds": route.expectedTravelTime,
+      ])
+      totalDistance += route.distance
+      totalTime += route.expectedTravelTime
+      coordinates.append(contentsOf: routeCoordinates)
+    }
+    let simplified = decimate(coordinates, tolerance: 0.00015, limit: 500)
+    let latitudes = simplified.map { $0.latitude }
+    let longitudes = simplified.map { $0.longitude }
+    return [
+      "totalDistanceKm": totalDistance / 1000.0,
+      "totalTravelTimeSeconds": totalTime,
+      "bounds": [
+        "south": latitudes.min() ?? 0,
+        "west": longitudes.min() ?? 0,
+        "north": latitudes.max() ?? 0,
+        "east": longitudes.max() ?? 0,
+      ],
+      "polyline": simplified.map {
+        ["latitude": $0.latitude, "longitude": $0.longitude]
+      },
+      "legs": legs,
+    ]
+  }
+
+  private static func polylineCoordinates(_ polyline: MKPolyline) -> [CLLocationCoordinate2D] {
+    var coordinates = [CLLocationCoordinate2D](
+      repeating: kCLLocationCoordinate2DInvalid,
+      count: polyline.pointCount
+    )
+    polyline.getCoordinates(
+      &coordinates,
+      range: NSRange(location: 0, length: polyline.pointCount)
+    )
+    return coordinates
+  }
+
+  /// Douglas–Peucker simplification with a hard point cap. Keeps the polyline
+  /// small enough for the method channel and the later corridor search.
+  private static func decimate(
+    _ points: [CLLocationCoordinate2D],
+    tolerance: Double,
+    limit: Int
+  ) -> [CLLocationCoordinate2D] {
+    guard points.count > 2 else { return points }
+    var keep = [Bool](repeating: false, count: points.count)
+    keep[0] = true
+    keep[points.count - 1] = true
+    var stack: [(Int, Int)] = [(0, points.count - 1)]
+    while let (start, end) = stack.popLast() {
+      guard end > start + 1 else { continue }
+      var maxDistance = 0.0
+      var farthest = start
+      for index in (start + 1)..<end {
+        let distance = perpendicularDistance(points[index], points[start], points[end])
+        if distance > maxDistance {
+          maxDistance = distance
+          farthest = index
+        }
+      }
+      if maxDistance > tolerance {
+        keep[farthest] = true
+        stack.append((start, farthest))
+        stack.append((farthest, end))
+      }
+    }
+    var result = points.enumerated().filter { keep[$0.offset] }.map { $0.element }
+    if result.count > limit {
+      let stride = Int(ceil(Double(result.count) / Double(limit)))
+      var thinned = result.enumerated()
+        .filter { $0.offset % stride == 0 }
+        .map { $0.element }
+      if let last = result.last,
+        thinned.last?.latitude != last.latitude
+          || thinned.last?.longitude != last.longitude
+      {
+        thinned.append(last)
+      }
+      result = thinned
+    }
+    return result
+  }
+
+  private static func perpendicularDistance(
+    _ point: CLLocationCoordinate2D,
+    _ lineStart: CLLocationCoordinate2D,
+    _ lineEnd: CLLocationCoordinate2D
+  ) -> Double {
+    let dx = lineEnd.longitude - lineStart.longitude
+    let dy = lineEnd.latitude - lineStart.latitude
+    let length = hypot(dx, dy)
+    if length == 0 {
+      return hypot(
+        point.longitude - lineStart.longitude,
+        point.latitude - lineStart.latitude
+      )
+    }
+    let cross = abs(
+      dx * (lineStart.latitude - point.latitude)
+        - (lineStart.longitude - point.longitude) * dy
+    )
+    return cross / length
+  }
+
+  private static func routeCoordinate(from value: Any?) -> CLLocationCoordinate2D? {
+    guard
+      let values = value as? [String: Any],
+      let latitude = values["latitude"] as? Double,
+      let longitude = values["longitude"] as? Double
+    else { return nil }
+    return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
   }
 
   private static func geocodePlace(_ arguments: Any?, result: @escaping FlutterResult) {

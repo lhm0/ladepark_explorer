@@ -15,11 +15,17 @@ class MapKitMapView extends StatelessWidget {
   const MapKitMapView({
     required this.onMapCreated,
     required this.unavailableLabel,
+    this.eagerGestures = true,
     super.key,
   });
 
   final ValueChanged<MapKitAdapter> onMapCreated;
   final String unavailableLabel;
+
+  /// Whether the platform view claims every pointer eagerly. The main map keeps
+  /// this on for immediate panning; the route preview turns it off to reduce
+  /// the iOS platform-view gesture-wedge risk (see ADR-0019 Nachtrag).
+  final bool eagerGestures;
 
   @override
   Widget build(BuildContext context) {
@@ -31,9 +37,11 @@ class MapKitMapView extends StatelessWidget {
     }
     return UiKitView(
       viewType: _viewType,
-      gestureRecognizers: <Factory<OneSequenceGestureRecognizer>>{
-        Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new),
-      },
+      gestureRecognizers: eagerGestures
+          ? <Factory<OneSequenceGestureRecognizer>>{
+              Factory<OneSequenceGestureRecognizer>(EagerGestureRecognizer.new),
+            }
+          : const <Factory<OneSequenceGestureRecognizer>>{},
       creationParams: const <String, Object?>{
         'latitude': 51.1657,
         'longitude': 10.4515,
@@ -151,6 +159,30 @@ final class MapKitAdapter implements MapAdapter {
   Future<void> showGermanyOverview() async {
     if (!_disposed) {
       await _channel.invokeMethod<void>('showGermanyOverview');
+    }
+  }
+
+  @override
+  Future<void> showRoute(List<GeoCoordinate> polyline) async {
+    if (_disposed) {
+      return;
+    }
+    await _channel.invokeMethod<void>('showRoute', <String, Object?>{
+      'polyline': polyline
+          .map(
+            (point) => <String, Object?>{
+              'latitude': point.latitude,
+              'longitude': point.longitude,
+            },
+          )
+          .toList(growable: false),
+    });
+  }
+
+  @override
+  Future<void> clearRoute() async {
+    if (!_disposed) {
+      await _channel.invokeMethod<void>('clearRoute');
     }
   }
 

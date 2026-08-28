@@ -459,4 +459,102 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get diagnosticsPrivacyExplanation =>
       'The text contains no coordinates, search terms, favorites, or device identifier. It is copied to the clipboard only through this button and is never sent automatically.';
+
+  @override
+  String get routePlanning => 'Plan route';
+
+  @override
+  String get routePlanningTitle => 'Route planning';
+
+  @override
+  String get routeOnlineHint =>
+      'The route is calculated online via Apple map services.';
+
+  @override
+  String get routeStartLabel => 'Start';
+
+  @override
+  String get routeDestinationLabel => 'Destination';
+
+  @override
+  String get routeEndpointHint => 'Place, address, or coordinate';
+
+  @override
+  String get routeUseCurrentLocation => 'Use current location as start';
+
+  @override
+  String get routeCalculate => 'Calculate route';
+
+  @override
+  String get routeCalculating => 'Calculating route …';
+
+  @override
+  String get routeStartNotFound => 'The start could not be found.';
+
+  @override
+  String get routeDestinationNotFound => 'The destination could not be found.';
+
+  @override
+  String routeDurationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String routeDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String routeSummary(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String routeDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get routeOverviewTitle => 'Route';
+
+  @override
+  String get routeMapSemantics => 'Map showing the planned route';
+
+  @override
+  String get routeAlternativesHeading => 'Alternatives';
+
+  @override
+  String routeOptionLabel(int index) {
+    return 'Route $index';
+  }
+
+  @override
+  String get routeShowOnMap => 'Show on map';
+
+  @override
+  String get routeNewRoute => 'New route';
+
+  @override
+  String get routeClear => 'Clear route';
+
+  @override
+  String get routeErrorOffline =>
+      'A route cannot be calculated without an internet connection.';
+
+  @override
+  String get routeErrorThrottled =>
+      'The map service is busy right now. Please wait a moment and try again.';
+
+  @override
+  String get routeErrorNotFound =>
+      'No route was found for the start and destination.';
+
+  @override
+  String get routeErrorInvalid => 'Start and destination are required.';
+
+  @override
+  String get routeErrorFailed => 'The route could not be calculated.';
+
+  @override
+  String get planRouteToHere => 'Plan a route here';
 }

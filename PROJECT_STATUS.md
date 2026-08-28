@@ -304,6 +304,19 @@ Stand: 28. August 2026
     Direktkoordinaten ohne behaupteten Rückübergabestandard der Kartenanbieter.
   - ADR-0014: getrennter lokaler SQLite-Favoritenspeicher mit stabilen
     Stationsankern.
+  - ADR-0015: konservativer, strukturierter Filter für durchgehende
+    Zugänglichkeit.
+  - ADR-0016: lokale Einstellungen und Wahl der Navigations-App.
+  - ADR-0017: statische, atomare Ladebestandsupdates über ein Manifest.
+  - ADR-0018: keine Telemetrie in Version 1.0.
+  - ADR-0019: plattformneutraler `RoutePlanningService` mit MapKit-Adapter
+    (Version 1.1).
+  - ADR-0020: Energie- und Segmentmodell hinter austauschbaren Schnittstellen
+    `EnergyModel`, `ChargingModel`, `StopPlanner` (Version 1.1).
+  - ADR-0021: lokaler Fahrzeugprofil-Speicher im schema-versionierten
+    Einstellungsspeicher (Version 1.1).
+  - ADR-0022: Routenkorridor-Suche über Abtastung der dezimierten Polyline
+    ohne Vertragsänderung (Version 1.1).
 - Das Lizenz- und Datenquellen-Dossier ist die fortlaufende Basis für die
   finale Lizenzprüfung. Version 1.0 vermeidet bewusst eine Architektur, deren
   Veröffentlichung eine individuelle juristische Einzelfallprüfung voraussetzt.
@@ -346,10 +359,46 @@ Schema und Lizenzregeln vorbereitet, besitzt aber noch keine kuratierten
 Produktlinks oder App-Darstellung; M13 muss Umsetzung oder begründete
 Verschiebung entscheiden.
 
-Die statusmarkierte Gesamtroadmap einschließlich der diskutierten späteren
-Routenplanung steht in `docs/specification/14_Roadmap.md`. Die technische
-Übergabe für eine kontextfreie Weiterentwicklung steht in
-`docs/AI_HANDOVER.md`.
+Die statusmarkierte Gesamtroadmap steht in
+`docs/specification/14_Roadmap.md`. Die technische Übergabe für eine
+kontextfreie Weiterentwicklung steht in `docs/AI_HANDOVER.md`.
+
+## Begonnener Ausbau: Version 1.1 – Routen-Update
+
+Parallel zu M13 ist der Ausbau um eine Routenplanung mit einfacher
+Reichweiten- und Ladeplanung entschieden und spezifiziert. Die Verbrauchs-,
+Lade- und Stopp-Planungslogik liegt bewusst hinter austauschbaren
+Schnittstellen (`EnergyModel`, `ChargingModel`, `StopPlanner` gemäß ADR-0020),
+damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
+
+- **M14.0** abgeschlossen: verbindliches Kapitel
+  `docs/specification/17_Route_Planning.md` (`FR-ROUTE-001` bis `FR-ROUTE-011`,
+  `NFR-ROUTE-*`) und ADR-0019 bis ADR-0022.
+- **M14** implementiert und automatisiert geprüft; manuelle Abnahme auf
+  Simulator und iPhone steht aus:
+  - plattformneutraler `RoutePlanningService` in
+    `app/lib/features/route_planning/domain/` mit typisierten `RouteRequest`-
+    und `RouteOption`-Modellen und stabilen `RoutePlanningError`-Kategorien,
+  - `MkDirectionsRoutePlanningService` in `app/lib/platform/route/` ruft
+    natives `MKDirections` je Teilstrecke, mappt Netz-, Drossel- und
+    Nicht-gefunden-Fehler und dezimiert die Polyline (Douglas–Peucker,
+    Punktobergrenze) vor der Übergabe an Flutter,
+  - die Route wird nativ als `MKPolyline`-Overlay in der bestehenden
+    `MKMapView` gezeichnet und eingepasst (`showRoute`/`clearRoute`),
+  - gemäß ADR-0011 liegt **keine** Flutter-Fläche über der Karte. Start-/
+    Zieleingabe läuft auf einer opaken Vollbildroute; die Routenvorschau
+    (`RoutePreviewPage`) ist ein nicht überlappendes Split-Layout mit eigener
+    `MKMapView`-Instanz über einem statischen Auswahlpanel, sodass Route und
+    Alternativen gleichzeitig sichtbar sind. Ein erster Versuch mit einem
+    schmalen Zusammenfassungsbalken über der Karte fror die App auf dem Gerät
+    ein und wurde nach Internetrecherche als bekannte iOS-`UiKitView`-
+    Freeze-Klasse verworfen (siehe ADR-0019 Nachtrag),
+  - Start und Ziel als Ort, Adresse, Koordinate, aktueller Standort oder – aus
+    der Detailansicht heraus – als ausgewählter Ladepark,
+  - klare Offline-, Fehler- und Drosselungszustände mit Wiederholung,
+  - 16 neue automatisierte Tests (Service-Contract, Kartenkanal, Controller,
+    Eingabe- und Vorschauseite); DE/EN-Lokalisierung ergänzt.
+- **M15 bis M19** sind noch nicht implementiert.
 
 ## Bekannte offene Entscheidungen
 
@@ -366,10 +415,17 @@ Für die spätere App:
 
 - Android-Kartenadapter und kontrollierte Kartenversorgung,
 - Anbieter und Betriebsmodell für ein mögliches späteres fachliches Backend,
-- Routenplanungsumfang nach der diskutierten Trennung in normale Route,
-  Ladeparks entlang der Route und automatische E-Auto-Optimierung,
 - ein möglicher späterer Wechsel der statischen Updateablage von GitHub zu
   einem Objektspeicher.
+
+Für Version 1.1 (Routen-Update), noch vor der jeweiligen Meilensteinabnahme:
+
+- Korridorbreite und Abtastabstand entlang der Route,
+- Wirkungsgrad- beziehungsweise Pufferfaktor der Ladezeitschätzung,
+- Vorgabewerte und Wertebereiche des Fahrzeugprofils, Standard-Reserve und
+  Standard-Ziel-Ladezustand,
+- Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
+- Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App.
 
 ## Bekannte Risiken
 
@@ -426,12 +482,13 @@ Kartenausschnitte und Umkreissuchen. Die hybride Auswahl zwischen R*Tree und
 Direktfilter benötigte im Prototyp 154–207 ms für den Berliner Ausschnitt,
 53 ms für 25 km um München und 443 ms für die Deutschlandansicht.
 
-Die Flutter-App wurde am 28. August 2026 mit `flutter gen-l10n`, `dart format`,
-`flutter analyze` und 55 Tests erfolgreich geprüft. Darin sind der
-M2-SQLite-Contract, die M3-Kartenkoordination sowie die M10-Verträge für lokale
-Einstellungen, Apple-/Google-Maps-Navigation und die M11-Manifest-,
-Installations- und Rollbackverträge sowie der M12-Datenschutz-Widgettest
-enthalten. Die automatisierte
+Die Flutter-App wurde mit `flutter gen-l10n`, `dart format`,
+`flutter analyze` und 71 Tests erfolgreich geprüft. Darin sind der
+M2-SQLite-Contract, die M3-Kartenkoordination, die M10-Verträge für lokale
+Einstellungen, Apple-/Google-Maps-Navigation, die M11-Manifest-,
+Installations- und Rollbackverträge, der M12-Datenschutz-Widgettest sowie die
+M14-Verträge für den `RoutePlanningService`, den nativen Routenkanal, den
+Routen-Controller und die Eingabeseite enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
 App wurde mit dem vollständigen Deutschlandbestand auf einem iPhone-16-Simulator

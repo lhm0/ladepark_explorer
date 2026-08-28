@@ -45,6 +45,12 @@ GitHub Release verfügbar.
 **Nächster verbindlicher Schritt:** M13 – Release-Härtung und
 App-Store-Vorbereitung. TestFlight wurde bewusst noch nicht begonnen.
 
+**Parallel begonnener Ausbau:** Version 1.1 („Routen-Update“) ergänzt eine
+Routenplanung mit einfacher Reichweiten- und Ladeplanung. Sie ist in
+[`specification/17_Route_Planning.md`](specification/17_Route_Planning.md) und
+ADR-0019 bis ADR-0022 spezifiziert; die Meilensteine M14 bis M19 sind noch
+nicht implementiert. Siehe Abschnitt 10.4.
+
 **Nicht Bestandteil von 1.0:** Benutzerkonten, Community-Inhalte,
 Live-Belegung, Preise, Bezahlung, ein dauerhaftes fachliches Backend, Android-
 Veröffentlichung und eine eigene Turn-by-Turn-Navigation.
@@ -351,7 +357,7 @@ python3 tooling/check_markdown_links.py
 git diff --check
 ```
 
-Zuletzt verifiziert: 72 Importertests und 55 Flutter-Tests; Ruff, Mypy,
+Zuletzt verifiziert: 72 Importertests und 71 Flutter-Tests; Ruff, Mypy,
 Flutter-Analyse, Architekturprüfung, Markdownlinks und iOS-Simulator-Build
 waren erfolgreich. Der vollständige manuelle Produktlauf wurde auf einem
 iPhone-16-Simulator ausgeführt; Teilfunktionen wurden auch auf einem echten
@@ -389,25 +395,39 @@ Ausfallsemantik, wahrscheinlich ein Backend und eine eigene Lizenz- und
 Datenschutzprüfung. PostgreSQL/PostGIS, Redis und FastAPI sind nur
 Technologiekandidaten, keine Entscheidung.
 
-### 10.4 Routenplanung – diskutierte Erweiterung
+### 10.4 Routenplanung – Version 1.1 („Routen-Update“)
 
-**Idee, noch kein beschlossener Scope:**
+**Entschieden und spezifiziert; Umsetzung geplant.** Verbindlich in
+[`specification/17_Route_Planning.md`](specification/17_Route_Planning.md)
+(`FR-ROUTE-001` bis `FR-ROUTE-011`, `NFR-ROUTE-*`) und in ADR-0019 bis
+ADR-0022. Version 1.1 ergänzt Version 1.0 um die Routenplanung; sie blockiert
+M13 nicht.
 
-- M14 könnte eine normale Online-Autoroute von A nach B über Apple
-  `MKDirections` berechnen, nativ als Polyline darstellen und Distanz/Fahrzeit
-  zeigen.
-- M15 könnte lokal Ladeparks in einem Routenkorridor suchen und manuell
-  gewählte Zwischenstopps unterstützen.
-- Eine automatische E-Auto-Planung mit Reichweite, Verbrauch, Akkustand,
-  Ladekurve, Ladezeit und optimaler Stoppauswahl wäre ein eigener großer
-  Produktbereich und wird von MapKit nicht vollständig geliefert.
+- **M14** berechnet eine Online-Autoroute A→B über Apple `MKDirections`,
+  zeichnet sie nativ als Overlay in `MKMapView` und zeigt Distanz/Fahrzeit und
+  Alternativrouten.
+- **M15** sucht lokal Ladeparks im Routenkorridor unter den aktiven Filtern
+  (Abtastung der dezimierten Polyline mit der bestehenden Radiusabfrage,
+  ADR-0022) und unterstützt manuell gewählte Ladestopps mit Neuberechnung der
+  Teilstrecken.
+- **M16–M17** ergänzen ein lokales Fahrzeugprofil, ein Segmentmodell und die
+  austauschbaren Schnittstellen `EnergyModel`, `ChargingModel`, `StopPlanner`
+  (ADR-0020) sowie einen automatischen Ladestopp-Vorschlag mit einfacher
+  Reichweiten- und Ladezeitschätzung.
+- **M18** erlaubt den Austausch jedes Stopps gegen eine Alternative mit
+  adaptiver Neuplanung; **M19** schließt Datenschutzdokumentation,
+  Offline-Härtung, Zugänglichkeit und die Routenübergabe an eine
+  Navigations-App ab.
 
-Vor M14 sind neue Requirement-IDs und ein ADR erforderlich. Der
-plattformneutrale Vertrag sollte etwa `RoutePlanningService` heißen; die
-MapKit-Implementierung gehört nach `platform/`, die Routengeometrie als
-Overlay in den nativen View. Exakte Apple-Polylines sollten nicht unnötig über
-den Method Channel transportiert werden. Start, Ziel und Zwischenziele werden
-an Apple übertragen und müssen in der Datenschutzdokumentation ergänzt werden.
+Der plattformneutrale Vertrag heißt `RoutePlanningService`
+(`features/route_planning/domain/`); die MapKit-Implementierung liegt unter
+`platform/route/`, die Routengeometrie als Overlay im nativen View. Exakte
+Apple-Polylines werden nicht über den Method Channel transportiert; Flutter
+erhält nur eine dezimierte Polyline und Kennzahlen. Start, Ziel und
+Zwischenziele werden an Apple übertragen und sind in der
+Datenschutzdokumentation ergänzt. Die austauschbaren Modellschnittstellen
+halten die spätere „intelligente“ Vorhersage (Straßenart, Steigung,
+Temperatur, Ladekurve, Fahrergewohnheiten) nachrüstbar.
 
 ### 10.5 Weitere bewusst vorbereitete Erweiterungen
 

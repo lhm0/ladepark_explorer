@@ -18,5 +18,12 @@ abstract interface class MapAdapter {
 
   Future<void> showGermanyOverview();
 
+  /// Draws [polyline] as a native route overlay and fits it into view
+  /// (FR-ROUTE-001, ADR-0019). Replaces any previously shown route.
+  Future<void> showRoute(List<GeoCoordinate> polyline);
+
+  /// Removes the native route overlay, if any.
+  Future<void> clearRoute();
+
   Future<void> dispose();
 }

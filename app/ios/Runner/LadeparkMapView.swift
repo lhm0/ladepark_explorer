@@ -68,6 +68,7 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
   private var groupsById: [String: ChargingGroupAnnotation] = [:]
   private var pendingLocationResult: FlutterResult?
   private var pendingRadiusKm = 25.0
+  private var routeOverlay: MKPolyline?
 
   func view() -> UIView {
     mapView
@@ -176,9 +177,64 @@ final class LadeparkMapView: NSObject, FlutterPlatformView, MKMapViewDelegate,
     case "showGermanyOverview":
       configureInitialRegion(nil, animated: true)
       result(nil)
+    case "showRoute":
+      guard
+        let values = call.arguments as? [String: Any],
+        let rawPoints = values["polyline"] as? [[String: Any]]
+      else {
+        result(FlutterError(code: "invalid_route", message: nil, details: nil))
+        return
+      }
+      showRoute(rawPoints.compactMap(routeCoordinate(from:)))
+      result(nil)
+    case "clearRoute":
+      clearRoute()
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
     }
+  }
+
+  private func showRoute(_ coordinates: [CLLocationCoordinate2D]) {
+    clearRoute()
+    guard coordinates.count >= 2 else { return }
+    let overlay = MKPolyline(coordinates: coordinates, count: coordinates.count)
+    routeOverlay = overlay
+    mapView.addOverlay(overlay, level: .aboveRoads)
+    mapView.setVisibleMapRect(
+      overlay.boundingMapRect,
+      edgePadding: UIEdgeInsets(top: 72, left: 48, bottom: 160, right: 48),
+      animated: true
+    )
+  }
+
+  private func clearRoute() {
+    guard let overlay = routeOverlay else { return }
+    mapView.removeOverlay(overlay)
+    routeOverlay = nil
+  }
+
+  private func routeCoordinate(from value: [String: Any]) -> CLLocationCoordinate2D? {
+    guard
+      let latitude = value["latitude"] as? Double,
+      let longitude = value["longitude"] as? Double
+    else { return nil }
+    return CLLocationCoordinate2D(latitude: latitude, longitude: longitude)
+  }
+
+  func mapView(
+    _ mapView: MKMapView,
+    rendererFor overlay: MKOverlay
+  ) -> MKOverlayRenderer {
+    guard let polyline = overlay as? MKPolyline else {
+      return MKOverlayRenderer(overlay: overlay)
+    }
+    let renderer = MKPolylineRenderer(polyline: polyline)
+    renderer.strokeColor = UIColor.systemBlue.withAlphaComponent(0.85)
+    renderer.lineWidth = 5
+    renderer.lineJoin = .round
+    renderer.lineCap = .round
+    return renderer
   }
 
   private func requestUserLocation(_ arguments: Any?, result: @escaping FlutterResult) {

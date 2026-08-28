@@ -847,6 +847,174 @@ abstract class AppLocalizations {
   /// In de, this message translates to:
   /// **'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.'**
   String get diagnosticsPrivacyExplanation;
+
+  /// No description provided for @routePlanning.
+  ///
+  /// In de, this message translates to:
+  /// **'Route planen'**
+  String get routePlanning;
+
+  /// No description provided for @routePlanningTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Routenplanung'**
+  String get routePlanningTitle;
+
+  /// No description provided for @routeOnlineHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Route wird online über Apple-Kartendienste berechnet.'**
+  String get routeOnlineHint;
+
+  /// No description provided for @routeStartLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Start'**
+  String get routeStartLabel;
+
+  /// No description provided for @routeDestinationLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Ziel'**
+  String get routeDestinationLabel;
+
+  /// No description provided for @routeEndpointHint.
+  ///
+  /// In de, this message translates to:
+  /// **'Ort, Adresse oder Koordinate'**
+  String get routeEndpointHint;
+
+  /// No description provided for @routeUseCurrentLocation.
+  ///
+  /// In de, this message translates to:
+  /// **'Aktuellen Standort als Start verwenden'**
+  String get routeUseCurrentLocation;
+
+  /// No description provided for @routeCalculate.
+  ///
+  /// In de, this message translates to:
+  /// **'Route berechnen'**
+  String get routeCalculate;
+
+  /// No description provided for @routeCalculating.
+  ///
+  /// In de, this message translates to:
+  /// **'Route wird berechnet …'**
+  String get routeCalculating;
+
+  /// No description provided for @routeStartNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Start wurde nicht gefunden.'**
+  String get routeStartNotFound;
+
+  /// No description provided for @routeDestinationNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Das Ziel wurde nicht gefunden.'**
+  String get routeDestinationNotFound;
+
+  /// No description provided for @routeDurationHoursMinutes.
+  ///
+  /// In de, this message translates to:
+  /// **'{hours} h {minutes} min'**
+  String routeDurationHoursMinutes(int hours, int minutes);
+
+  /// No description provided for @routeDurationMinutes.
+  ///
+  /// In de, this message translates to:
+  /// **'{minutes} min'**
+  String routeDurationMinutes(int minutes);
+
+  /// No description provided for @routeSummary.
+  ///
+  /// In de, this message translates to:
+  /// **'{distance} · {duration}'**
+  String routeSummary(String distance, String duration);
+
+  /// No description provided for @routeDistanceKm.
+  ///
+  /// In de, this message translates to:
+  /// **'{km} km'**
+  String routeDistanceKm(String km);
+
+  /// No description provided for @routeOverviewTitle.
+  ///
+  /// In de, this message translates to:
+  /// **'Route'**
+  String get routeOverviewTitle;
+
+  /// No description provided for @routeMapSemantics.
+  ///
+  /// In de, this message translates to:
+  /// **'Karte mit der geplanten Route'**
+  String get routeMapSemantics;
+
+  /// No description provided for @routeAlternativesHeading.
+  ///
+  /// In de, this message translates to:
+  /// **'Alternativen'**
+  String get routeAlternativesHeading;
+
+  /// No description provided for @routeOptionLabel.
+  ///
+  /// In de, this message translates to:
+  /// **'Route {index}'**
+  String routeOptionLabel(int index);
+
+  /// No description provided for @routeShowOnMap.
+  ///
+  /// In de, this message translates to:
+  /// **'Auf Karte anzeigen'**
+  String get routeShowOnMap;
+
+  /// No description provided for @routeNewRoute.
+  ///
+  /// In de, this message translates to:
+  /// **'Neue Route'**
+  String get routeNewRoute;
+
+  /// No description provided for @routeClear.
+  ///
+  /// In de, this message translates to:
+  /// **'Route beenden'**
+  String get routeClear;
+
+  /// No description provided for @routeErrorOffline.
+  ///
+  /// In de, this message translates to:
+  /// **'Ohne Internetverbindung kann keine Route berechnet werden.'**
+  String get routeErrorOffline;
+
+  /// No description provided for @routeErrorThrottled.
+  ///
+  /// In de, this message translates to:
+  /// **'Der Kartendienst ist zurzeit ausgelastet. Bitte kurz warten und erneut versuchen.'**
+  String get routeErrorThrottled;
+
+  /// No description provided for @routeErrorNotFound.
+  ///
+  /// In de, this message translates to:
+  /// **'Für Start und Ziel wurde keine Route gefunden.'**
+  String get routeErrorNotFound;
+
+  /// No description provided for @routeErrorInvalid.
+  ///
+  /// In de, this message translates to:
+  /// **'Start und Ziel müssen angegeben sein.'**
+  String get routeErrorInvalid;
+
+  /// No description provided for @routeErrorFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Route konnte nicht berechnet werden.'**
+  String get routeErrorFailed;
+
+  /// No description provided for @planRouteToHere.
+  ///
+  /// In de, this message translates to:
+  /// **'Route hierher planen'**
+  String get planRouteToHere;
 }
 
 class _AppLocalizationsDelegate

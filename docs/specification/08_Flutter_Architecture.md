@@ -1,6 +1,7 @@
 # Flutter-Architektur
 
-Status: M0 bis M12 implementiert; M13 Release-Härtung offen
+Status: M0 bis M12 implementiert; M13 Release-Härtung offen; M14 (Basisroute
+der Routenplanung, Version 1.1) implementiert
 
 Entschieden sind Flutter, Apple MapKit für die iPhone-Version 1.0, lokale
 SQLite-Datenhaltung und Repository Pattern. Fachlogik und Datenzugriff werden
@@ -42,10 +43,12 @@ lib/
 │   └── presentation/    datengetriebene Kartenoberfläche
 ├── features/favorites/  Favoritenmodell, Zustand und Favoritenliste
 ├── features/park_info/  redaktionelle Informationen und Medienmodelle
+├── features/route_planning/ Routenmodelle, RoutePlanningService und Routenzustand (Version 1.1)
 ├── features/settings/   Sprache, Navigation, Updates und Datenschutz
 ├── platform/inbound/    eingehende Koordinaten und App-Link
 ├── platform/maps/       MapAdapter und Dart-MapKit-Kanal
 ├── platform/navigation/ plattformneutrale Apple-/Google-Maps-Adapter
+├── platform/route/      MKDirections-Routenadapter (Version 1.1)
 ├── platform/search/     native Apple-Ortssuche
 └── l10n/                DE-/EN-Lokalisierung
 ```
@@ -219,6 +222,28 @@ Die App enthält kein Analyse-, Werbe-, Tracking- oder automatisches
 Crash-Reporting-SDK. Ein kleiner Diagnosestatus gelangt nur durch eine
 ausdrückliche Aktion in die Zwischenablage und enthält keine Koordinaten,
 Suchbegriffe, Favoriten oder Gerätekennung.
+
+M14 beginnt das Routen-Update der Version 1.1 (Kapitel `17_Route_Planning.md`,
+ADR-0019). Der plattformneutrale `RoutePlanningService` in
+`features/route_planning/domain/` liefert typisierte `RouteOption`-Objekte mit
+Kennzahlen, Teilstrecken und einer dezimierten Polyline. Der
+`MkDirectionsRoutePlanningService` in `platform/route/` ruft je Teilstrecke
+natives `MKDirections`, klassifiziert Netz-, Drossel- und Nicht-gefunden-Fehler
+zu stabilen `RoutePlanningError`-Kategorien und reduziert die Geometrie per
+Douglas–Peucker vor der Übergabe an Flutter. Die ausgewählte Route wird nativ
+als `MKPolyline`-Overlay in der bestehenden `MKMapView` gezeichnet
+(`showRoute`/`clearRoute`). Gemäß ADR-0011 wird über der Karte keine
+Flutter-Fläche zur Routenanzeige komponiert. Start-/Zieleingabe läuft auf einer
+opaken, animationslosen Vollbildroute (`RoutePlanningPage`). Die Routenvorschau
+(`RoutePreviewPage`) ist ebenfalls eine opake Route, aber ein nicht
+überlappendes Split-Layout: eine eigene `MKMapView`-Instanz füllt in einem
+`Column` den Bereich über einem statischen Auswahlpanel, sodass Route und
+Alternativen gleichzeitig sichtbar sind, ohne dass eine Flutter-Ebene über dem
+Platform View liegt. Das Kartenwidget wird zwischengespeichert, und die
+Vorschaukarte verzichtet auf den `EagerGestureRecognizer`. Ein erster Versuch
+mit einem schmalen Zusammenfassungsbalken über der Hauptkarte reproduzierte den
+ADR-0011-Freeze auf dem Gerät und wurde nach Internetrecherche als bekannte
+iOS-`UiKitView`-Freeze-Klasse verworfen (ADR-0019 Nachtrag).
 
 ## Verifizierte iOS-Entwicklungsumgebung
 

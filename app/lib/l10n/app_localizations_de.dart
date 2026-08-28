@@ -463,4 +463,103 @@ class AppLocalizationsDe extends AppLocalizations {
   @override
   String get diagnosticsPrivacyExplanation =>
       'Der Text enthält keine Koordinaten, Suchbegriffe, Favoriten oder Gerätekennung. Er wird nur durch diese Schaltfläche in die Zwischenablage kopiert und nicht automatisch versendet.';
+
+  @override
+  String get routePlanning => 'Route planen';
+
+  @override
+  String get routePlanningTitle => 'Routenplanung';
+
+  @override
+  String get routeOnlineHint =>
+      'Die Route wird online über Apple-Kartendienste berechnet.';
+
+  @override
+  String get routeStartLabel => 'Start';
+
+  @override
+  String get routeDestinationLabel => 'Ziel';
+
+  @override
+  String get routeEndpointHint => 'Ort, Adresse oder Koordinate';
+
+  @override
+  String get routeUseCurrentLocation =>
+      'Aktuellen Standort als Start verwenden';
+
+  @override
+  String get routeCalculate => 'Route berechnen';
+
+  @override
+  String get routeCalculating => 'Route wird berechnet …';
+
+  @override
+  String get routeStartNotFound => 'Der Start wurde nicht gefunden.';
+
+  @override
+  String get routeDestinationNotFound => 'Das Ziel wurde nicht gefunden.';
+
+  @override
+  String routeDurationHoursMinutes(int hours, int minutes) {
+    return '$hours h $minutes min';
+  }
+
+  @override
+  String routeDurationMinutes(int minutes) {
+    return '$minutes min';
+  }
+
+  @override
+  String routeSummary(String distance, String duration) {
+    return '$distance · $duration';
+  }
+
+  @override
+  String routeDistanceKm(String km) {
+    return '$km km';
+  }
+
+  @override
+  String get routeOverviewTitle => 'Route';
+
+  @override
+  String get routeMapSemantics => 'Karte mit der geplanten Route';
+
+  @override
+  String get routeAlternativesHeading => 'Alternativen';
+
+  @override
+  String routeOptionLabel(int index) {
+    return 'Route $index';
+  }
+
+  @override
+  String get routeShowOnMap => 'Auf Karte anzeigen';
+
+  @override
+  String get routeNewRoute => 'Neue Route';
+
+  @override
+  String get routeClear => 'Route beenden';
+
+  @override
+  String get routeErrorOffline =>
+      'Ohne Internetverbindung kann keine Route berechnet werden.';
+
+  @override
+  String get routeErrorThrottled =>
+      'Der Kartendienst ist zurzeit ausgelastet. Bitte kurz warten und erneut versuchen.';
+
+  @override
+  String get routeErrorNotFound =>
+      'Für Start und Ziel wurde keine Route gefunden.';
+
+  @override
+  String get routeErrorInvalid => 'Start und Ziel müssen angegeben sein.';
+
+  @override
+  String get routeErrorFailed => 'Die Route konnte nicht berechnet werden.';
+
+  @override
+  String get planRouteToHere => 'Route hierher planen';
 }
