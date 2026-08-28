@@ -602,7 +602,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get routeNavigationTruncated =>
-      'This navigation app does not take every charging stop. Add the rest there.';
+      'Google Maps does not take a chain of stops. It is guided to the next charging stop; re-open the rest of the route there afterwards.';
 
   @override
   String routeStopsCount(int count) {

@@ -69,13 +69,16 @@ aus der Detailansicht in eine gemeinsame Hilfsfunktion gezogen.
   Ladestopps und Ziel als reine Koordinaten mit optionalem Namen.
 - **Apple Maps** bekommt die vollständige Kette als geordnete Liste von
   `MKMapItem` über `MKMapItem.openMaps(with:launchOptions:)` im Fahrmodus.
-- **Google Maps** wird über den universellen Verzeichnis-Link
-  `https://www.google.com/maps/dir/?api=1&origin=…&destination=…&waypoints=…`
-  geöffnet; bei installierter App fängt diese den Link ab. Der Link nimmt eine
-  begrenzte Zahl Wegpunkte, daher werden höchstens acht Zwischenstopps (die
-  ersten Richtung Ziel) übergeben.
-- Der Adapter meldet über `NavigationHandoff`, wie viele Stopps tatsächlich
-  übergeben wurden. Wurde gekürzt, erklärt die Oberfläche das mit einem
-  kurzen Hinweis.
+- **Google Maps** wird über sein App-Schema `comgooglemaps://` mit `saddr`
+  und `daddr` geöffnet. Der Weg über den universellen Web-Link
+  `https://www.google.com/maps/dir/` wurde verworfen: aus einer fremden App
+  per `openURL` aufgerufen landet er auf dem Gerät zuverlässig im Browser
+  (mit „App öffnen?"-Rückfrage und App-Store-Umweg), statt in der App. Das
+  Schema kennt keinen `waypoints`-Parameter, daher wird `daddr` auf den
+  nächsten Ladestopp gesetzt (bei stopploser Route auf das Ziel).
+- Der Adapter meldet über `NavigationHandoff`, wie viele Stopps als geführte
+  Kette übergeben wurden – bei Google Maps also null, sobald die Route
+  Stopps hat. In diesem Fall erklärt die Oberfläche mit einem kurzen Hinweis,
+  dass Google Maps nur zum nächsten Ladestopp führt.
 - Es werden weiterhin nur Zielkoordinaten übergeben, kein Konto und kein
   Backend; die eigentliche Navigation bleibt Sache der Ziel-App.

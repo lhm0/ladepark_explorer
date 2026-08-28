@@ -471,32 +471,24 @@ enum LadeparkPlatformChannels {
       let values = arguments as? [String: Any],
       let origin = coordinate(from: values["origin"]),
       let destination = coordinate(from: values["destination"]),
-      var components = URLComponents(string: "https://www.google.com/maps/dir/")
+      var components = URLComponents(string: "comgooglemaps://")
     else {
       result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
       return
     }
-    let waypoints: [String] = (values["waypoints"] as? [[String: Any]] ?? []).compactMap { raw in
-      guard let point = coordinate(from: raw) else { return nil }
-      return "\(point.latitude),\(point.longitude)"
-    }
-    var queryItems = [
-      URLQueryItem(name: "api", value: "1"),
-      URLQueryItem(name: "origin", value: "\(origin.latitude),\(origin.longitude)"),
+    components.queryItems = [
+      URLQueryItem(name: "saddr", value: "\(origin.latitude),\(origin.longitude)"),
       URLQueryItem(
-        name: "destination",
+        name: "daddr",
         value: "\(destination.latitude),\(destination.longitude)"
       ),
-      URLQueryItem(name: "travelmode", value: "driving"),
+      URLQueryItem(name: "directionsmode", value: "driving"),
     ]
-    if !waypoints.isEmpty {
-      queryItems.append(
-        URLQueryItem(name: "waypoints", value: waypoints.joined(separator: "|"))
-      )
-    }
-    components.queryItems = queryItems
-    guard let url = components.url else {
-      result(FlutterError(code: "invalid_navigation_target", message: nil, details: nil))
+    guard
+      let url = components.url,
+      UIApplication.shared.canOpenURL(url)
+    else {
+      result(FlutterError(code: "google_maps_unavailable", message: nil, details: nil))
       return
     }
     UIApplication.shared.open(url, options: [:]) { success in

@@ -499,9 +499,11 @@ damit eine spätere „intelligente“ Vorhersage nachgerüstet werden kann.
   automatisiert geprüft; manuelle Abnahme steht aus:
   - `NavigationAdapter` erhält `openRoute(NavigationRoute)`; die Vorschau zeigt
     „In Navigation öffnen“ als Hauptaktion (FR-ROUTE-011),
-  - Apple Maps bekommt die vollständige Kette (`MKMapItem.openMaps`), Google
-    Maps den universellen `maps/dir`-Link mit bis zu acht Zwischenstopps; wird
-    gekürzt, erklärt ein Hinweis das (`NavigationHandoff`),
+  - Apple Maps bekommt die vollständige Kette (`MKMapItem.openMaps`); Google
+    Maps wird über das App-Schema `comgooglemaps://` geöffnet (der universelle
+    Web-Link landete auf dem Gerät im Browser samt App-Store-Umweg) und kennt
+    keine Zwischenziel-Kette, führt also zum nächsten Ladestopp – ein Hinweis
+    erklärt das (`NavigationHandoff`),
   - die App-Auswahl (Präferenz, Auswahldialog, Apple-Fallback) ist in die
     gemeinsame Hilfsfunktion `resolveNavigationAdapter` gezogen und wird von
     Detailansicht und Routenvorschau genutzt (ADR-0016),

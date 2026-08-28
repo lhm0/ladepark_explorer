@@ -189,7 +189,7 @@
   "routeInsertStop": "Insert charging stop",
   "routeRemoveStop": "Remove charging stop",
   "routeOpenInNavigation": "Open in navigation app",
-  "routeNavigationTruncated": "This navigation app does not take every charging stop. Add the rest there.",
+  "routeNavigationTruncated": "Google Maps does not take a chain of stops. It is guided to the next charging stop; re-open the rest of the route there afterwards.",
   "routeStopsCount": "{count, plural, =0{No charging stops} =1{1 charging stop} other{{count} charging stops}}",
   "@routeStopsCount": {"placeholders": {"count": {"type": "int"}}},
   "routeStartSocLabel": "Start state of charge",

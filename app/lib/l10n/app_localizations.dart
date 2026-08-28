@@ -1079,7 +1079,7 @@ abstract class AppLocalizations {
   /// No description provided for @routeNavigationTruncated.
   ///
   /// In de, this message translates to:
-  /// **'Diese Navigations-App übernimmt nicht alle Ladestopps. Ergänze die übrigen dort.'**
+  /// **'Google Maps übernimmt keine Zwischenstopp-Kette. Es wird zum nächsten Ladestopp geführt; die weitere Route danach dort erneut öffnen.'**
   String get routeNavigationTruncated;
 
   /// No description provided for @routeStopsCount.

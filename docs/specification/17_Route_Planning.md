@@ -266,10 +266,12 @@ nicht vor.
   - Aus der Routenvorschau öffnet „In Navigation öffnen“ die geplante Route in
     der gewählten Navigations-App.
   - Soweit die Ziel-App mehrere Wegpunkte annimmt, werden Start, Ladestopps und
-    Ziel in Reihenfolge übergeben. Apple Maps erhält die vollständige Kette;
-    Google Maps erhält bis zu acht Zwischenstopps.
-  - Nimmt die Ziel-App nicht alle Ladestopps an, werden die ersten Richtung
-    Ziel übergeben und der Rest wird als Hinweis erklärt.
+    Ziel in Reihenfolge übergeben. Apple Maps erhält über `MKMapItem` die
+    vollständige Kette.
+  - Google Maps wird über sein App-Schema (`comgooglemaps://`) direkt geöffnet;
+    das Schema kennt keine Zwischenziel-Kette, daher wird zum nächsten
+    Ladestopp geführt (bei stopploser Route zum Ziel). Die Einschränkung wird
+    als Hinweis erklärt.
   - Es gelten die bestehenden Navigationswahl- und Fallback-Regeln aus
     `FR-NAV-001` (gespeicherte Präferenz, Auswahl bei „jedes Mal fragen“,
     Rückfall auf Apple Maps, wenn Google Maps fehlt).
@@ -404,8 +406,9 @@ festgelegt:
   entlang der Route bleiben offen,
 - Referenzgerät und Messverfahren für `NFR-ROUTE-PERF-001`,
 - ~~Umfang der an eine Navigations-App übergebbaren Wegpunktkette je Ziel-App~~
-  – festgelegt: Apple Maps vollständige Kette, Google Maps bis acht
-  Zwischenstopps, sonst Kürzung mit Hinweis (`FR-ROUTE-011`, `ADR-0016`).
+  – festgelegt: Apple Maps vollständige Kette; Google Maps über das
+  App-Schema nur bis zum nächsten Ladestopp, mit Hinweis (`FR-ROUTE-011`,
+  `ADR-0016`).
 
 ## 9. Ausblick: „intelligente“ Vorhersage
 

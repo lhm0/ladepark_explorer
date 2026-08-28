@@ -46,7 +46,7 @@ void main() {
     });
   });
 
-  test('hands origin, stops and destination to Google Maps', () async {
+  test('guides Google Maps to the next charging stop', () async {
     MethodCall? receivedCall;
     TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
         .setMockMethodCallHandler(channel, (call) async {
@@ -66,32 +66,48 @@ void main() {
     );
 
     expect(receivedCall?.method, 'openGoogleMapsRoute');
-    expect(
-      ((receivedCall?.arguments as Map)['waypoints'] as List<Object?>),
-      hasLength(2),
-    );
-    expect(handoff.truncated, isFalse);
-    expect(handoff.includedStops, 2);
-  });
-
-  test('shortens the plan to the Google Maps waypoint limit', () async {
-    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
-        .setMockMethodCallHandler(channel, (_) async => null);
-
-    final stops = <NavigationWaypoint>[
-      for (var i = 0; i < GoogleMapsNavigationAdapter.maxStops + 3; i++)
-        NavigationWaypoint(latitude: 50.0 + i * 0.1, longitude: 12.0),
-    ];
-    final handoff = await const GoogleMapsNavigationAdapter().openRoute(
-      NavigationRoute(
-        origin: const NavigationWaypoint(latitude: 52.5, longitude: 13.4),
-        destination: const NavigationWaypoint(latitude: 48.1, longitude: 11.6),
-        stops: stops,
-      ),
-    );
-
-    expect(handoff.includedStops, GoogleMapsNavigationAdapter.maxStops);
-    expect(handoff.totalStops, stops.length);
+    final args = receivedCall?.arguments as Map;
+    expect(args['origin'], <String, Object?>{
+      'latitude': 52.5,
+      'longitude': 13.4,
+      'name': null,
+    });
+    // The destination handed over is the first charging stop, not the final one.
+    expect(args['destination'], <String, Object?>{
+      'latitude': 50.0,
+      'longitude': 12.0,
+      'name': null,
+    });
+    expect(args.containsKey('waypoints'), isFalse);
+    expect(handoff.includedStops, 0);
+    expect(handoff.totalStops, 2);
     expect(handoff.truncated, isTrue);
   });
+
+  test(
+    'navigates straight to the destination when there are no stops',
+    () async {
+      MethodCall? receivedCall;
+      TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .setMockMethodCallHandler(channel, (call) async {
+            receivedCall = call;
+            return null;
+          });
+
+      final handoff = await const GoogleMapsNavigationAdapter().openRoute(
+        const NavigationRoute(
+          origin: NavigationWaypoint(latitude: 52.5, longitude: 13.4),
+          destination: NavigationWaypoint(latitude: 48.1, longitude: 11.6),
+        ),
+      );
+
+      expect((receivedCall?.arguments as Map)['destination'], <String, Object?>{
+        'latitude': 48.1,
+        'longitude': 11.6,
+        'name': null,
+      });
+      expect(handoff.truncated, isFalse);
+      expect(handoff.totalStops, 0);
+    },
+  );
 }

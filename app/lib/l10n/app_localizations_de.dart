@@ -608,7 +608,7 @@ class AppLocalizationsDe extends AppLocalizations {
 
   @override
   String get routeNavigationTruncated =>
-      'Diese Navigations-App übernimmt nicht alle Ladestopps. Ergänze die übrigen dort.';
+      'Google Maps übernimmt keine Zwischenstopp-Kette. Es wird zum nächsten Ladestopp geführt; die weitere Route danach dort erneut öffnen.';
 
   @override
   String routeStopsCount(int count) {
