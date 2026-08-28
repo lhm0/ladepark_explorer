@@ -554,6 +554,102 @@ abstract class AppLocalizations {
   /// **'Abbrechen'**
   String get cancel;
 
+  /// No description provided for @datasetUpdates.
+  ///
+  /// In de, this message translates to:
+  /// **'Datensatzupdates'**
+  String get datasetUpdates;
+
+  /// No description provided for @automaticUpdateChecks.
+  ///
+  /// In de, this message translates to:
+  /// **'Automatisch nach Updates suchen'**
+  String get automaticUpdateChecks;
+
+  /// No description provided for @automaticUpdateChecksExplanation.
+  ///
+  /// In de, this message translates to:
+  /// **'Beim App-Start wird nur das kleine Manifest abgerufen. Der Datensatz wird erst nach Bestätigung heruntergeladen.'**
+  String get automaticUpdateChecksExplanation;
+
+  /// No description provided for @chargingDataset.
+  ///
+  /// In de, this message translates to:
+  /// **'Ladepark-Datensatz'**
+  String get chargingDataset;
+
+  /// No description provided for @updateNotChecked.
+  ///
+  /// In de, this message translates to:
+  /// **'Noch nicht geprüft'**
+  String get updateNotChecked;
+
+  /// No description provided for @checkingForUpdates.
+  ///
+  /// In de, this message translates to:
+  /// **'Suche nach Updates …'**
+  String get checkingForUpdates;
+
+  /// No description provided for @datasetUpToDate.
+  ///
+  /// In de, this message translates to:
+  /// **'Der installierte Datensatz ist aktuell.'**
+  String get datasetUpToDate;
+
+  /// No description provided for @updateAvailable.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version} ist verfügbar ({sizeMb} MB).'**
+  String updateAvailable(String version, String sizeMb);
+
+  /// No description provided for @downloadingUpdate.
+  ///
+  /// In de, this message translates to:
+  /// **'Update wird geladen: {percent} %'**
+  String downloadingUpdate(int percent);
+
+  /// No description provided for @updateInstalled.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version} wurde installiert.'**
+  String updateInstalled(String version);
+
+  /// No description provided for @updateCheckFailed.
+  ///
+  /// In de, this message translates to:
+  /// **'Die Updateprüfung ist fehlgeschlagen.'**
+  String get updateCheckFailed;
+
+  /// No description provided for @installedDatasetRemainsActive.
+  ///
+  /// In de, this message translates to:
+  /// **'Der bisherige Datensatz bleibt unverändert aktiv.'**
+  String get installedDatasetRemainsActive;
+
+  /// No description provided for @tryAgain.
+  ///
+  /// In de, this message translates to:
+  /// **'Erneut versuchen'**
+  String get tryAgain;
+
+  /// No description provided for @checkNow.
+  ///
+  /// In de, this message translates to:
+  /// **'Jetzt prüfen'**
+  String get checkNow;
+
+  /// No description provided for @downloadUpdate.
+  ///
+  /// In de, this message translates to:
+  /// **'Herunterladen'**
+  String get downloadUpdate;
+
+  /// No description provided for @updateDownloadConfirmation.
+  ///
+  /// In de, this message translates to:
+  /// **'Version {version} benötigt {sizeMb} MB. Der Download darf WLAN oder Mobilfunk verwenden. Jetzt herunterladen?'**
+  String updateDownloadConfirmation(String version, String sizeMb);
+
   /// No description provided for @favorites.
   ///
   /// In de, this message translates to:

@@ -297,6 +297,64 @@ class AppLocalizationsDe extends AppLocalizations {
   String get cancel => 'Abbrechen';
 
   @override
+  String get datasetUpdates => 'Datensatzupdates';
+
+  @override
+  String get automaticUpdateChecks => 'Automatisch nach Updates suchen';
+
+  @override
+  String get automaticUpdateChecksExplanation =>
+      'Beim App-Start wird nur das kleine Manifest abgerufen. Der Datensatz wird erst nach Bestätigung heruntergeladen.';
+
+  @override
+  String get chargingDataset => 'Ladepark-Datensatz';
+
+  @override
+  String get updateNotChecked => 'Noch nicht geprüft';
+
+  @override
+  String get checkingForUpdates => 'Suche nach Updates …';
+
+  @override
+  String get datasetUpToDate => 'Der installierte Datensatz ist aktuell.';
+
+  @override
+  String updateAvailable(String version, String sizeMb) {
+    return 'Version $version ist verfügbar ($sizeMb MB).';
+  }
+
+  @override
+  String downloadingUpdate(int percent) {
+    return 'Update wird geladen: $percent %';
+  }
+
+  @override
+  String updateInstalled(String version) {
+    return 'Version $version wurde installiert.';
+  }
+
+  @override
+  String get updateCheckFailed => 'Die Updateprüfung ist fehlgeschlagen.';
+
+  @override
+  String get installedDatasetRemainsActive =>
+      'Der bisherige Datensatz bleibt unverändert aktiv.';
+
+  @override
+  String get tryAgain => 'Erneut versuchen';
+
+  @override
+  String get checkNow => 'Jetzt prüfen';
+
+  @override
+  String get downloadUpdate => 'Herunterladen';
+
+  @override
+  String updateDownloadConfirmation(String version, String sizeMb) {
+    return 'Version $version benötigt $sizeMb MB. Der Download darf WLAN oder Mobilfunk verwenden. Jetzt herunterladen?';
+  }
+
+  @override
   String get favorites => 'Favoriten';
 
   @override

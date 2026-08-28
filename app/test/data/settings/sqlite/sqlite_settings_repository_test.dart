@@ -6,7 +6,7 @@ import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 
 // Persistence contract for FR-I18N-001 and FR-NAV-001.
 void main() {
-  test('persists language and navigation preference', () async {
+  test('persists language, navigation, and automatic update checks', () async {
     final directory = await Directory.systemTemp.createTemp(
       'ladepark-settings',
     );
@@ -14,11 +14,14 @@ void main() {
     final path = '${directory.path}/settings.sqlite3';
 
     var repository = await SqliteSettingsRepository.open(path);
-    expect((await repository.load()).language, AppLanguage.system);
+    final defaults = await repository.load();
+    expect(defaults.language, AppLanguage.system);
+    expect(defaults.automaticDatasetChecks, isTrue);
     await repository.save(
       const AppSettings(
         language: AppLanguage.english,
         navigationPreference: NavigationPreference.googleMaps,
+        automaticDatasetChecks: false,
       ),
     );
     await repository.close();
@@ -28,5 +31,6 @@ void main() {
     final restored = await repository.load();
     expect(restored.language, AppLanguage.english);
     expect(restored.navigationPreference, NavigationPreference.googleMaps);
+    expect(restored.automaticDatasetChecks, isFalse);
   });
 }

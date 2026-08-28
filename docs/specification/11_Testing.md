@@ -64,11 +64,18 @@ Die M10-Navigationstests prüfen die typisierten Method-Channel-Verträge für
 Apple Maps und Google Maps, einschließlich nativer Verfügbarkeitsabfrage. Ein
 SQLite-Neuöffnungstest belegt, dass Sprach- und Navigationswahl dauerhaft
 gespeichert und sichere Standardwerte verwendet werden. Der gemeinsame
-Detail-Contract prüft zusätzlich
-Adresse, Koordinaten, Leistung, Öffnungszeiten, Leistungsbänder,
-Datensatzversion und Quelle. Der lokale iOS-Lauf mit dem vollständigen
-Deutschlandbestand belegt außerdem die direkte Bundle-Auflösung und die
-Darstellung von 500 gefilterten Gruppen samt nativen Clustern.
+Detail-Contract prüft zusätzlich Adresse, Koordinaten, Leistung,
+Öffnungszeiten, Leistungsbänder, Datensatzversion und Quelle. Der lokale
+iOS-Lauf mit dem vollständigen Deutschlandbestand belegt außerdem die direkte
+Bundle-Auflösung und die Darstellung von 500 gefilterten Gruppen samt nativen
+Clustern.
+
+M11 ergänzt plattformneutrale Verträge für Manifestformat und numerische
+Versionsvergleiche. Installationstests streamen ein gzip-komprimiertes
+Schema-v2-Contract-Artefakt, prüfen beide Hashstufen und die atomare
+Aktivierung. Ein Negativtest beschädigt den Download und belegt, dass der zuvor
+aktive Zeiger unverändert bleibt. Der Importertest erzeugt dasselbe Paket
+zweimal und vergleicht die komprimierten Bytes auf Determinismus.
 
 Ein weiterer Kartenvertragstest prüft den nativen Befehl zum Wiederherstellen
 der Deutschlandansicht; der Widgettest sichert die sichtbare Schaltfläche.
@@ -189,6 +196,7 @@ Die vollständigen funktionalen Probeläufe des Importers stehen in
 | Detaildaten | `FR-DETAIL-001` | typisiertes Dart-Detailmapping und scrollbare App-Darstellung; Infrastruktur fehlt |
 | Favoriten | `FR-FAV-001`, `FR-FILTER-001` | getrennter SQLite-Speicher, Anker-/Aliasauflösung, SQL-Kartenfilter und Widgettests für Herz und Liste |
 | Navigation und Sprache | `FR-NAV-001`, `FR-I18N-001` | Apple-/Google-Maps-Kanalverträge, Installationsprüfung und persistenter SQLite-Einstellungstest; manueller iPhone-Test folgt |
+| Datensatzupdate | `FR-DATA-002`, `NFR-RELIABILITY-001` | deterministischer Pakettest, Manifest-/Versionsvertrag, doppelte Hashprüfung, SQLite-Validierung und Rollbacktest |
 | Basisdatensatz | `FR-DATA-001`, `NFR-DATA-001` | reproduzierbarer SQLite-Doppelbuild und Validierung |
 | Offline-Datenzugriff | `NFR-OFFLINE-001` | read-only SQLite-App-Adapter im Hintergrund-Isolate |
 | Performance | `NFR-PERF-001` | explorative Deutschlandmessungen; formaler Gerätetest fehlt |

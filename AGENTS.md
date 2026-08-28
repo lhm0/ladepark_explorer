@@ -85,6 +85,9 @@ uv run ladepark-importer build-sqlite tests/fixtures/bnetza_minimal.csv \
   --created-at 2026-07-26T00:00:00Z --replace
 uv run ladepark-importer validate-sqlite ../data/output/test-charging.sqlite3
 uv run ladepark-importer query-sqlite ../data/output/test-charging.sqlite3 --limit 10
+uv run ladepark-importer build-release ../data/output/test-charging.sqlite3 \
+  --output ../data/output/test-release \
+  --repository lhm0/ladepark_explorer --git-commit test
 ```
 
 `uv sync` verändert keine globale Python-Installation. Es verwendet die in

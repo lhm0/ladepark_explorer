@@ -557,11 +557,13 @@ Beispiel:
   },
   "artifacts": [
     {
-      "type": "charging_sqlite",
+      "type": "charging_sqlite_gzip",
       "license": "CC-BY-4.0",
-      "url": "datasets/charging-de-2026.07.0.sqlite3",
+      "url": "https://github.com/lhm0/ladepark_explorer/releases/download/dataset-2026.07.0/charging-de-2026.07.0.sqlite3.gz",
       "size_bytes": 12345678,
-      "sha256": "64-lowercase-hex-characters"
+      "sha256": "64-lowercase-hex-characters",
+      "uncompressed_size_bytes": 123456789,
+      "uncompressed_sha256": "64-lowercase-hex-characters"
     },
     {
       "type": "osm_amenities_sqlite",

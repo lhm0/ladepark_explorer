@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:ladepark_explorer/features/dataset_update/application/dataset_update_providers.dart';
+import 'package:ladepark_explorer/features/dataset_update/domain/dataset_update_manifest.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
 import 'package:ladepark_explorer/l10n/app_localizations.dart';
@@ -14,6 +16,7 @@ class SettingsPage extends ConsumerWidget {
     final settings = ref.watch(settingsControllerProvider);
     final googleAvailable =
         ref.watch(googleMapsAvailableProvider).value ?? false;
+    final update = ref.watch(datasetUpdateControllerProvider);
     return Scaffold(
       appBar: AppBar(title: Text(strings.settings)),
       body: settings.when(
@@ -68,6 +71,17 @@ class SettingsPage extends ConsumerWidget {
                 ],
               ),
             ),
+            const Divider(),
+            _SectionTitle(strings.datasetUpdates),
+            SwitchListTile(
+              title: Text(strings.automaticUpdateChecks),
+              subtitle: Text(strings.automaticUpdateChecksExplanation),
+              value: value.automaticDatasetChecks,
+              onChanged: (enabled) => ref
+                  .read(settingsControllerProvider.notifier)
+                  .setAutomaticDatasetChecks(enabled),
+            ),
+            _DatasetUpdateTile(update: update),
           ],
         ),
       ),
@@ -88,6 +102,110 @@ class SettingsPage extends ConsumerWidget {
     }
   }
 }
+
+class _DatasetUpdateTile extends ConsumerWidget {
+  const _DatasetUpdateTile({required this.update});
+
+  final AsyncValue<DatasetUpdateState> update;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final strings = AppLocalizations.of(context);
+    return update.when(
+      loading: () => const ListTile(leading: CircularProgressIndicator()),
+      error: (_, _) => ListTile(
+        title: Text(strings.updateCheckFailed),
+        subtitle: Text(strings.installedDatasetRemainsActive),
+        trailing: TextButton(
+          onPressed: () =>
+              ref.read(datasetUpdateControllerProvider.notifier).check(),
+          child: Text(strings.tryAgain),
+        ),
+      ),
+      data: (state) {
+        final manifest = state.manifest;
+        final subtitle = switch (state.phase) {
+          DatasetUpdatePhase.idle => strings.updateNotChecked,
+          DatasetUpdatePhase.checking => strings.checkingForUpdates,
+          DatasetUpdatePhase.upToDate => strings.datasetUpToDate,
+          DatasetUpdatePhase.available => strings.updateAvailable(
+            manifest!.datasetVersion,
+            _megabytes(manifest.artifact.sizeBytes),
+          ),
+          DatasetUpdatePhase.downloading => strings.downloadingUpdate(
+            (state.progress * 100).round(),
+          ),
+          DatasetUpdatePhase.installed => strings.updateInstalled(
+            manifest!.datasetVersion,
+          ),
+          DatasetUpdatePhase.failed => strings.updateCheckFailed,
+        };
+        return Column(
+          children: [
+            ListTile(
+              title: Text(strings.chargingDataset),
+              subtitle: Text(subtitle),
+              trailing: state.phase == DatasetUpdatePhase.available
+                  ? FilledButton(
+                      onPressed: () => _confirmInstall(context, ref, manifest!),
+                      child: Text(strings.downloadUpdate),
+                    )
+                  : state.phase == DatasetUpdatePhase.checking ||
+                        state.phase == DatasetUpdatePhase.downloading
+                  ? const SizedBox.square(
+                      dimension: 24,
+                      child: CircularProgressIndicator(),
+                    )
+                  : TextButton(
+                      onPressed: () => ref
+                          .read(datasetUpdateControllerProvider.notifier)
+                          .check(),
+                      child: Text(strings.checkNow),
+                    ),
+            ),
+            if (state.phase == DatasetUpdatePhase.downloading)
+              LinearProgressIndicator(value: state.progress),
+          ],
+        );
+      },
+    );
+  }
+
+  Future<void> _confirmInstall(
+    BuildContext context,
+    WidgetRef ref,
+    DatasetUpdateManifest manifest,
+  ) async {
+    final strings = AppLocalizations.of(context);
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(strings.downloadUpdate),
+        content: Text(
+          strings.updateDownloadConfirmation(
+            manifest.datasetVersion,
+            _megabytes(manifest.artifact.sizeBytes),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text(strings.cancel),
+          ),
+          FilledButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(strings.downloadUpdate),
+          ),
+        ],
+      ),
+    );
+    if (confirmed == true) {
+      await ref.read(datasetUpdateControllerProvider.notifier).install();
+    }
+  }
+}
+
+String _megabytes(int bytes) => (bytes / 1000000).toStringAsFixed(0);
 
 class _SectionTitle extends StatelessWidget {
   const _SectionTitle(this.text);

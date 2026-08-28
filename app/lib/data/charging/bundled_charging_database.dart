@@ -2,6 +2,8 @@ import 'dart:io';
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:ladepark_explorer/data/dataset_update/dataset_installation_store.dart';
+import 'package:path_provider/path_provider.dart';
 
 final class BundledChargingDatabase {
   const BundledChargingDatabase({
@@ -17,6 +19,11 @@ final class BundledChargingDatabase {
   final String fileName;
 
   Future<String> resolve() async {
+    final support = await getApplicationSupportDirectory();
+    final installed = await DatasetInstallationStore(
+      Directory('${support.path}/charging-datasets'),
+    ).activeDatabasePath();
+    if (installed != null) return installed;
     if (defaultTargetPlatform == TargetPlatform.iOS) {
       final path = await _platformChannel
           .invokeMethod<String>('resolveDatasetPath', const <String, Object?>{

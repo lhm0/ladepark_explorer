@@ -1,11 +1,10 @@
 # Deployment
 
-Status: Basisdatensatz-Packaging implementiert; Updateverteilung noch offen
+Status: Basisdatensatz-Packaging und M11-Updateverteilung implementiert
 
-Version 1 nutzt statische, unveränderliche Datensatzartefakte. Cloudflare R2 ist
-die bevorzugte, aber noch zu bestätigende Distribution. Build, Signierung,
-Veröffentlichung und Rollback heruntergeladener Updates sind noch
-auszuarbeiten.
+Version 1 nutzt statische, unveränderliche Datensatzartefakte. M11 verwendet
+öffentliche GitHub Releases; der Zugriff ist hinter Manifest- und HTTP-Vertrag
+gekapselt und kann später auf Cloudflare R2 umgestellt werden.
 
 Der mitgelieferte Basisdatensatz wird gemäß ADR-0010 vor dem App-Build als
 git-ignoriertes Asset vorbereitet:
@@ -39,5 +38,25 @@ erzeugt git-ignoriert `app/assets/generated/park-info.sqlite3` sowie
 `app/assets/generated/park-info-media/`. Fehlt der vollständige Ladebestand,
 wird für Entwicklung nur gegen das Contract-Fixture geprüft. Ein App-Build
 ohne Produktbestand verwendet ein kleines redaktionelles Contract-Fixture.
-Originalfotos gehören weder in das App-Bundle noch in das Repository. Eine
-gemeinsame Updateverteilung folgt erst mit M11.
+Originalfotos gehören weder in das App-Bundle noch in das Repository. Der
+redaktionelle Bestand bleibt vom monatlichen BNetzA-Update getrennt.
+
+## Statische Updates
+
+Ein Releasepaket wird reproduzierbar erzeugt mit:
+
+```text
+cd importer
+uv run ladepark-importer build-release \
+  ../data/output/charging-de-2026.07.0.sqlite3 \
+  --output ../data/output/release-2026.07.0 \
+  --repository lhm0/ladepark_explorer \
+  --git-commit <commit>
+```
+
+Es enthält `manifest.json` und ein deterministisch gzip-komprimiertes
+SQLite-Artefakt. Die App prüft beim Start standardmäßig nur das Manifest. Eine
+verfügbare Version wird mit Datenstand und Größe in den Einstellungen gezeigt;
+erst nach Bestätigung folgen Download, doppelte SHA-256-Prüfung,
+SQLite-Integritäts- und Metadatenprüfung sowie atomare Aktivierung gemäß
+ADR-0017. Der vorherige Downloadbestand bleibt als Rollback erhalten.

@@ -260,3 +260,16 @@ Teil des Prototyps, weil sie später in getrennten lokalen Beständen liegen.
 Connectorfilter verwenden das beim Export vorberechnete sparse
 `group_connector`-Aggregat. Es zählt je Gruppe die unterschiedlichen EVSEs, die
 einen Connector-Typ anbieten.
+
+## Statisches Updatepaket erzeugen
+
+Ein validierter Ladebestand wird für M11 als deterministisches gzip-Artefakt
+samt Manifest verpackt:
+
+```bash
+uv run ladepark-importer build-release \
+  ../data/output/charging-de-2026.07.0.sqlite3 \
+  --output ../data/output/release-2026.07.0 \
+  --repository lhm0/ladepark_explorer \
+  --git-commit COMMIT
+```

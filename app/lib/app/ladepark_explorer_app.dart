@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ladepark_explorer/app/theme.dart';
+import 'package:ladepark_explorer/features/dataset_update/application/dataset_update_providers.dart';
 import 'package:ladepark_explorer/features/explorer/presentation/map_screen.dart';
 import 'package:ladepark_explorer/features/settings/application/settings_providers.dart';
 import 'package:ladepark_explorer/features/settings/domain/app_settings.dart';
@@ -14,6 +15,7 @@ class LadeparkExplorerApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.watch(datasetUpdateControllerProvider);
     final savedLanguage = ref.watch(settingsControllerProvider).value?.language;
     final selectedLocale =
         locale ??

@@ -36,8 +36,9 @@ Status: Produktroadmap – Termine noch offen
 - **M10 – Navigation, Sprache und Einstellungen (implementiert):** Google Maps
   mit Apple-Maps-Fallback, unabhängige Sprachauswahl und persistente lokale
   Einstellungen.
-- **M11 – Statische Datensatzupdates:** Manifest, Download, Verifikation,
-  atomarer Wechsel und Rollback.
+- **M11 – Statische Datensatzupdates (implementiert):** öffentliches
+  GitHub-Release, deterministisches gzip-Manifest, bestätigter Download,
+  doppelte SHA-256- und SQLite-Prüfung, atomarer Wechsel und Rollbackbestand.
 - **M12 – Datenschutz und Diagnostik:** Entscheidung über einen vollständigen
   Verzicht oder eine ausdrücklich einwilligungsbasierte Telemetrie.
 - **M13 – Release-Härtung:** Performance, Offlineverhalten,

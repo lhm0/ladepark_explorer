@@ -1,6 +1,6 @@
 # Projektstatus – Ladepark Explorer
 
-Stand: 27. August 2026
+Stand: 28. August 2026
 
 ## Aktueller Zustand
 
@@ -352,7 +352,11 @@ Die offenen App-Meilensteine werden in dieser Reihenfolge bearbeitet:
   lokalen SQLite-Datenbank. Apple Maps, Google Maps (wenn installiert) und
   „jedes Mal fragen“ sind auswählbar; fehlt Google Maps später, wird Apple Maps
   als verständliche Alternative angeboten,
-- M11: statische, verifizierte Datensatzupdates,
+- M11 ist implementiert: ein deterministisches gzip-Releasepaket mit
+  versioniertem Manifest, öffentliche GitHub-Release-URLs, automatische
+  konfigurierbare Manifestprüfung, bestätigter Download mit Fortschritt,
+  komprimierte und unkomprimierte SHA-256-Prüfung, SQLite-Integritäts- und
+  Metadatenprüfung sowie atomare Aktivierung mit Rollbackbestand,
 - M12: Datenschutzentscheidung und optionale Diagnostik,
 - M13: Release-Härtung und App-Store-Vorbereitung.
 
@@ -414,7 +418,7 @@ uv run ladepark-importer validate-sqlite ../data/output/test-charging.sqlite3
 uv run ladepark-importer query-sqlite ../data/output/test-charging.sqlite3 --limit 10
 ```
 
-Zuletzt verifiziert am 27. August 2026 mit Python 3.12.12: 69 Tests erfolgreich,
+Zuletzt verifiziert am 28. August 2026 mit Python 3.12.12: 72 Tests erfolgreich,
 Ruff und Mypy ohne Befund; die Normalisierung erzeugte zwei Stationen, drei
 EVSEs und drei Connectoren. Zusätzlich wurde die vollständige offizielle
 BNetzA-CSV erfolgreich inspiziert, normalisiert und für alle fünf Durchmesser
@@ -428,10 +432,11 @@ Kartenausschnitte und Umkreissuchen. Die hybride Auswahl zwischen R*Tree und
 Direktfilter benötigte im Prototyp 154–207 ms für den Berliner Ausschnitt,
 53 ms für 25 km um München und 443 ms für die Deutschlandansicht.
 
-Die Flutter-App wurde am 27. August 2026 mit `flutter gen-l10n`, `dart format`,
-`flutter analyze` und 50 Tests erfolgreich geprüft. Darin sind der
+Die Flutter-App wurde am 28. August 2026 mit `flutter gen-l10n`, `dart format`,
+`flutter analyze` und 54 Tests erfolgreich geprüft. Darin sind der
 M2-SQLite-Contract, die M3-Kartenkoordination sowie die M10-Verträge für lokale
-Einstellungen und Apple-/Google-Maps-Navigation enthalten. Die automatisierte
+Einstellungen, Apple-/Google-Maps-Navigation und die M11-Manifest-,
+Installations- und Rollbackverträge enthalten. Die automatisierte
 Architekturprüfung und der native iOS-Simulator-Build mit Xcode 16.2 sind
 erfolgreich. Die
 App wurde mit dem 386-MB-Deutschlandbestand auf einem iPhone-16-Simulator

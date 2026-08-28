@@ -196,6 +196,15 @@ def build_parser() -> argparse.ArgumentParser:
         "validate-sqlite", help="charging.sqlite vollständig validieren"
     )
     validate_sqlite_parser.add_argument("database", type=Path, help="SQLite-Datei")
+    release_parser = subparsers.add_parser(
+        "build-release", help="Statisches, verifizierbares App-Updatepaket erzeugen"
+    )
+    release_parser.add_argument("database", type=Path, help="Validierte charging.sqlite")
+    release_parser.add_argument("--output", type=Path, required=True, help="Ausgabeverzeichnis")
+    release_parser.add_argument(
+        "--repository", required=True, help="Öffentliches GitHub-Repository als owner/name"
+    )
+    release_parser.add_argument("--git-commit", required=True, help="Erzeugender Git-Commit")
     query_sqlite_parser = subparsers.add_parser(
         "query-sqlite", help="Abstandsgruppen im lokalen App-Datensatz filtern"
     )

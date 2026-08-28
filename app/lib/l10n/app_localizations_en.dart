@@ -295,6 +295,64 @@ class AppLocalizationsEn extends AppLocalizations {
   String get cancel => 'Cancel';
 
   @override
+  String get datasetUpdates => 'Dataset updates';
+
+  @override
+  String get automaticUpdateChecks => 'Automatically check for updates';
+
+  @override
+  String get automaticUpdateChecksExplanation =>
+      'Only the small manifest is fetched when the app starts. The dataset is downloaded after confirmation.';
+
+  @override
+  String get chargingDataset => 'Charging park dataset';
+
+  @override
+  String get updateNotChecked => 'Not checked yet';
+
+  @override
+  String get checkingForUpdates => 'Checking for updates…';
+
+  @override
+  String get datasetUpToDate => 'The installed dataset is up to date.';
+
+  @override
+  String updateAvailable(String version, String sizeMb) {
+    return 'Version $version is available ($sizeMb MB).';
+  }
+
+  @override
+  String downloadingUpdate(int percent) {
+    return 'Downloading update: $percent%';
+  }
+
+  @override
+  String updateInstalled(String version) {
+    return 'Version $version was installed.';
+  }
+
+  @override
+  String get updateCheckFailed => 'The update check failed.';
+
+  @override
+  String get installedDatasetRemainsActive =>
+      'The previous dataset remains active and unchanged.';
+
+  @override
+  String get tryAgain => 'Try again';
+
+  @override
+  String get checkNow => 'Check now';
+
+  @override
+  String get downloadUpdate => 'Download';
+
+  @override
+  String updateDownloadConfirmation(String version, String sizeMb) {
+    return 'Version $version requires $sizeMb MB. The download may use Wi-Fi or mobile data. Download now?';
+  }
+
+  @override
   String get favorites => 'Favorites';
 
   @override

@@ -48,6 +48,7 @@ Aktuelle Architekturentscheidungen:
 - [ADR-0014 – Getrennter lokaler Favoritenspeicher](adr/ADR-0014-Local-Favorite-Store.md)
 - [ADR-0015 – Konservativer Filter für durchgehende Zugänglichkeit](adr/ADR-0015-Structured-Opening-Hours-Filter.md)
 - [ADR-0016 – Lokale Einstellungen und Wahl der Navigations-App](adr/ADR-0016-Local-Settings-and-Navigation-Choice.md)
+- [ADR-0017 – Statische, atomare Ladebestandsupdates](adr/ADR-0017-Static-Dataset-Updates.md)
 
 ## Verbindlichkeit
 

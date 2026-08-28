@@ -22,6 +22,7 @@ from ladepark_importer.operator_registry import (
 )
 from ladepark_importer.park_info import build_park_info_sqlite, validate_park_info_sqlite
 from ladepark_importer.pipeline import ChargingDatasetBuildRequest, build_charging_dataset
+from ladepark_importer.release_package import build_release_package
 from ladepark_importer.reporting import build_clustering_report, build_normalization_report
 from ladepark_importer.review import export_group_review_csv, export_operator_review_csv
 from ladepark_importer.transformation import normalize_file
@@ -180,6 +181,15 @@ def dispatch(arguments: argparse.Namespace) -> int | None:
     if arguments.command == "validate-sqlite":
         validation_result = validate_charging_sqlite(arguments.database)
         print(json.dumps(asdict(validation_result), indent=2, sort_keys=True))
+        return 0
+    if arguments.command == "build-release":
+        release_result = build_release_package(
+            arguments.database,
+            arguments.output,
+            arguments.repository,
+            arguments.git_commit,
+        )
+        print(json.dumps(asdict(release_result), indent=2, sort_keys=True, default=str))
         return 0
     if arguments.command == "query-sqlite":
         query_result = query_groups(

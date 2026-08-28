@@ -39,6 +39,10 @@ final class SettingsController extends AsyncNotifier<AppSettings> {
     );
   }
 
+  Future<void> setAutomaticDatasetChecks(bool enabled) async {
+    await _save(state.requireValue.copyWith(automaticDatasetChecks: enabled));
+  }
+
   Future<void> _save(AppSettings settings) async {
     await (await ref.read(settingsRepositoryProvider.future)).save(settings);
     state = AsyncData(settings);

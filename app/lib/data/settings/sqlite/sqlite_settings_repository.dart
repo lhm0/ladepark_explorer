@@ -51,6 +51,7 @@ final class SqliteSettingsRepository implements SettingsRepository {
         (value) => value.name == values['navigation_preference'],
         orElse: () => NavigationPreference.askEveryTime,
       ),
+      automaticDatasetChecks: values['automatic_dataset_checks'] != 'false',
     );
   }
 
@@ -66,6 +67,10 @@ final class SqliteSettingsRepository implements SettingsRepository {
       statement.execute(<Object?>[
         'navigation_preference',
         settings.navigationPreference.name,
+      ]);
+      statement.execute(<Object?>[
+        'automatic_dataset_checks',
+        settings.automaticDatasetChecks.toString(),
       ]);
     } finally {
       statement.close();
